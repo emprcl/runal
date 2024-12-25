@@ -22,13 +22,13 @@ func draw(s *state) {
 			x := i * size
 			y := j * size
 			d := s.Dist(x, y, s.Width/2, s.Height/2)
-			k := 10.
+			k := 0.9
 			dx := float64(x) - float64(s.Width)/2.
 			dy := float64(y) - float64(s.Height)/2.
 			angle := math.Atan2(dy, dx)
 			spiralPath := math.Sin(d/k + angle + t)
 
-			df := 100.
+			df := 30.
 			af := 3.
 			threshold := math.Sin(d/df + af*angle)
 			if spiralPath > threshold {
@@ -39,5 +39,5 @@ func draw(s *state) {
 		}
 	}
 
-	t += 0.05
+	t += 0.1
 }
