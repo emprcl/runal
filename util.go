@@ -4,6 +4,7 @@ import (
 	"log"
 	"strings"
 
+	"github.com/charmbracelet/lipgloss"
 	"golang.org/x/term"
 )
 
@@ -15,11 +16,9 @@ func termSize() (int, int) {
 	return w, h
 }
 
-func forceLength(s string, length int, padChar rune) string {
-	if len(s) > length {
-		return s[:length]
-	} else if len(s) < length {
-		padding := strings.Repeat(string(padChar), length-len(s))
+func forcePadding(s string, length int, padChar rune) string {
+	if lipgloss.Width(s) < length {
+		padding := strings.Repeat(string(padChar), length-lipgloss.Width(s))
 		return s + padding
 	}
 	return s

@@ -12,7 +12,7 @@ func main() {
 	s := NewState(w, h)
 	setup(s)
 
-	resize := make(chan os.Signal)
+	resize := make(chan os.Signal, 1)
 	signal.Notify(resize, syscall.SIGWINCH)
 	tick := time.Tick(16 * time.Millisecond)
 
@@ -20,14 +20,14 @@ func main() {
 
 	for {
 		select {
-		case <-tick:
-			ResetCursorPosition()
-			draw(s)
-			s.Render()
 		case <-resize:
 			w, h := termSize()
 			s.Resize(w, h)
 			ClearScreen()
+		case <-tick:
+			ResetCursorPosition()
+			draw(s)
+			s.Render()
 		}
 	}
 }
