@@ -6,12 +6,13 @@ import (
 
 var (
 	t          float64
-	background string   = "#211103"
+	background string   = "#000000"
 	colors     []string = []string{
-		"#f8e5ee",
-		"#9f2042",
-		"#7b0d1e",
-		"#3d1308",
+		"#fcf6bd",
+		"#d0f4de",
+		"#a9def9",
+		"#e4c1f9",
+		"#ff99c8",
 	}
 )
 
@@ -28,26 +29,24 @@ func draw(s *state) {
 			x := i * size
 			y := j * size
 			d := s.Dist(x, y, s.Width/2, s.Height/2)
-			k := 0.9
+			k := .6
 			dx := float64(x) - float64(s.Width)/2.
 			dy := float64(y) - float64(s.Height)/2.
 			angle := math.Atan2(dy, dx)
 			spiralPath := math.Sin(d/k + angle + t)
-			df := 30.
-			af := 3.
+			df := 2.
+			af := 2.
 			threshold := math.Sin(d/df + af*angle)
 
 			s.Foreground(colorGradient(s.Width, d))
 
 			if spiralPath > threshold {
-				s.Text("O", x, y)
-			} else {
-				s.Text(".", x, y)
+				s.Text("⬤", x, y)
 			}
 		}
 	}
 
-	t += 0.1
+	t += 0.5
 }
 
 func colorGradient(width int, d float64) string {
