@@ -32,9 +32,9 @@ func draw(s *state) {
 			af := 3.
 			threshold := math.Sin(d/df + af*angle)
 			if spiralPath > threshold {
-				s.Text("O ", x, y)
+				s.Text("O", x, y)
 			} else {
-				s.Text(". ", x, y)
+				s.Text(".", x, y)
 			}
 		}
 	}

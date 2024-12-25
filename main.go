@@ -9,7 +9,7 @@ import (
 
 func main() {
 	w, h := termSize()
-	s := NewState(w/2, h)
+	s := NewState(w, h)
 	setup(s)
 
 	resize := make(chan os.Signal)
@@ -23,10 +23,10 @@ func main() {
 		case <-tick:
 			ResetCursorPosition()
 			draw(s)
-			s.buffer.Render()
+			s.Render()
 		case <-resize:
 			w, h := termSize()
-			s.Resize(w/2, h)
+			s.Resize(w, h)
 			ClearScreen()
 		}
 	}
