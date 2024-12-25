@@ -17,7 +17,7 @@ func (b buffer) Render() {
 	for y := range b {
 		for x := range b[y] {
 			if b[y][x] == "" {
-				output += " "
+				output += "  "
 			} else {
 				output += b[y][x]
 			}

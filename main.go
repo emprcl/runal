@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"os"
 	"os/signal"
 	"syscall"
@@ -10,25 +9,25 @@ import (
 
 func main() {
 	w, h := termSize()
-	s := NewState(w, h)
+	s := NewState(w/2, h)
 	setup(s)
 
 	resize := make(chan os.Signal)
 	signal.Notify(resize, syscall.SIGWINCH)
 	tick := time.Tick(16 * time.Millisecond)
 
-	fmt.Print("\x1b[2J")  // clear entire screen
-	fmt.Print("\x1b[25l") // hide cursor
+	EnterAltScreen()
 
 	for {
 		select {
 		case <-tick:
-			fmt.Print("\x1b[H") // reset cursor position
+			ResetCursorPosition()
 			draw(s)
 			s.buffer.Render()
 		case <-resize:
 			w, h := termSize()
-			s.Resize(w, h)
+			s.Resize(w/2, h)
+			ClearScreen()
 		}
 	}
 }
