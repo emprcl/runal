@@ -10,14 +10,18 @@ import (
 	"smbols/internal/util"
 )
 
-func Run(setup, draw func(c *Canvas)) {
+func Run(setup, draw func(c *Canvas), opts ...option) {
+	config := newOptions()
+	for _, opt := range opts {
+		opt(config)
+	}
 	w, h := util.TermSize()
 	c := newCanvas(w, h)
 	setup(c)
 
 	resize := make(chan os.Signal, 1)
 	signal.Notify(resize, syscall.SIGWINCH)
-	tick := time.Tick(16 * time.Millisecond)
+	tick := time.Tick(config.frameDuration)
 
 	ansi.EnterAltScreen()
 

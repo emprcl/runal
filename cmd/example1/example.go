@@ -18,7 +18,7 @@ var (
 )
 
 func main() {
-	smbols.Run(setup, draw)
+	smbols.Run(setup, draw, smbols.WithFPS(60))
 }
 
 func setup(c *smbols.Canvas) {
