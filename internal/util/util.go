@@ -1,4 +1,4 @@
-package main
+package util
 
 import (
 	"log"
@@ -8,7 +8,7 @@ import (
 	"golang.org/x/term"
 )
 
-func termSize() (int, int) {
+func TermSize() (int, int) {
 	w, h, err := term.GetSize(0)
 	if err != nil {
 		log.Fatal("can't read terminal size")
@@ -16,7 +16,7 @@ func termSize() (int, int) {
 	return w, h
 }
 
-func forcePadding(s string, length int, padChar rune) string {
+func ForcePadding(s string, length int, padChar rune) string {
 	if lipgloss.Width(s) < length {
 		padding := strings.Repeat(string(padChar), length-lipgloss.Width(s))
 		return s + padding
