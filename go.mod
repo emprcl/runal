@@ -1,4 +1,4 @@
-module smbols
+module github.com/emprcl/runal
 
 go 1.23.0
 

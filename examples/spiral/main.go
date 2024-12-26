@@ -2,7 +2,8 @@ package main
 
 import (
 	"math"
-	"smbols/pkg/smbols"
+
+	"github.com/emprcl/runal"
 )
 
 var (
@@ -18,14 +19,14 @@ var (
 )
 
 func main() {
-	smbols.Run(setup, draw, smbols.WithFPS(60))
+	runal.Run(setup, draw, runal.WithFPS(60))
 }
 
-func setup(c *smbols.Canvas) {
+func setup(c *runal.Canvas) {
 	c.Background(background)
 }
 
-func draw(c *smbols.Canvas) {
+func draw(c *runal.Canvas) {
 	size := 1
 	cols := int(math.Round(float64(c.Width()) / float64(size)))
 	rows := int(math.Round(float64(c.Height()) / float64(size)))

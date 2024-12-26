@@ -1,13 +1,10 @@
-package smbols
+package runal
 
 import (
 	"os"
 	"os/signal"
 	"syscall"
 	"time"
-
-	"smbols/internal/ansi"
-	"smbols/internal/util"
 )
 
 func Run(setup, draw func(c *Canvas), opts ...option) {
@@ -15,7 +12,7 @@ func Run(setup, draw func(c *Canvas), opts ...option) {
 	for _, opt := range opts {
 		opt(config)
 	}
-	w, h := util.TermSize()
+	w, h := termSize()
 	c := newCanvas(w, h)
 	setup(c)
 
@@ -23,16 +20,16 @@ func Run(setup, draw func(c *Canvas), opts ...option) {
 	signal.Notify(resize, syscall.SIGWINCH)
 	tick := time.Tick(config.frameDuration)
 
-	ansi.EnterAltScreen()
+	enterAltScreen()
 
 	for {
 		select {
 		case <-resize:
-			w, h := util.TermSize()
+			w, h := termSize()
 			c.resize(w, h)
-			ansi.ClearScreen()
+			clearScreen()
 		case <-tick:
-			ansi.ResetCursorPosition()
+			resetCursorPosition()
 			draw(c)
 			c.render()
 		}

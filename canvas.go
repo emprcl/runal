@@ -1,8 +1,7 @@
-package smbols
+package runal
 
 import (
 	"fmt"
-	"smbols/internal/util"
 
 	"github.com/charmbracelet/lipgloss"
 )
@@ -46,7 +45,7 @@ func (c *Canvas) render() {
 			}
 			c.buffer[y][x] = ""
 		}
-		output += util.ForcePadding(line, c.termWidth, ' ')
+		output += forcePadding(line, c.termWidth, ' ')
 	}
 	fmt.Print(output)
 }

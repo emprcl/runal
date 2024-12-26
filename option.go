@@ -1,4 +1,4 @@
-package smbols
+package runal
 
 import (
 	"log"
