@@ -9,7 +9,7 @@ import (
 )
 
 const (
-	padChar = " "
+	padChar rune = ' '
 )
 
 type Canvas struct {
@@ -88,8 +88,8 @@ func (c *Canvas) Height() int {
 	return c.height
 }
 
-func (c *Canvas) Text(str string, x, y int) {
-	c.buffer[y][x] = c.Style(str + padChar)
+func (c *Canvas) Char(char rune, x, y int) {
+	c.buffer[y][x] = c.Style(string([]rune{char, padChar}))
 }
 
 func (c *Canvas) Style(str string) string {

@@ -46,7 +46,7 @@ func draw(c *smbols.Canvas) {
 			c.Foreground(colorGradient(c.Width(), d))
 
 			if spiralPath > threshold {
-				c.Text("⬤", x, y)
+				c.Char('⬤', x, y)
 			}
 		}
 	}
