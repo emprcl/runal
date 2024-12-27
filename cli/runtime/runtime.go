@@ -97,14 +97,14 @@ func (s runtime) runSketch(ctx context.Context, vm *goja.Runtime, setup, draw go
 		ctx,
 		func(c *runal.Canvas) {
 			vm.Set("console", s.console)
-			vm.Set("runal", c)
+			vm.Set("c", c)
 			_, err := setup(goja.Undefined())
 			if err != nil {
 				log.Error(err)
 			}
 		},
 		func(c *runal.Canvas) {
-			vm.Set("runal", c)
+			vm.Set("c", c)
 			_, err := draw(goja.Undefined())
 			if err != nil {
 				log.Error(err)

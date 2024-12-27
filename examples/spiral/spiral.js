@@ -4,19 +4,19 @@ let t = 0;
 function setup() {}
 
 function draw() {
-  runal.flush();
+  c.flush();
   size = 1;
-  cols = runal.width() / size;
-  rows = runal.height() / size;
+  cols = c.width() / size;
+  rows = c.height() / size;
 
   for (let i = 0; i < cols; i++) {
     for (let j = 0; j < cols; j++) {
       let x = i * size;
       let y = j * size;
-      let d = runal.dist(x, y, runal.width() / 2, runal.height() / 2);
+      let d = c.dist(x, y, c.width() / 2, c.height() / 2);
       let k = 0.6;
-      let dx = x - runal.width() / 2;
-      let dy = y - runal.height() / 2;
+      let dx = x - c.width() / 2;
+      let dy = y - c.height() / 2;
       let angle = Math.atan2(dy, dx);
       let spiralPath = Math.sin(d / k + angle + t);
       let df = 2;
@@ -24,7 +24,7 @@ function draw() {
       threshold = Math.sin(d / df + af * angle);
 
       if (spiralPath > threshold) {
-        runal.text("⬤", x, y);
+        c.text("⬤", x, y);
       }
     }
   }
