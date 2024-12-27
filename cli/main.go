@@ -8,16 +8,17 @@ import (
 func main() {
 	const SCRIPT = `
 	let text = "";
-	function setup(runal) {
+	function setup() {
 		text = "coucou";
 	}
 
-	function draw(runal) {
-		runal.Text(text, 10, 10);
+	function draw() {
+		runal.text(text, 10, 10);
 	}
 	`
 
 	vm := goja.New()
+	vm.SetFieldNameMapper(goja.UncapFieldNameMapper())
 	_, err := vm.RunString(SCRIPT)
 	if err != nil {
 		panic(err)
@@ -34,13 +35,15 @@ func main() {
 
 	runal.Run(
 		func(c *runal.Canvas) {
-			_, err := setup(goja.Undefined(), goja.New().ToValue(c))
+			vm.Set("runal", c)
+			_, err := setup(goja.Undefined())
 			if err != nil {
 				panic(err)
 			}
 		},
 		func(c *runal.Canvas) {
-			_, err := draw(goja.Undefined(), goja.New().ToValue(c))
+			vm.Set("runal", c)
+			_, err := draw(goja.Undefined())
 			if err != nil {
 				panic(err)
 			}
