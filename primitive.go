@@ -19,6 +19,9 @@ func (c *Canvas) Framecount() uint64 {
 }
 
 func (c *Canvas) Text(text string, x, y int) {
+	if x < 0 || y < 0 || x > c.width-1 || y > c.height-1 {
+		return
+	}
 	for i, r := range text {
 		if x+i < len(c.buffer[y])-1 {
 			c.buffer[y][x+i] = c.style(string([]rune{r, padChar}))

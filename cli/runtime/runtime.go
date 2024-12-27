@@ -59,7 +59,9 @@ func (s runtime) Run() {
 				}
 				if event.Has(fsnotify.Write) {
 					cancel()
-					wg.Wait()
+					if wg != nil {
+						wg.Wait()
+					}
 					content, err := os.ReadFile(event.Name)
 					if err != nil {
 						log.Error(err)
@@ -98,14 +100,14 @@ func (s runtime) runSketch(ctx context.Context, vm *goja.Runtime, setup, draw go
 			vm.Set("runal", c)
 			_, err := setup(goja.Undefined())
 			if err != nil {
-				panic(err)
+				log.Error(err)
 			}
 		},
 		func(c *runal.Canvas) {
 			vm.Set("runal", c)
 			_, err := draw(goja.Undefined())
 			if err != nil {
-				panic(err)
+				log.Error(err)
 			}
 		},
 		runal.WithFPS(s.fps),
