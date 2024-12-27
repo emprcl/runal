@@ -48,7 +48,3 @@ func main() {
 		runal.WithFPS(60),
 	)
 }
-
-func setup(c *runal.Canvas) {}
-
-func draw(c *runal.Canvas) {}
