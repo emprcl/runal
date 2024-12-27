@@ -4,6 +4,7 @@ let t = 0;
 function setup() {}
 
 function draw() {
+  runal.flush();
   size = 1;
   cols = runal.width() / size;
   rows = runal.height() / size;

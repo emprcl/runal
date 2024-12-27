@@ -18,6 +18,10 @@ func (c *Canvas) Framecount() uint64 {
 	return c.framecount
 }
 
+func (c *Canvas) Flush() {
+	c.flush = true
+}
+
 func (c *Canvas) Text(text string, x, y int) {
 	if x < 0 || y < 0 || x > c.width-1 || y > c.height-1 {
 		return
