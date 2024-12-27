@@ -4,8 +4,9 @@ import (
 	"context"
 	"errors"
 	"flag"
-	"log"
 	"os"
+
+	"github.com/charmbracelet/log"
 
 	"github.com/dop251/goja"
 	"github.com/emprcl/runal"
@@ -34,7 +35,7 @@ func main() {
 	content, err := os.ReadFile(*file)
 	vm, setup, draw, err := parseJS(string(content))
 	if err != nil {
-		log.Println("error:", err)
+		log.Error("error:", err)
 	} else {
 		runSketch(ctx, vm, setup, draw)
 	}
@@ -47,16 +48,16 @@ func main() {
 					return
 				}
 				if event.Has(fsnotify.Write) {
-					log.Printf("%s updated. Reloading...\n", event.Name)
+					log.Infof("%s updated. Reloading...\n", event.Name)
 					content, err := os.ReadFile(event.Name)
 					if err != nil {
-						log.Println("error:", err)
-						continue
+						log.Error("error:", err)
+						return
 					}
 					vm, setup, draw, err := parseJS(string(content))
 					if err != nil {
-						log.Println("error:", err)
-						continue
+						log.Error("error:", err)
+						return
 					}
 					cancel()
 					ctx, cancel = context.WithCancel(context.Background())
@@ -66,7 +67,7 @@ func main() {
 				if !ok {
 					return
 				}
-				log.Println("error:", err)
+				log.Error("error:", err)
 			}
 		}
 	}()
@@ -100,10 +101,17 @@ func parseJS(script string) (*goja.Runtime, goja.Callable, goja.Callable, error)
 	return vm, setup, draw, nil
 }
 
+type console struct{}
+
+func (c console) Log(msg string) {
+	log.Info(msg)
+}
+
 func runSketch(ctx context.Context, vm *goja.Runtime, setup, draw goja.Callable) {
 	runal.Run(
 		ctx,
 		func(c *runal.Canvas) {
+			vm.Set("console", console{})
 			vm.Set("runal", c)
 			_, err := setup(goja.Undefined())
 			if err != nil {
