@@ -14,8 +14,16 @@ func (c *Canvas) Height() int {
 	return c.height
 }
 
-func (c *Canvas) Char(char rune, x, y int) {
-	c.buffer[y][x] = c.style(string([]rune{char, padChar}))
+func (c *Canvas) Framecount() uint64 {
+	return c.framecount
+}
+
+func (c *Canvas) Text(text string, x, y int) {
+	for i, r := range text {
+		if x+i < len(c.buffer[y])-1 {
+			c.buffer[y][x+i] = c.style(string([]rune{r, padChar}))
+		}
+	}
 }
 
 func (c *Canvas) Dist(x1, y1, x2, y2 int) float64 {

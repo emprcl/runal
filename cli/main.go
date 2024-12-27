@@ -7,14 +7,13 @@ import (
 
 func main() {
 	const SCRIPT = `
-	function setup() {
-
+	let text = "";
+	function setup(runal) {
+		text = "coucou";
 	}
 
 	function draw(runal) {
-		runal.Char('G', 10, 10);
-
-		//return runal
+		runal.Text(text, 10, 10);
 	}
 	`
 
@@ -35,7 +34,7 @@ func main() {
 
 	runal.Run(
 		func(c *runal.Canvas) {
-			_, err := setup(goja.Undefined())
+			_, err := setup(goja.Undefined(), goja.New().ToValue(c))
 			if err != nil {
 				panic(err)
 			}
@@ -45,8 +44,6 @@ func main() {
 			if err != nil {
 				panic(err)
 			}
-			//can := result.Export().(*runal.Canvas)
-			//fmt.Println(&c, &can)
 		},
 		runal.WithFPS(60),
 	)

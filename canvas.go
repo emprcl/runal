@@ -15,6 +15,7 @@ type Canvas struct {
 	termWidth, termHeight  int
 	buffer                 buffer
 	strokeColor, fillColor lipgloss.Color
+	framecount             uint64
 }
 
 func newCanvas(width, height int) *Canvas {
@@ -47,6 +48,7 @@ func (c *Canvas) render() {
 		}
 		output += forcePadding(line, c.termWidth, ' ')
 	}
+	c.framecount++
 	fmt.Print(output)
 }
 
