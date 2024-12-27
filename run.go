@@ -1,13 +1,14 @@
 package runal
 
 import (
+	"context"
 	"os"
 	"os/signal"
 	"syscall"
 	"time"
 )
 
-func Run(setup, draw func(c *Canvas), opts ...option) {
+func Run(ctx context.Context, setup, draw func(c *Canvas), opts ...option) {
 	config := newOptions()
 	for _, opt := range opts {
 		opt(config)
@@ -22,16 +23,20 @@ func Run(setup, draw func(c *Canvas), opts ...option) {
 
 	enterAltScreen()
 
-	for {
-		select {
-		case <-resize:
-			w, h := termSize()
-			c.resize(w, h)
-			clearScreen()
-		case <-tick:
-			resetCursorPosition()
-			draw(c)
-			c.render()
+	go func() {
+		for {
+			select {
+			case <-ctx.Done():
+				return
+			case <-resize:
+				w, h := termSize()
+				c.resize(w, h)
+				clearScreen()
+			case <-tick:
+				resetCursorPosition()
+				draw(c)
+				c.render()
+			}
 		}
-	}
+	}()
 }

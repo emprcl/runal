@@ -7,6 +7,7 @@ replace github.com/emprcl/runal => ../
 require (
 	github.com/dop251/goja v0.0.0-20241024094426-79f3a7efcdbd
 	github.com/emprcl/runal v0.0.0-00010101000000-000000000000
+	github.com/fsnotify/fsnotify v1.8.0
 )
 
 require (

@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"math"
 
 	"github.com/emprcl/runal"
@@ -19,7 +20,8 @@ var (
 )
 
 func main() {
-	runal.Run(setup, draw, runal.WithFPS(60))
+	runal.Run(context.Background(), setup, draw, runal.WithFPS(60))
+	<-make(chan struct{})
 }
 
 func setup(c *runal.Canvas) {
