@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"io"
 	"os"
-	"time"
+	"sync"
 
 	"github.com/charmbracelet/log"
 	"github.com/dop251/goja"
@@ -43,10 +43,11 @@ func (s runtime) Run() {
 	ctx, cancel := context.WithCancel(context.Background())
 	content, err := os.ReadFile(s.filename)
 	vm, setup, draw, err := parseJS(string(content))
+	var wg *sync.WaitGroup
 	if err != nil {
 		log.Error(err)
 	} else {
-		s.runSketch(ctx, vm, setup, draw)
+		wg = s.runSketch(ctx, vm, setup, draw)
 	}
 
 	go func() {
@@ -58,8 +59,7 @@ func (s runtime) Run() {
 				}
 				if event.Has(fsnotify.Write) {
 					cancel()
-					// let finish the last frame rendering
-					time.Sleep(time.Duration(2*1000/s.fps) * time.Millisecond)
+					wg.Wait()
 					content, err := os.ReadFile(event.Name)
 					if err != nil {
 						log.Error(err)
@@ -71,7 +71,7 @@ func (s runtime) Run() {
 						continue
 					}
 					ctx, cancel = context.WithCancel(context.Background())
-					s.runSketch(ctx, vm, setup, draw)
+					wg = s.runSketch(ctx, vm, setup, draw)
 				}
 			case err, ok := <-s.watcher.Errors:
 				if !ok {
@@ -90,8 +90,8 @@ func (s runtime) Run() {
 	<-make(chan struct{})
 }
 
-func (s runtime) runSketch(ctx context.Context, vm *goja.Runtime, setup, draw goja.Callable) {
-	runal.Run(
+func (s runtime) runSketch(ctx context.Context, vm *goja.Runtime, setup, draw goja.Callable) *sync.WaitGroup {
+	return runal.Run(
 		ctx,
 		func(c *runal.Canvas) {
 			vm.Set("console", s.console)

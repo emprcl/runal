@@ -4,11 +4,12 @@ import (
 	"context"
 	"os"
 	"os/signal"
+	"sync"
 	"syscall"
 	"time"
 )
 
-func Run(ctx context.Context, setup, draw func(c *Canvas), opts ...option) {
+func Run(ctx context.Context, setup, draw func(c *Canvas), opts ...option) *sync.WaitGroup {
 	config := newOptions()
 	for _, opt := range opts {
 		opt(config)
@@ -23,7 +24,11 @@ func Run(ctx context.Context, setup, draw func(c *Canvas), opts ...option) {
 
 	enterAltScreen()
 
+	wg := sync.WaitGroup{}
+	wg.Add(1)
+
 	go func() {
+		defer wg.Done()
 		for {
 			select {
 			case <-ctx.Done():
@@ -41,4 +46,6 @@ func Run(ctx context.Context, setup, draw func(c *Canvas), opts ...option) {
 			}
 		}
 	}()
+
+	return &wg
 }
