@@ -27,6 +27,8 @@ func Run(ctx context.Context, setup, draw func(c *Canvas), opts ...option) {
 		for {
 			select {
 			case <-ctx.Done():
+				clearScreen()
+				resetCursorPosition()
 				return
 			case <-resize:
 				w, h := termSize()
