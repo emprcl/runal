@@ -10,6 +10,10 @@ func hideCursor() {
 	fmt.Print("\x1b[25l")
 }
 
+func showCursor() {
+	fmt.Print("\x1b[25h")
+}
+
 func resetCursorPosition() {
 	fmt.Print("\x1b[H")
 }

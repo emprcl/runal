@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"os/signal"
 	"sync"
 
 	"github.com/charmbracelet/log"
@@ -40,7 +41,8 @@ func New(filename string, watcher *fsnotify.Watcher, logger io.Writer, fps int) 
 }
 
 func (s runtime) Run() {
-	ctx, cancel := context.WithCancel(context.Background())
+	ctx, cancel := signal.NotifyContext(context.Background(), os.Interrupt)
+	defer cancel()
 	content, err := os.ReadFile(s.filename)
 	vm, setup, draw, err := parseJS(string(content))
 	var wg *sync.WaitGroup
@@ -89,7 +91,7 @@ func (s runtime) Run() {
 		log.Fatal(err)
 	}
 
-	<-make(chan struct{})
+	wg.Wait()
 }
 
 func (s runtime) runSketch(ctx context.Context, vm *goja.Runtime, setup, draw goja.Callable) *sync.WaitGroup {

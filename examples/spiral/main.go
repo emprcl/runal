@@ -3,6 +3,8 @@ package main
 import (
 	"context"
 	"math"
+	"os"
+	"os/signal"
 
 	"github.com/emprcl/runal"
 )
@@ -20,8 +22,8 @@ var (
 )
 
 func main() {
-	runal.Run(context.Background(), setup, draw, runal.WithFPS(60))
-	<-make(chan struct{})
+	ctx, _ := signal.NotifyContext(context.Background(), os.Interrupt)
+	runal.Run(ctx, setup, draw, runal.WithFPS(60)).Wait()
 }
 
 func setup(c *runal.Canvas) {
