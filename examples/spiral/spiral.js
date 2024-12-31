@@ -1,5 +1,7 @@
 let cols, rows, size;
 let t = 0;
+let background = "#000000";
+let colors = ["#fcf6bd", "#d0f4de", "#a9def9", "#e4c1f9", "#ff99c8"];
 
 function setup() {}
 
@@ -23,6 +25,8 @@ function draw() {
       let af = 2;
       threshold = Math.sin(d / df + af * angle);
 
+      c.foreground(colorGradient(c.width(), d));
+
       if (spiralPath > threshold) {
         c.text("⬤", x, y);
       }
@@ -30,4 +34,14 @@ function draw() {
   }
 
   t += 0.5;
+}
+
+function colorGradient(width, d) {
+  let step = width / colors.length;
+  for (let i = 0; i < colors.length; i++) {
+    if (d <= (i + 1) * step) {
+      return colors[i];
+    }
+  }
+  return colors[colors.length - 1];
 }
