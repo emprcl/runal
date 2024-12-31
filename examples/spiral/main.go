@@ -39,7 +39,7 @@ func draw(c *runal.Canvas) {
 		for j := 0; j < rows; j++ {
 			x := i * size
 			y := j * size
-			d := c.Dist(x, y, c.Width()/2, c.Height()/2)
+			d := c.Distance(x, y, c.Width()/2, c.Height()/2)
 			k := .6
 			dx := float64(x) - float64(c.Width())/2.
 			dy := float64(y) - float64(c.Height())/2.

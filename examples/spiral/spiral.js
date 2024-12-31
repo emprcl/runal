@@ -15,7 +15,7 @@ function draw() {
     for (let j = 0; j < cols; j++) {
       let x = i * size;
       let y = j * size;
-      let d = c.dist(x, y, c.width() / 2, c.height() / 2);
+      let d = c.distance(x, y, c.width() / 2, c.height() / 2);
       let k = 0.6;
       let dx = x - c.width() / 2;
       let dy = y - c.height() / 2;
