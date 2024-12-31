@@ -16,22 +16,37 @@ func Run(ctx context.Context, setup, draw func(c *Canvas), opts ...option) *sync
 	}
 	w, h := termSize()
 	c := newCanvas(w, h)
-	setup(c)
 
 	resize := make(chan os.Signal, 1)
 	signal.Notify(resize, syscall.SIGWINCH)
 	tick := time.Tick(config.frameDuration)
+	update := make(chan struct{})
 
 	enterAltScreen()
 
 	wg := sync.WaitGroup{}
-	wg.Add(1)
+	wg.Add(2)
+
+	go func() {
+		defer wg.Done()
+		setup(c)
+		for {
+			select {
+			case _, ok := <-update:
+				if !ok {
+					return
+				}
+				draw(c)
+			}
+		}
+	}()
 
 	go func() {
 		defer wg.Done()
 		for {
 			select {
 			case <-ctx.Done():
+				close(update)
 				clearScreen()
 				resetCursorPosition()
 				showCursor()
@@ -42,7 +57,7 @@ func Run(ctx context.Context, setup, draw func(c *Canvas), opts ...option) *sync
 				clearScreen()
 			case <-tick:
 				resetCursorPosition()
-				draw(c)
+				update <- struct{}{}
 				c.render()
 			}
 		}
