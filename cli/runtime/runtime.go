@@ -41,8 +41,9 @@ func New(filename string, watcher *fsnotify.Watcher, logger io.Writer, fps int) 
 }
 
 func (s runtime) Run() {
-	ctx, cancel := signal.NotifyContext(context.Background(), os.Interrupt)
-	defer cancel()
+	done := make(chan os.Signal, 1)
+	signal.Notify(done, os.Interrupt)
+	ctx, cancel := context.WithCancel(context.Background())
 	content, err := os.ReadFile(s.filename)
 	vm, setup, draw, err := parseJS(string(content))
 	var wg *sync.WaitGroup
@@ -91,6 +92,8 @@ func (s runtime) Run() {
 		log.Fatal(err)
 	}
 
+	<-done
+	cancel()
 	wg.Wait()
 }
 
