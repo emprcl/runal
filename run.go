@@ -54,11 +54,12 @@ func Run(ctx context.Context, setup, draw func(c *Canvas)) *sync.WaitGroup {
 				return
 			case <-resize:
 				clearScreen()
-				if !c.autoResize {
-					continue
-				}
 				w, h := termSize()
-				c.resize(w, h)
+				c.termWidth = w
+				c.termHeight = h
+				if c.autoResize {
+					c.resize(w, h)
+				}
 			case event := <-c.bus:
 				switch event.name {
 				case "fps":

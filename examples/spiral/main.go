@@ -28,7 +28,7 @@ func main() {
 
 func setup(c *runal.Canvas) {
 	c.Background(background)
-	c.Size(53, 40)
+	c.WidthPadding(" ")
 }
 
 func draw(c *runal.Canvas) {

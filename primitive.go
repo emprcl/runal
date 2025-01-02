@@ -8,11 +8,38 @@ import (
 
 func (c *Canvas) Size(w, h int) {
 	c.autoResize = false
-	c.resize(w*2, h)
+	if c.widthPadding {
+		c.resize(w*2, h)
+	} else {
+		c.resize(w, h)
+	}
 }
 
 func (c *Canvas) Flush() {
 	c.flush = true
+}
+
+func (c *Canvas) WidthPadding(char string) {
+	previousValue := c.widthPadding
+	c.widthPadding = true
+	c.widthPaddingChar = rune(char[0])
+
+	if !previousValue {
+		c.resize(c.Width, c.Height)
+	}
+}
+
+func (c *Canvas) DisableWidthPadding() {
+	previousValue := c.widthPadding
+	c.widthPadding = false
+
+	if c.autoResize && previousValue {
+		c.resize(c.Width*2, c.Height)
+	} else if previousValue {
+		c.resize(c.Width, c.Height)
+	} else {
+		c.resize(c.Width/2, c.Height)
+	}
 }
 
 func (c *Canvas) Fps(fps int) {
@@ -25,7 +52,9 @@ func (c *Canvas) Text(text string, x, y int) {
 	}
 	for i, r := range text {
 		if x+i < len(c.buffer[y])-1 {
-			c.buffer[y][x+i] = c.style(string([]rune{r, padChar}))
+			c.buffer[y][x+i] = c.formatCell(r)
+		} else if x+i == len(c.buffer[y])-1 {
+			c.buffer[y][x+i] = c.style(string(r))
 		}
 	}
 }

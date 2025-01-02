@@ -3,7 +3,10 @@ let t = 0;
 let background = "#000000";
 let colors = ["#fcf6bd", "#d0f4de", "#a9def9", "#e4c1f9", "#ff99c8"];
 
-function setup() {}
+function setup() {
+  c.background(background);
+  c.widthPadding(" ");
+}
 
 function draw() {
   c.flush();

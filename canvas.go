@@ -7,7 +7,7 @@ import (
 )
 
 const (
-	padChar rune = ' '
+	defaultPaddingChar = ' '
 )
 
 type Canvas struct {
@@ -19,21 +19,25 @@ type Canvas struct {
 	Framecount    int
 
 	termWidth, termHeight int
+	widthPaddingChar      rune
+	widthPadding          bool
 	flush                 bool
 	autoResize            bool
 }
 
 func newCanvas(width, height int) *Canvas {
 	return &Canvas{
-		Width:       width / 2,
-		Height:      height,
-		bus:         make(chan event),
-		termWidth:   width,
-		termHeight:  height,
-		buffer:      newBuffer(width, height),
-		strokeColor: lipgloss.Color("#ffffff"),
-		fillColor:   lipgloss.Color("#000000"),
-		autoResize:  true,
+		Width:            width,
+		Height:           height,
+		bus:              make(chan event),
+		termWidth:        width,
+		termHeight:       height,
+		widthPaddingChar: defaultPaddingChar,
+		widthPadding:     false,
+		buffer:           newBuffer(width, height),
+		strokeColor:      lipgloss.Color("#ffffff"),
+		fillColor:        lipgloss.Color("#000000"),
+		autoResize:       true,
 	}
 }
 
@@ -44,7 +48,7 @@ func (c *Canvas) render() {
 		for x := range c.buffer[y] {
 			add := ""
 			if c.buffer[y][x] == "" {
-				add = c.style("  ")
+				add = c.formatCell(defaultPaddingChar)
 			} else {
 				add = c.buffer[y][x]
 			}
@@ -66,7 +70,7 @@ func (c *Canvas) render() {
 }
 
 func (c *Canvas) resize(width, height int) {
-	newWidth := width / 2
+	newWidth := c.widthWithPadding(width)
 	newHeight := height
 	newBuffer := newBuffer(newWidth, newHeight)
 
@@ -88,8 +92,6 @@ func (c *Canvas) resize(width, height int) {
 
 	c.Width = newWidth
 	c.Height = newHeight
-	c.termWidth = width
-	c.termHeight = height
 	c.buffer = newBuffer
 }
 
@@ -98,4 +100,18 @@ func (c *Canvas) style(str string) string {
 		Background(c.fillColor).
 		Foreground(c.strokeColor).
 		Render(str)
+}
+
+func (c *Canvas) formatCell(char rune) string {
+	if c.widthPadding {
+		return c.style(string([]rune{char, c.widthPaddingChar}))
+	}
+	return c.style(string(char))
+}
+
+func (c *Canvas) widthWithPadding(w int) int {
+	if c.widthPadding {
+		return w / 2
+	}
+	return w
 }
