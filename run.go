@@ -21,33 +21,24 @@ func Run(ctx context.Context, setup, draw func(c *Canvas)) *sync.WaitGroup {
 	signal.Notify(resize, syscall.SIGWINCH)
 	ticker := time.NewTicker(newFramerate(defaultFPS))
 
-	update := make(chan struct{})
-
 	enterAltScreen()
 
-	wg := sync.WaitGroup{}
-	wg.Add(2)
+	setup(c)
+	render := func() {
+		resetCursorPosition()
+		draw(c)
+		c.render()
+	}
+	render()
 
-	go func() {
-		defer wg.Done()
-		setup(c)
-		for {
-			select {
-			case _, ok := <-update:
-				if !ok {
-					return
-				}
-				draw(c)
-			}
-		}
-	}()
+	wg := sync.WaitGroup{}
+	wg.Add(1)
 
 	go func() {
 		defer wg.Done()
 		for {
 			select {
 			case <-ctx.Done():
-				close(update)
 				clearScreen()
 				resetCursorPosition()
 				showCursor()
@@ -60,15 +51,17 @@ func Run(ctx context.Context, setup, draw func(c *Canvas)) *sync.WaitGroup {
 				if c.autoResize {
 					c.resize(w, h)
 				}
+				render()
 			case event := <-c.bus:
 				switch event.name {
 				case "fps":
 					ticker.Reset(newFramerate(event.value))
+				case "stop":
+					ticker.Stop()
+					render()
 				}
 			case <-ticker.C:
-				resetCursorPosition()
-				update <- struct{}{}
-				c.render()
+				render()
 			}
 		}
 	}()

@@ -19,6 +19,10 @@ func (c *Canvas) Flush() {
 	c.flush = true
 }
 
+func (c *Canvas) NoLoop() {
+	c.bus <- newStopEvent()
+}
+
 func (c *Canvas) WidthPadding(char string) {
 	previousValue := c.widthPadding
 	c.widthPadding = true

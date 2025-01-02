@@ -29,7 +29,7 @@ func newCanvas(width, height int) *Canvas {
 	return &Canvas{
 		Width:            width,
 		Height:           height,
-		bus:              make(chan event),
+		bus:              make(chan event, 1),
 		termWidth:        width,
 		termHeight:       height,
 		widthPaddingChar: defaultPaddingChar,

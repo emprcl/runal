@@ -1,4 +1,6 @@
-function setup() {}
+function setup() {
+  c.noLoop();
+}
 
 function draw() {
   c.flush();
