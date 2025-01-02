@@ -52,9 +52,12 @@ func Run(ctx context.Context, setup, draw func(c *Canvas), opts ...option) *sync
 				showCursor()
 				return
 			case <-resize:
+				clearScreen()
+				if !c.autoResize {
+					continue
+				}
 				w, h := termSize()
 				c.resize(w, h)
-				clearScreen()
 			case <-tick:
 				resetCursorPosition()
 				update <- struct{}{}

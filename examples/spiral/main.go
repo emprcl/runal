@@ -28,28 +28,29 @@ func main() {
 
 func setup(c *runal.Canvas) {
 	c.Background(background)
+	c.Size(53, 40)
 }
 
 func draw(c *runal.Canvas) {
 	c.Flush()
 	size := 1
-	cols := int(math.Round(float64(c.Width()) / float64(size)))
-	rows := int(math.Round(float64(c.Height()) / float64(size)))
+	cols := int(math.Round(float64(c.Width) / float64(size)))
+	rows := int(math.Round(float64(c.Height) / float64(size)))
 	for i := 0; i < cols; i++ {
 		for j := 0; j < rows; j++ {
 			x := i * size
 			y := j * size
-			d := c.Distance(x, y, c.Width()/2, c.Height()/2)
+			d := c.Distance(x, y, c.Width/2, c.Height/2)
 			k := .6
-			dx := float64(x) - float64(c.Width())/2.
-			dy := float64(y) - float64(c.Height())/2.
+			dx := float64(x) - float64(c.Width)/2.
+			dy := float64(y) - float64(c.Height)/2.
 			angle := math.Atan2(dy, dx)
 			spiralPath := math.Sin(d/k + angle + t)
 			df := 2.
 			af := 2.
 			threshold := math.Sin(d/df + af*angle)
 
-			c.Foreground(colorGradient(c.Width(), d))
+			c.Foreground(colorGradient(c.Width, d))
 
 			if spiralPath > threshold {
 				c.Text("⬤", x, y)

@@ -11,23 +11,27 @@ const (
 )
 
 type Canvas struct {
-	width, height          int
-	termWidth, termHeight  int
 	buffer                 buffer
 	strokeColor, fillColor lipgloss.Color
-	framecount             uint64
-	flush                  bool
+	framecount             int
+
+	Width, Height int
+
+	termWidth, termHeight int
+	flush                 bool
+	autoResize            bool
 }
 
 func newCanvas(width, height int) *Canvas {
 	return &Canvas{
-		width:       width / 2,
-		height:      height,
+		Width:       width / 2,
+		Height:      height,
 		termWidth:   width,
 		termHeight:  height,
 		buffer:      newBuffer(width, height),
 		strokeColor: lipgloss.Color("#ffffff"),
 		fillColor:   lipgloss.Color("#000000"),
+		autoResize:  true,
 	}
 }
 
@@ -42,7 +46,7 @@ func (c *Canvas) render() {
 			} else {
 				add = c.buffer[y][x]
 			}
-			if lipgloss.Width(line+add) <= c.termWidth {
+			if lipgloss.Width(line+add) < c.termWidth {
 				line += add
 			}
 			if c.flush {
@@ -50,6 +54,9 @@ func (c *Canvas) render() {
 			}
 		}
 		output += forcePadding(line, c.termWidth, ' ')
+		if y < len(c.buffer)-1 {
+			output += "\n"
+		}
 	}
 	c.framecount++
 	c.flush = false
@@ -61,13 +68,13 @@ func (c *Canvas) resize(width, height int) {
 	newHeight := height
 	newBuffer := newBuffer(newWidth, newHeight)
 
-	minWidth := c.width
-	if newWidth < c.width {
+	minWidth := c.Width
+	if newWidth < c.Width {
 		minWidth = newWidth
 	}
 
-	minHeight := c.height
-	if newHeight < c.height {
+	minHeight := c.Height
+	if newHeight < c.Height {
 		minHeight = newHeight
 	}
 
@@ -77,8 +84,8 @@ func (c *Canvas) resize(width, height int) {
 		}
 	}
 
-	c.width = newWidth
-	c.height = newHeight
+	c.Width = newWidth
+	c.Height = newHeight
 	c.termWidth = width
 	c.termHeight = height
 	c.buffer = newBuffer

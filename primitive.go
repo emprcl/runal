@@ -6,16 +6,9 @@ import (
 	"github.com/charmbracelet/lipgloss"
 )
 
-func (c *Canvas) Width() int {
-	return c.width
-}
-
-func (c *Canvas) Height() int {
-	return c.height
-}
-
-func (c *Canvas) Framecount() uint64 {
-	return c.framecount
+func (c *Canvas) Size(w, h int) {
+	c.autoResize = false
+	c.resize(w*2, h)
 }
 
 func (c *Canvas) Flush() {
@@ -23,7 +16,7 @@ func (c *Canvas) Flush() {
 }
 
 func (c *Canvas) Text(text string, x, y int) {
-	if x < 0 || y < 0 || x > c.width-1 || y > c.height-1 {
+	if x < 0 || y < 0 || x > c.Width-1 || y > c.Height-1 {
 		return
 	}
 	for i, r := range text {
