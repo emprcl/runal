@@ -18,7 +18,7 @@ func setup(c *runal.Canvas) {}
 func draw(c *runal.Canvas) {
 	c.Flush()
 	for i := 0; i < c.Width; i++ {
-		for j := 0; j < c.Height; i++ {
+		for j := 0; j < c.Height; j++ {
 			c.Text(".", i, j)
 		}
 	}
