@@ -15,6 +15,10 @@ func (c *Canvas) Flush() {
 	c.flush = true
 }
 
+func (c *Canvas) Fps(fps int) {
+	c.bus <- newFPSEvent(fps)
+}
+
 func (c *Canvas) Text(text string, x, y int) {
 	if x < 0 || y < 0 || x > c.Width-1 || y > c.Height-1 {
 		return

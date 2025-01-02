@@ -23,7 +23,7 @@ var (
 
 func main() {
 	ctx, _ := signal.NotifyContext(context.Background(), os.Interrupt)
-	runal.Run(ctx, setup, draw, runal.WithFPS(60)).Wait()
+	runal.Run(ctx, setup, draw).Wait()
 }
 
 func setup(c *runal.Canvas) {

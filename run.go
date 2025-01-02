@@ -9,17 +9,18 @@ import (
 	"time"
 )
 
-func Run(ctx context.Context, setup, draw func(c *Canvas), opts ...option) *sync.WaitGroup {
-	config := newOptions()
-	for _, opt := range opts {
-		opt(config)
-	}
+const (
+	defaultFPS = 20
+)
+
+func Run(ctx context.Context, setup, draw func(c *Canvas)) *sync.WaitGroup {
 	w, h := termSize()
 	c := newCanvas(w, h)
 
 	resize := make(chan os.Signal, 1)
 	signal.Notify(resize, syscall.SIGWINCH)
-	tick := time.Tick(config.frameDuration)
+	ticker := time.NewTicker(newFramerate(defaultFPS))
+
 	update := make(chan struct{})
 
 	enterAltScreen()
@@ -58,7 +59,12 @@ func Run(ctx context.Context, setup, draw func(c *Canvas), opts ...option) *sync
 				}
 				w, h := termSize()
 				c.resize(w, h)
-			case <-tick:
+			case event := <-c.bus:
+				switch event.name {
+				case "fps":
+					ticker.Reset(newFramerate(event.value))
+				}
+			case <-ticker.C:
 				resetCursorPosition()
 				update <- struct{}{}
 				c.render()
@@ -67,4 +73,8 @@ func Run(ctx context.Context, setup, draw func(c *Canvas), opts ...option) *sync
 	}()
 
 	return &wg
+}
+
+func newFramerate(fps int) time.Duration {
+	return time.Second / time.Duration(fps)
 }

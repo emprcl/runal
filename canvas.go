@@ -13,6 +13,7 @@ const (
 type Canvas struct {
 	buffer                 buffer
 	strokeColor, fillColor lipgloss.Color
+	bus                    chan event
 
 	Width, Height int
 	Framecount    int
@@ -26,6 +27,7 @@ func newCanvas(width, height int) *Canvas {
 	return &Canvas{
 		Width:       width / 2,
 		Height:      height,
+		bus:         make(chan event),
 		termWidth:   width,
 		termHeight:  height,
 		buffer:      newBuffer(width, height),

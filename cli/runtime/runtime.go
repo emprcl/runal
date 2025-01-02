@@ -26,17 +26,15 @@ type runtime struct {
 	watcher  *fsnotify.Watcher
 	console  console
 	filename string
-	fps      int
 }
 
-func New(filename string, watcher *fsnotify.Watcher, logger io.Writer, fps int) runtime {
+func New(filename string, watcher *fsnotify.Watcher, logger io.Writer) runtime {
 	return runtime{
 		watcher: watcher,
 		console: console{
 			logger: logger,
 		},
 		filename: filename,
-		fps:      fps,
 	}
 }
 
@@ -115,6 +113,5 @@ func (s runtime) runSketch(ctx context.Context, vm *goja.Runtime, setup, draw go
 				log.Error(err)
 			}
 		},
-		runal.WithFPS(s.fps),
 	)
 }

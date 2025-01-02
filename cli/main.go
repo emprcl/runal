@@ -14,7 +14,6 @@ import (
 
 func main() {
 	file := flag.String("f", "", "sketch file (.js)")
-	fps := flag.Int("fps", 60, "frame per seconds")
 	flag.Parse()
 
 	if *file == "" {
@@ -37,6 +36,6 @@ func main() {
 	}
 	defer consoleLogFile.Close()
 
-	r := runtime.New(*file, watcher, consoleLogFile, *fps)
+	r := runtime.New(*file, watcher, consoleLogFile)
 	r.Run()
 }
