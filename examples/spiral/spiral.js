@@ -8,24 +8,24 @@ function setup() {}
 function draw() {
   c.flush();
   size = 1;
-  cols = c.width() / size;
-  rows = c.height() / size;
+  cols = c.width / size;
+  rows = c.height / size;
 
   for (let i = 0; i < cols; i++) {
     for (let j = 0; j < cols; j++) {
       let x = i * size;
       let y = j * size;
-      let d = c.distance(x, y, c.width() / 2, c.height() / 2);
+      let d = c.distance(x, y, c.width / 2, c.height / 2);
       let k = 0.6;
-      let dx = x - c.width() / 2;
-      let dy = y - c.height() / 2;
+      let dx = x - c.width / 2;
+      let dy = y - c.height / 2;
       let angle = Math.atan2(dy, dx);
       let spiralPath = Math.sin(d / k + angle + t);
       let df = 2;
       let af = 2;
       threshold = Math.sin(d / df + af * angle);
 
-      c.foreground(colorGradient(c.width(), d));
+      c.foreground(colorGradient(c.width, d));
 
       if (spiralPath > threshold) {
         c.text("⬤", x, y);
