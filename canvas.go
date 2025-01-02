@@ -13,9 +13,9 @@ const (
 type Canvas struct {
 	buffer                 buffer
 	strokeColor, fillColor lipgloss.Color
-	framecount             int
 
 	Width, Height int
+	Framecount    int
 
 	termWidth, termHeight int
 	flush                 bool
@@ -58,7 +58,7 @@ func (c *Canvas) render() {
 			output += "\n"
 		}
 	}
-	c.framecount++
+	c.Framecount++
 	c.flush = false
 	fmt.Print(output)
 }
