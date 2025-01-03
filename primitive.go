@@ -28,7 +28,9 @@ func (c *Canvas) WidthPadding(char string) {
 	c.widthPadding = true
 	c.widthPaddingChar = rune(char[0])
 
-	if !previousValue {
+	if c.autoResize && !previousValue {
+		c.resize(c.Width, c.Height)
+	} else if !previousValue {
 		c.resize(c.Width*2, c.Height)
 	}
 }
