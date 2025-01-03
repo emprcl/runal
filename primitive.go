@@ -53,6 +53,8 @@ func (c *Canvas) Text(text string, x, y int) {
 }
 
 func (c *Canvas) Line(text string, x1, y1, x2, y2 int) {
+	// Bresenham algorithm
+	// https://en.wikipedia.org/wiki/Bresenham%27s_line_algorithm
 	dx := absInt(x2 - x1)
 	dy := absInt(y2 - y1)
 	sx := 1
