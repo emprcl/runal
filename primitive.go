@@ -52,6 +52,38 @@ func (c *Canvas) Text(text string, x, y int) {
 	}
 }
 
+func (c *Canvas) Line(text string, x1, y1, x2, y2 int) {
+	dx := absInt(x2 - x1)
+	dy := absInt(y2 - y1)
+	sx := 1
+	sy := 1
+
+	if x1 > x2 {
+		sx = -1
+	}
+	if y1 > y2 {
+		sy = -1
+	}
+
+	d := dx - dy
+
+	for {
+		c.Text(text, x1, y1)
+		if x1 == x2 && y1 == y2 {
+			break
+		}
+		e2 := 2 * d
+		if e2 > -dy {
+			d -= dy
+			x1 += sx
+		}
+		if e2 < dx {
+			d += dx
+			y1 += sy
+		}
+	}
+}
+
 func (c *Canvas) Distance(x1, y1, x2, y2 int) float64 {
 	dx := x2 - x1
 	dy := y2 - y1

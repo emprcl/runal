@@ -23,3 +23,10 @@ func forcePadding(s string, length int, padChar rune) string {
 	}
 	return s
 }
+
+func absInt(a int) int {
+	if a < 0 {
+		return -a
+	}
+	return a
+}
