@@ -19,7 +19,6 @@ func Run(ctx context.Context, setup, draw func(c *Canvas)) *sync.WaitGroup {
 
 	resize := make(chan os.Signal, 1)
 	signal.Notify(resize, syscall.SIGWINCH)
-	ticker := time.NewTicker(newFramerate(defaultFPS))
 
 	enterAltScreen()
 
@@ -31,6 +30,7 @@ func Run(ctx context.Context, setup, draw func(c *Canvas)) *sync.WaitGroup {
 	}
 	render()
 
+	ticker := time.NewTicker(newFramerate(defaultFPS))
 	wg := sync.WaitGroup{}
 	wg.Add(1)
 
@@ -58,7 +58,6 @@ func Run(ctx context.Context, setup, draw func(c *Canvas)) *sync.WaitGroup {
 					ticker.Reset(newFramerate(event.value))
 				case "stop":
 					ticker.Stop()
-					render()
 				}
 			case <-ticker.C:
 				render()
