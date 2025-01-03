@@ -6,6 +6,7 @@ import (
 	"io"
 	"os"
 	"os/signal"
+	"path/filepath"
 	"sync"
 
 	"github.com/charmbracelet/log"
@@ -59,6 +60,9 @@ func (s runtime) Run() {
 					return
 				}
 				if event.Has(fsnotify.Write) {
+					if event.Name != s.filename {
+						continue
+					}
 					cancel()
 					if wg != nil {
 						wg.Wait()
@@ -85,7 +89,7 @@ func (s runtime) Run() {
 		}
 	}()
 
-	err = s.watcher.Add(s.filename)
+	err = s.watcher.Add(filepath.Dir(s.filename))
 	if err != nil {
 		log.Fatal(err)
 	}
