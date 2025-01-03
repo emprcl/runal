@@ -49,7 +49,7 @@ func (c *Canvas) render() {
 		for x := range c.buffer[y] {
 			add := ""
 			if c.buffer[y][x] == "" {
-				add = c.formatCell(defaultPaddingChar)
+				add = c.backgroundCell()
 			} else {
 				add = c.buffer[y][x]
 			}
