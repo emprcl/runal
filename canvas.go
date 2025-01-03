@@ -11,9 +11,9 @@ const (
 )
 
 type Canvas struct {
-	buffer                 buffer
-	strokeColor, fillColor lipgloss.Color
-	bus                    chan event
+	buffer                                buffer
+	textColor, fillColor, backgroundColor lipgloss.Color
+	bus                                   chan event
 
 	Width, Height int
 	Framecount    int
@@ -35,8 +35,9 @@ func newCanvas(width, height int) *Canvas {
 		widthPaddingChar: defaultPaddingChar,
 		widthPadding:     false,
 		buffer:           newBuffer(width, height),
-		strokeColor:      lipgloss.Color("#ffffff"),
+		textColor:        lipgloss.Color("#ffffff"),
 		fillColor:        lipgloss.Color("#000000"),
+		backgroundColor:  lipgloss.Color("#000000"),
 		autoResize:       true,
 	}
 }
@@ -98,7 +99,7 @@ func (c *Canvas) resize(width, height int) {
 func (c *Canvas) style(str string) string {
 	return lipgloss.NewStyle().
 		Background(c.fillColor).
-		Foreground(c.strokeColor).
+		Foreground(c.textColor).
 		Render(str)
 }
 
@@ -107,6 +108,16 @@ func (c *Canvas) formatCell(char rune) string {
 		return c.style(string([]rune{char, c.widthPaddingChar}))
 	}
 	return c.style(string(char))
+}
+
+func (c *Canvas) backgroundCell() string {
+	style := lipgloss.NewStyle().
+		Background(c.backgroundColor).
+		Foreground(c.textColor)
+	if c.widthPadding {
+		return style.Render(string([]rune{defaultPaddingChar, c.widthPaddingChar}))
+	}
+	return style.Render(string(c.widthPaddingChar))
 }
 
 func (c *Canvas) widthWithPadding(w int) int {

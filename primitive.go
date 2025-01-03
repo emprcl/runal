@@ -59,9 +59,13 @@ func (c *Canvas) Distance(x1, y1, x2, y2 int) float64 {
 }
 
 func (c *Canvas) Background(color string) {
+	c.backgroundColor = lipgloss.Color(color)
+}
+
+func (c *Canvas) Fill(color string) {
 	c.fillColor = lipgloss.Color(color)
 }
 
-func (c *Canvas) Foreground(color string) {
-	c.strokeColor = lipgloss.Color(color)
+func (c *Canvas) Color(color string) {
+	c.textColor = lipgloss.Color(color)
 }
