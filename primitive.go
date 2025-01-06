@@ -23,6 +23,11 @@ func (c *Canvas) NoLoop() {
 	c.bus <- newStopEvent()
 }
 
+func (c *Canvas) DisableRendering() {
+	c.disabled = true
+	c.NoLoop()
+}
+
 func (c *Canvas) WidthPadding(char string) {
 	previousValue := c.widthPadding
 	c.widthPadding = true

@@ -23,6 +23,7 @@ type Canvas struct {
 	widthPadding          bool
 	flush                 bool
 	autoResize            bool
+	disabled              bool
 }
 
 func newCanvas(width, height int) *Canvas {
@@ -43,6 +44,9 @@ func newCanvas(width, height int) *Canvas {
 }
 
 func (c *Canvas) render() {
+	if c.disabled {
+		return
+	}
 	output := ""
 	for y := range c.buffer {
 		line := ""

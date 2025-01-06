@@ -108,6 +108,7 @@ func (s runtime) runSketch(ctx context.Context, vm *goja.Runtime, setup, draw go
 			_, err := setup(goja.Undefined())
 			if err != nil {
 				log.Error(err)
+				c.DisableRendering()
 			}
 		},
 		func(c *runal.Canvas) {
@@ -115,6 +116,7 @@ func (s runtime) runSketch(ctx context.Context, vm *goja.Runtime, setup, draw go
 			_, err := draw(goja.Undefined())
 			if err != nil {
 				log.Error(err)
+				c.DisableRendering()
 			}
 		},
 	)
