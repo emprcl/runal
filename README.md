@@ -5,7 +5,7 @@
 Runal is a simple creative coding tool for the terminal.
 It works similarly as [p5js](https://p5js.org/) and can either be programmed with JavaScript, or used as a Go package.
 
-> :warning: _Runal is a work-in-progress experiment. It has only been tested on Linux and the API should not be considered as stable.
+> :warning: _Runal is a work-in-progress. It has only been tested on Linux and the API should not be considered as stable._
 
 _Feel free to [open an issue](https://github.com/emprcl/runal/issues/new)._
 
@@ -38,6 +38,8 @@ go install github.com/emprcl/runal@latest
 
 You can use JavaScript for scripting your sketch. Your js file should contain a `setup` and a `draw` method, like so:
 ```js
+// sketch.js
+
 function setup() {}
 
 function draw() {}
@@ -48,7 +50,7 @@ And you can then execute the file with:
 ./runal -f sketch.js
 ```
 
-Modifications done on the js file will be automatically reloaded, no need to restart the command.
+The js file will be automatically reloaded when modified, no need to restart the command.
 
 
 ### Go package
@@ -56,6 +58,7 @@ Modifications done on the js file will be automatically reloaded, no need to res
 Because Runal is written in Go, you can also use it as a Go package.
 
 ```go
+// sketch.go
 package main
 
 import (
@@ -75,3 +78,8 @@ func setup(c *runal.Canvas) {}
 
 func draw(c *runal.Canvas) {}
 ```
+
+Then, simply build it:
+```
+go run sketch.go
+``
