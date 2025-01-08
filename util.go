@@ -30,3 +30,7 @@ func absInt(a int) int {
 	}
 	return a
 }
+
+func strIndex(str string, index int) string {
+	return string(str[index%len(str)])
+}

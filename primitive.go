@@ -93,6 +93,37 @@ func (c *Canvas) Line(text string, x1, y1, x2, y2 int) {
 	}
 }
 
+func (c *Canvas) Circle(text string, xCenter, yCenter, r int) {
+	x := 0
+	y := r
+	d := 1 - r
+	char := 0
+	c.plotCirclePoints(text, char, xCenter, yCenter, x, y)
+
+	for x < y {
+		x++
+		if d < 0 {
+			d += 2*x + 1
+		} else {
+			y--
+			d += 2*(x-y) + 1
+		}
+		char = char + 8
+		c.plotCirclePoints(text, char, xCenter, yCenter, x, y)
+	}
+}
+
+func (c *Canvas) plotCirclePoints(text string, char, xCenter, yCenter, x, y int) {
+	c.Text(strIndex(text, char), xCenter+x, yCenter+y)
+	c.Text(strIndex(text, char+1), xCenter-x, yCenter+y)
+	c.Text(strIndex(text, char+2), xCenter+x, yCenter-y)
+	c.Text(strIndex(text, char+3), xCenter-x, yCenter-y)
+	c.Text(strIndex(text, char+4), xCenter+y, yCenter+x)
+	c.Text(strIndex(text, char+5), xCenter-y, yCenter+x)
+	c.Text(strIndex(text, char+6), xCenter+y, yCenter-x)
+	c.Text(strIndex(text, char+7), xCenter-y, yCenter-x)
+}
+
 func (c *Canvas) Distance(x1, y1, x2, y2 int) float64 {
 	dx := x2 - x1
 	dy := y2 - y1
