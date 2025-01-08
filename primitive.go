@@ -93,14 +93,16 @@ func (c *Canvas) Line(text string, x1, y1, x2, y2 int) {
 	}
 }
 
-func (c *Canvas) Circle(text string, xCenter, yCenter, r int) {
+func (c *Canvas) Circle(borderText, fillText string, xCenter, yCenter, r int) {
 	x := 0
 	y := r
 	d := 1 - r
 	char := 0
-	c.plotCirclePoints(text, char, xCenter, yCenter, x, y)
 
 	for x < y {
+		char = char + 8
+		c.plotCircle(borderText, fillText, char, xCenter, yCenter, x, y)
+
 		x++
 		if d < 0 {
 			d += 2*x + 1
@@ -108,20 +110,22 @@ func (c *Canvas) Circle(text string, xCenter, yCenter, r int) {
 			y--
 			d += 2*(x-y) + 1
 		}
-		char = char + 8
-		c.plotCirclePoints(text, char, xCenter, yCenter, x, y)
 	}
 }
 
-func (c *Canvas) plotCirclePoints(text string, char, xCenter, yCenter, x, y int) {
-	c.Text(strIndex(text, char), xCenter+x, yCenter+y)
-	c.Text(strIndex(text, char+1), xCenter-x, yCenter+y)
-	c.Text(strIndex(text, char+2), xCenter+x, yCenter-y)
-	c.Text(strIndex(text, char+3), xCenter-x, yCenter-y)
-	c.Text(strIndex(text, char+4), xCenter+y, yCenter+x)
-	c.Text(strIndex(text, char+5), xCenter-y, yCenter+x)
-	c.Text(strIndex(text, char+6), xCenter+y, yCenter-x)
-	c.Text(strIndex(text, char+7), xCenter-y, yCenter-x)
+func (c *Canvas) plotCircle(borderText, fillText string, char, xCenter, yCenter, x, y int) {
+	c.Line(fillText, xCenter-x, yCenter+y, xCenter+x, yCenter+y)
+	c.Line(fillText, xCenter-x, yCenter-y, xCenter+x, yCenter-y)
+	c.Line(fillText, xCenter-y, yCenter+x, xCenter+y, yCenter+x)
+	c.Line(fillText, xCenter-y, yCenter-x, xCenter+y, yCenter-x)
+	c.Text(strIndex(borderText, char), xCenter+x, yCenter+y)
+	c.Text(strIndex(borderText, char+1), xCenter-x, yCenter+y)
+	c.Text(strIndex(borderText, char+2), xCenter+x, yCenter-y)
+	c.Text(strIndex(borderText, char+3), xCenter-x, yCenter-y)
+	c.Text(strIndex(borderText, char+4), xCenter+y, yCenter+x)
+	c.Text(strIndex(borderText, char+5), xCenter-y, yCenter+x)
+	c.Text(strIndex(borderText, char+6), xCenter+y, yCenter-x)
+	c.Text(strIndex(borderText, char+7), xCenter-y, yCenter-x)
 }
 
 func (c *Canvas) Distance(x1, y1, x2, y2 int) float64 {
