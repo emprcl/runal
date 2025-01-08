@@ -74,11 +74,13 @@ func (c *Canvas) Line(text string, x1, y1, x2, y2 int) {
 
 	d := dx - dy
 
+	char := 0
 	for {
-		c.Text(text, x1, y1)
+		c.Text(string(text[char]), x1, y1)
 		if x1 == x2 && y1 == y2 {
 			break
 		}
+		char = (char + 1) % len(text)
 		e2 := 2 * d
 		if e2 > -dy {
 			d -= dy
