@@ -1,5 +1,5 @@
 function setup() {
-  c.widthPadding(".");
+  c.cellPadding(".");
 }
 
 function draw() {

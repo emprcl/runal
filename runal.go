@@ -2,7 +2,7 @@ package runal
 
 func (c *Canvas) Size(w, h int) {
 	c.autoResize = false
-	if c.widthPadding {
+	if c.cellPadding {
 		c.resize(w*2, h)
 	} else {
 		c.resize(w, h)
@@ -22,10 +22,10 @@ func (c *Canvas) DisableRendering() {
 	c.NoLoop()
 }
 
-func (c *Canvas) WidthPadding(char string) {
-	previousValue := c.widthPadding
-	c.widthPadding = true
-	c.widthPaddingChar = rune(char[0])
+func (c *Canvas) CellPadding(char string) {
+	previousValue := c.cellPadding
+	c.cellPadding = true
+	c.cellPaddingRune = rune(char[0])
 
 	if c.autoResize && !previousValue {
 		c.resize(c.Width, c.Height)
@@ -34,6 +34,6 @@ func (c *Canvas) WidthPadding(char string) {
 	}
 }
 
-func (c *Canvas) Fps(fps int) {
+func (c *Canvas) FPS(fps int) {
 	c.bus <- newFPSEvent(fps)
 }
