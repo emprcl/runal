@@ -31,6 +31,6 @@ func absInt(a int) int {
 	return a
 }
 
-func strIndex(str string, index int) string {
-	return string(str[index%len(str)])
+func strIndex(str string, index int) rune {
+	return rune(str[index%len(str)])
 }

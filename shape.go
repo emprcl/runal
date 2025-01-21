@@ -14,10 +14,14 @@ func (c *Canvas) Text(text string, x, y int) {
 }
 
 func (c *Canvas) Point(x, y int) {
+	c.char(c.nextStrokeRune(), x, y)
+}
+
+func (c *Canvas) char(char rune, x, y int) {
 	if c.OutOfBounds(x, y) {
 		return
 	}
-	c.buffer[y][x] = c.formatCell([]rune(c.strokeText)[0])
+	c.buffer[y][x] = c.formatCell(char)
 }
 
 func (c *Canvas) Line(x1, y1, x2, y2 int) {
@@ -39,7 +43,7 @@ func (c *Canvas) Line(x1, y1, x2, y2 int) {
 
 	char := 0
 	for {
-		c.Text(string(c.strokeText[char]), x1, y1)
+		c.char(rune(c.strokeText[char]), x1, y1)
 		if x1 == x2 && y1 == y2 {
 			break
 		}
@@ -86,12 +90,12 @@ func (c *Canvas) plotCircle(borderText string, char, xCenter, yCenter, x, y int)
 		c.toggleFill()
 	}
 
-	c.Text(strIndex(borderText, char), xCenter+x, yCenter+y)
-	c.Text(strIndex(borderText, char+1), xCenter-x, yCenter+y)
-	c.Text(strIndex(borderText, char+2), xCenter+x, yCenter-y)
-	c.Text(strIndex(borderText, char+3), xCenter-x, yCenter-y)
-	c.Text(strIndex(borderText, char+4), xCenter+y, yCenter+x)
-	c.Text(strIndex(borderText, char+5), xCenter-y, yCenter+x)
-	c.Text(strIndex(borderText, char+6), xCenter+y, yCenter-x)
-	c.Text(strIndex(borderText, char+7), xCenter-y, yCenter-x)
+	c.char(strIndex(borderText, char), xCenter+x, yCenter+y)
+	c.char(strIndex(borderText, char+1), xCenter-x, yCenter+y)
+	c.char(strIndex(borderText, char+2), xCenter+x, yCenter-y)
+	c.char(strIndex(borderText, char+3), xCenter-x, yCenter-y)
+	c.char(strIndex(borderText, char+4), xCenter+y, yCenter+x)
+	c.char(strIndex(borderText, char+5), xCenter-y, yCenter+x)
+	c.char(strIndex(borderText, char+6), xCenter+y, yCenter-x)
+	c.char(strIndex(borderText, char+7), xCenter-y, yCenter-x)
 }

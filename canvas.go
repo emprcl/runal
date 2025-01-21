@@ -20,20 +20,20 @@ type Canvas struct {
 	fillFg, fillBg                       lipgloss.Color
 	backgroundFg, backgroundBg           lipgloss.Color
 	strokeText, fillText, backgroundText string
-	backgroundIndex                      int
-	fill                                 bool
 
 	bus chan event
 
 	Width, Height int
 	Framecount    int
 
-	termWidth, termHeight int
-	widthPaddingChar      rune
-	widthPadding          bool
-	clear                 bool
-	autoResize            bool
-	disabled              bool
+	strokeIndex, backgroundIndex int
+	termWidth, termHeight        int
+	widthPaddingChar             rune
+	widthPadding                 bool
+	fill                         bool
+	clear                        bool
+	autoResize                   bool
+	disabled                     bool
 }
 
 func newCanvas(width, height int) *Canvas {
@@ -162,6 +162,12 @@ func (c *Canvas) toggleFill() {
 func (c *Canvas) nextBackgroundRune() rune {
 	r := c.backgroundText[c.backgroundIndex]
 	c.backgroundIndex = (c.backgroundIndex + 1) % len(c.backgroundText)
+	return rune(r)
+}
+
+func (c *Canvas) nextStrokeRune() rune {
+	r := c.strokeText[c.strokeIndex]
+	c.strokeIndex = (c.strokeIndex + 1) % len(c.strokeText)
 	return rune(r)
 }
 
