@@ -70,8 +70,7 @@ import (
 )
 
 func main() {
-	ctx, _ := signal.NotifyContext(context.Background(), os.Interrupt)
-	runal.Run(ctx, setup, draw).Wait()
+	runal.Run(context.Background(), setup, draw)
 }
 
 func setup(c *runal.Canvas) {}

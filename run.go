@@ -13,7 +13,12 @@ const (
 	defaultFPS = 20
 )
 
-func Run(ctx context.Context, setup, draw func(c *Canvas)) *sync.WaitGroup {
+func Run(ctx context.Context, setup, draw func(c *Canvas)) {
+	ctx, _ = signal.NotifyContext(ctx, os.Interrupt)
+	Start(ctx, setup, draw).Wait()
+}
+
+func Start(ctx context.Context, setup, draw func(c *Canvas)) *sync.WaitGroup {
 	w, h := termSize()
 	c := newCanvas(w, h)
 

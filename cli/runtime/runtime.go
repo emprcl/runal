@@ -100,7 +100,7 @@ func (s runtime) Run() {
 }
 
 func (s runtime) runSketch(ctx context.Context, vm *goja.Runtime, setup, draw goja.Callable) *sync.WaitGroup {
-	return runal.Run(
+	return runal.Start(
 		ctx,
 		func(c *runal.Canvas) {
 			vm.Set("console", s.console)
