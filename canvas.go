@@ -7,7 +7,7 @@ import (
 )
 
 const (
-	defaultPaddingChar    = ' '
+	defaultPaddingRune    = ' '
 	defaultStrokeText     = "."
 	defaultFillText       = " "
 	defaultBackgroundText = " "
@@ -43,7 +43,7 @@ func newCanvas(width, height int) *Canvas {
 		bus:             make(chan event, 1),
 		termWidth:       width,
 		termHeight:      height,
-		cellPaddingRune: defaultPaddingChar,
+		cellPaddingRune: defaultPaddingRune,
 		cellPadding:     false,
 		buffer:          newBuffer(width, height),
 		strokeFg:        lipgloss.Color("#ffffff"),
