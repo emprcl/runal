@@ -7,13 +7,23 @@ import (
 )
 
 const (
-	defaultPaddingChar = ' '
+	defaultPaddingChar    = ' '
+	defaultStrokeText     = "."
+	defaultFillText       = " "
+	defaultBackgroundText = " "
 )
 
 type Canvas struct {
-	buffer                                buffer
-	textColor, fillColor, backgroundColor lipgloss.Color
-	bus                                   chan event
+	buffer buffer
+
+	strokeFg, strokeBg                   lipgloss.Color
+	fillFg, fillBg                       lipgloss.Color
+	backgroundFg, backgroundBg           lipgloss.Color
+	strokeText, fillText, backgroundText string
+	backgroundIndex                      int
+	fill                                 bool
+
+	bus chan event
 
 	Width, Height int
 	Framecount    int
@@ -36,9 +46,15 @@ func newCanvas(width, height int) *Canvas {
 		widthPaddingChar: defaultPaddingChar,
 		widthPadding:     false,
 		buffer:           newBuffer(width, height),
-		textColor:        lipgloss.Color("#ffffff"),
-		fillColor:        lipgloss.Color("#000000"),
-		backgroundColor:  lipgloss.Color("#000000"),
+		strokeFg:         lipgloss.Color("#ffffff"),
+		strokeBg:         lipgloss.Color("#000000"),
+		fillFg:           lipgloss.Color("#ffffff"),
+		fillBg:           lipgloss.Color("#000000"),
+		backgroundFg:     lipgloss.Color("#ffffff"),
+		backgroundBg:     lipgloss.Color("#000000"),
+		strokeText:       defaultStrokeText,
+		fillText:         defaultFillText,
+		backgroundText:   defaultBackgroundText,
 		autoResize:       true,
 	}
 }
@@ -102,8 +118,8 @@ func (c *Canvas) resize(width, height int) {
 
 func (c *Canvas) style(str string) string {
 	return lipgloss.NewStyle().
-		Background(c.fillColor).
-		Foreground(c.textColor).
+		Background(c.strokeBg).
+		Foreground(c.strokeFg).
 		Render(str)
 }
 
@@ -116,10 +132,10 @@ func (c *Canvas) formatCell(char rune) string {
 
 func (c *Canvas) backgroundCell() string {
 	style := lipgloss.NewStyle().
-		Background(c.backgroundColor).
-		Foreground(c.textColor)
+		Background(c.backgroundBg).
+		Foreground(c.backgroundFg)
 	if c.widthPadding {
-		return style.Render(string([]rune{defaultPaddingChar, c.widthPaddingChar}))
+		return style.Render(string([]rune{c.nextBackgroundRune(), c.widthPaddingChar}))
 	}
 	return style.Render(string(c.widthPaddingChar))
 }
@@ -129,4 +145,22 @@ func (c *Canvas) widthWithPadding(w int) int {
 		return w / 2
 	}
 	return w
+}
+
+func (c *Canvas) toggleFill() {
+	stroke := c.strokeText
+	bg := c.strokeBg
+	fg := c.strokeFg
+	c.strokeText = c.fillText
+	c.strokeBg = c.fillBg
+	c.strokeFg = c.fillFg
+	c.fillText = stroke
+	c.fillBg = bg
+	c.fillFg = fg
+}
+
+func (c *Canvas) nextBackgroundRune() rune {
+	r := c.backgroundText[c.backgroundIndex]
+	c.backgroundIndex = (c.backgroundIndex + 1) % len(c.backgroundText)
+	return rune(r)
 }

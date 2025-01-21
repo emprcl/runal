@@ -4,7 +4,7 @@ let background = "#000000";
 let colors = ["#fcf6bd", "#d0f4de", "#a9def9", "#e4c1f9", "#ff99c8"];
 
 function setup() {
-  c.background(background);
+  c.background(" ", background, background);
   c.widthPadding(" ");
 }
 
@@ -28,10 +28,10 @@ function draw() {
       let af = 2;
       threshold = Math.sin(d / df + af * angle);
 
-      c.color(colorGradient(c.width, d));
+      c.stroke("⬤", colorGradient(c.width, d), background);
 
       if (spiralPath > threshold) {
-        c.text("⬤", x, y);
+        c.point(x, y);
       }
     }
   }

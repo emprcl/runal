@@ -13,7 +13,11 @@ func (c *Canvas) Text(text string, x, y int) {
 	}
 }
 
-func (c *Canvas) Line(text string, x1, y1, x2, y2 int) {
+func (c *Canvas) Point(x, y int) {
+	c.buffer[y][x] = c.formatCell(rune(c.strokeText[0]))
+}
+
+func (c *Canvas) Line(x1, y1, x2, y2 int) {
 	// Bresenham algorithm
 	// https://en.wikipedia.org/wiki/Bresenham%27s_line_algorithm
 	dx := absInt(x2 - x1)
@@ -32,11 +36,11 @@ func (c *Canvas) Line(text string, x1, y1, x2, y2 int) {
 
 	char := 0
 	for {
-		c.Text(string(text[char]), x1, y1)
+		c.Text(string(c.strokeText[char]), x1, y1)
 		if x1 == x2 && y1 == y2 {
 			break
 		}
-		char = (char + 1) % len(text)
+		char = (char + 1) % len(c.strokeText)
 		e2 := 2 * d
 		if e2 > -dy {
 			d -= dy
@@ -49,7 +53,7 @@ func (c *Canvas) Line(text string, x1, y1, x2, y2 int) {
 	}
 }
 
-func (c *Canvas) Circle(borderText, fillText string, xCenter, yCenter, r int) {
+func (c *Canvas) Circle(xCenter, yCenter, r int) {
 	x := 0
 	y := r
 	d := 1 - r
@@ -57,7 +61,7 @@ func (c *Canvas) Circle(borderText, fillText string, xCenter, yCenter, r int) {
 
 	for x < y {
 		char = char + 8
-		c.plotCircle(borderText, fillText, char, xCenter, yCenter, x, y)
+		c.plotCircle(c.strokeText, char, xCenter, yCenter, x, y)
 
 		x++
 		if d < 0 {
@@ -69,11 +73,16 @@ func (c *Canvas) Circle(borderText, fillText string, xCenter, yCenter, r int) {
 	}
 }
 
-func (c *Canvas) plotCircle(borderText, fillText string, char, xCenter, yCenter, x, y int) {
-	c.Line(fillText, xCenter-x, yCenter+y, xCenter+x, yCenter+y)
-	c.Line(fillText, xCenter-x, yCenter-y, xCenter+x, yCenter-y)
-	c.Line(fillText, xCenter-y, yCenter+x, xCenter+y, yCenter+x)
-	c.Line(fillText, xCenter-y, yCenter-x, xCenter+y, yCenter-x)
+func (c *Canvas) plotCircle(borderText string, char, xCenter, yCenter, x, y int) {
+	if c.fill {
+		c.toggleFill()
+		c.Line(xCenter-x, yCenter+y, xCenter+x, yCenter+y)
+		c.Line(xCenter-x, yCenter-y, xCenter+x, yCenter-y)
+		c.Line(xCenter-y, yCenter+x, xCenter+y, yCenter+x)
+		c.Line(xCenter-y, yCenter-x, xCenter+y, yCenter-x)
+		c.toggleFill()
+	}
+
 	c.Text(strIndex(borderText, char), xCenter+x, yCenter+y)
 	c.Text(strIndex(borderText, char+1), xCenter-x, yCenter+y)
 	c.Text(strIndex(borderText, char+2), xCenter+x, yCenter-y)
