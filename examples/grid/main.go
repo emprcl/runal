@@ -3,15 +3,12 @@ package main
 import (
 	"context"
 	"math/rand"
-	"os"
-	"os/signal"
 
 	"github.com/emprcl/runal"
 )
 
 func main() {
-	ctx, _ := signal.NotifyContext(context.Background(), os.Interrupt)
-	runal.Run(ctx, setup, draw).Wait()
+	runal.Run(context.Background(), setup, draw)
 }
 
 func setup(c *runal.Canvas) {
@@ -19,7 +16,7 @@ func setup(c *runal.Canvas) {
 }
 
 func draw(c *runal.Canvas) {
-	c.Flush()
+	c.Clear()
 	for i := 0; i < c.Width; i++ {
 		for j := 0; j < c.Height; j++ {
 			if rand.Intn(100) < 80 {

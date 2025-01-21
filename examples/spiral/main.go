@@ -24,7 +24,7 @@ func main() {
 }
 
 func setup(c *runal.Canvas) {
-	c.Background(background)
+	c.Background(" ", background, background)
 	c.WidthPadding(" ")
 }
 
@@ -47,7 +47,7 @@ func draw(c *runal.Canvas) {
 			af := 2.
 			threshold := math.Sin(d/df + af*angle)
 
-			c.Color(colorGradient(c.Width, d))
+			c.Stroke("⬤", colorGradient(c.Width, d), background)
 
 			if spiralPath > threshold {
 				c.Text("⬤", x, y)

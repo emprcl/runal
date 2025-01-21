@@ -164,3 +164,7 @@ func (c *Canvas) nextBackgroundRune() rune {
 	c.backgroundIndex = (c.backgroundIndex + 1) % len(c.backgroundText)
 	return rune(r)
 }
+
+func (c *Canvas) OutOfBounds(x, y int) bool {
+	return x < 0 || y < 0 || x > c.Width-1 || y > c.Height-1
+}

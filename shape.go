@@ -1,7 +1,7 @@
 package runal
 
 func (c *Canvas) Text(text string, x, y int) {
-	if x < 0 || y < 0 || x > c.Width-1 || y > c.Height-1 {
+	if c.OutOfBounds(x, y) {
 		return
 	}
 	for i, r := range text {
@@ -14,7 +14,10 @@ func (c *Canvas) Text(text string, x, y int) {
 }
 
 func (c *Canvas) Point(x, y int) {
-	c.buffer[y][x] = c.formatCell(rune(c.strokeText[0]))
+	if c.OutOfBounds(x, y) {
+		return
+	}
+	c.buffer[y][x] = c.formatCell([]rune(c.strokeText)[0])
 }
 
 func (c *Canvas) Line(x1, y1, x2, y2 int) {
