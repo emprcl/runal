@@ -32,7 +32,7 @@ func setup(c *runal.Canvas) {
 }
 
 func draw(c *runal.Canvas) {
-	c.Flush()
+	c.Clear()
 	size := 1
 	cols := int(math.Round(float64(c.Width) / float64(size)))
 	rows := int(math.Round(float64(c.Height) / float64(size)))

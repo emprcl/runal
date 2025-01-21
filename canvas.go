@@ -21,7 +21,7 @@ type Canvas struct {
 	termWidth, termHeight int
 	widthPaddingChar      rune
 	widthPadding          bool
-	flush                 bool
+	clear                 bool
 	autoResize            bool
 	disabled              bool
 }
@@ -60,7 +60,7 @@ func (c *Canvas) render() {
 			if lipgloss.Width(line+add) < c.termWidth {
 				line += add
 			}
-			if c.flush {
+			if c.clear {
 				c.buffer[y][x] = ""
 			}
 		}
@@ -70,7 +70,7 @@ func (c *Canvas) render() {
 		}
 	}
 	c.Framecount++
-	c.flush = false
+	c.clear = false
 	fmt.Print(output)
 }
 

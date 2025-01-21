@@ -15,8 +15,8 @@ func (c *Canvas) Size(w, h int) {
 	}
 }
 
-func (c *Canvas) Flush() {
-	c.flush = true
+func (c *Canvas) Clear() {
+	c.clear = true
 }
 
 func (c *Canvas) NoLoop() {

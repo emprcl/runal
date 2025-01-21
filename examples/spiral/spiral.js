@@ -9,7 +9,7 @@ function setup() {
 }
 
 function draw() {
-  c.flush();
+  c.clear();
   size = 1;
   cols = c.width / size;
   rows = c.height / size;

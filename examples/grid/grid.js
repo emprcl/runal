@@ -3,7 +3,7 @@ function setup() {
 }
 
 function draw() {
-  c.flush();
+  c.clear();
   for (let i = 0; i < c.width; i++) {
     for (let j = 0; j < c.height; j++) {
       if (Math.random() < 0.8) {
