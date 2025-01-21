@@ -1,49 +1,5 @@
 package runal
 
-import (
-	"math"
-
-	"github.com/charmbracelet/lipgloss"
-)
-
-func (c *Canvas) Size(w, h int) {
-	c.autoResize = false
-	if c.widthPadding {
-		c.resize(w*2, h)
-	} else {
-		c.resize(w, h)
-	}
-}
-
-func (c *Canvas) Clear() {
-	c.clear = true
-}
-
-func (c *Canvas) NoLoop() {
-	c.bus <- newStopEvent()
-}
-
-func (c *Canvas) DisableRendering() {
-	c.disabled = true
-	c.NoLoop()
-}
-
-func (c *Canvas) WidthPadding(char string) {
-	previousValue := c.widthPadding
-	c.widthPadding = true
-	c.widthPaddingChar = rune(char[0])
-
-	if c.autoResize && !previousValue {
-		c.resize(c.Width, c.Height)
-	} else if !previousValue {
-		c.resize(c.Width*2, c.Height)
-	}
-}
-
-func (c *Canvas) Fps(fps int) {
-	c.bus <- newFPSEvent(fps)
-}
-
 func (c *Canvas) Text(text string, x, y int) {
 	if x < 0 || y < 0 || x > c.Width-1 || y > c.Height-1 {
 		return
@@ -126,53 +82,4 @@ func (c *Canvas) plotCircle(borderText, fillText string, char, xCenter, yCenter,
 	c.Text(strIndex(borderText, char+5), xCenter-y, yCenter+x)
 	c.Text(strIndex(borderText, char+6), xCenter+y, yCenter-x)
 	c.Text(strIndex(borderText, char+7), xCenter-y, yCenter-x)
-}
-
-func (c *Canvas) Rotate(angle float64) {
-	rows := len(c.buffer)
-	cols := len(c.buffer[0])
-
-	rotated := newBuffer(cols, rows)
-
-	radians := angle * math.Pi / 180.0
-
-	centerX := float64(cols-1) / 2.0
-	centerY := float64(rows-1) / 2.0
-
-	for y := 0; y < rows; y++ {
-		for x := 0; x < cols; x++ {
-			xPrime := float64(x) - centerX
-			yPrime := float64(y) - centerY
-
-			xRot := xPrime*math.Cos(radians) - yPrime*math.Sin(radians)
-			yRot := xPrime*math.Sin(radians) + yPrime*math.Cos(radians)
-
-			xFinal := int(math.Round(xRot + centerX))
-			yFinal := int(math.Round(yRot + centerY))
-
-			if xFinal >= 0 && xFinal < cols && yFinal >= 0 && yFinal < rows {
-				rotated[yFinal][xFinal] = c.buffer[y][x]
-			}
-		}
-	}
-
-	c.buffer = rotated
-}
-
-func (c *Canvas) Distance(x1, y1, x2, y2 int) float64 {
-	dx := x2 - x1
-	dy := y2 - y1
-	return math.Sqrt(float64(dx*dx + dy*dy))
-}
-
-func (c *Canvas) Background(color string) {
-	c.backgroundColor = lipgloss.Color(color)
-}
-
-func (c *Canvas) Fill(color string) {
-	c.fillColor = lipgloss.Color(color)
-}
-
-func (c *Canvas) Color(color string) {
-	c.textColor = lipgloss.Color(color)
 }
