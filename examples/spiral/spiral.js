@@ -28,12 +28,16 @@ function draw() {
       let af = 2;
       threshold = Math.sin(d / df + af * angle);
 
-      c.stroke("⬤", colorGradient(c.width, d), background);
+      c.stroke("0", colorGradient(c.width, d), background);
 
       if (spiralPath > threshold) {
         c.point(x, y);
       }
     }
+  }
+
+  if (c.framecount == 300) {
+    c.saveCanvas();
   }
 
   t += 0.5;

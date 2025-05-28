@@ -10,7 +10,7 @@ import (
 )
 
 const (
-	defaultFPS = 20
+	defaultFPS = 30
 )
 
 func Run(ctx context.Context, setup, draw func(c *Canvas)) {

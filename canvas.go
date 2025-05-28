@@ -9,6 +9,7 @@ import (
 
 	"github.com/charmbracelet/lipgloss"
 	"github.com/charmbracelet/x/ansi"
+	ansitoimage "github.com/pavelpatrin/go-ansi-to-image"
 )
 
 const (
@@ -19,8 +20,9 @@ const (
 )
 
 type Canvas struct {
-	buffer buffer
-	output io.Writer
+	buffer  buffer
+	output  io.Writer
+	capture *ansitoimage.Converter
 
 	strokeFg, strokeBg                   lipgloss.Color
 	fillFg, fillBg                       lipgloss.Color
@@ -38,6 +40,7 @@ type Canvas struct {
 	cellPadding                  bool
 	fill                         bool
 	clear                        bool
+	save                         bool
 	autoResize                   bool
 	disabled                     bool
 }
@@ -53,6 +56,7 @@ func newCanvas(width, height int) *Canvas {
 		cellPadding:     false,
 		buffer:          newBuffer(width, height),
 		output:          os.Stdout,
+		capture:         newCapture(width, height),
 		strokeFg:        lipgloss.Color("#ffffff"),
 		strokeBg:        lipgloss.Color("#000000"),
 		fillFg:          lipgloss.Color("#ffffff"),
@@ -104,6 +108,10 @@ func (c *Canvas) render() {
 		}
 		output.WriteString(line.String())
 	}
+	if c.save {
+		c.exportCanvasToPNG(output.String())
+		c.save = false
+	}
 	c.Framecount++
 	c.clear = false
 	fmt.Fprint(c.output, output.String())
@@ -133,6 +141,7 @@ func (c *Canvas) resize(width, height int) {
 	c.Width = newWidth
 	c.Height = newHeight
 	c.buffer = newBuffer
+	c.capture = newCapture(newWidth, newHeight)
 }
 
 func (c *Canvas) style(str string) string {
