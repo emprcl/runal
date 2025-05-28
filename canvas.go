@@ -1,7 +1,10 @@
 package runal
 
 import (
+	"bytes"
 	"fmt"
+	"io"
+	"os"
 
 	"github.com/charmbracelet/lipgloss"
 )
@@ -15,6 +18,7 @@ const (
 
 type Canvas struct {
 	buffer buffer
+	output io.Writer
 
 	strokeFg, strokeBg                   lipgloss.Color
 	fillFg, fillBg                       lipgloss.Color
@@ -46,6 +50,7 @@ func newCanvas(width, height int) *Canvas {
 		cellPaddingRune: defaultPaddingRune,
 		cellPadding:     false,
 		buffer:          newBuffer(width, height),
+		output:          os.Stdout,
 		strokeFg:        lipgloss.Color("#ffffff"),
 		strokeBg:        lipgloss.Color("#000000"),
 		fillFg:          lipgloss.Color("#ffffff"),
@@ -57,6 +62,12 @@ func newCanvas(width, height int) *Canvas {
 		backgroundText:  defaultBackgroundText,
 		autoResize:      true,
 	}
+}
+
+func mockCanvas(width, height int) *Canvas {
+	c := newCanvas(width, height)
+	c.output = new(bytes.Buffer)
+	return c
 }
 
 func (c *Canvas) render() {
@@ -87,7 +98,7 @@ func (c *Canvas) render() {
 	}
 	c.Framecount++
 	c.clear = false
-	fmt.Print(output)
+	fmt.Fprint(c.output, output)
 }
 
 func (c *Canvas) resize(width, height int) {
