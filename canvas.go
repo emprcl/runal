@@ -5,8 +5,10 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"strings"
 
 	"github.com/charmbracelet/lipgloss"
+	"github.com/charmbracelet/x/ansi"
 )
 
 const (
@@ -74,31 +76,37 @@ func (c *Canvas) render() {
 	if c.disabled {
 		return
 	}
-	output := ""
+	var output strings.Builder
+	bgCell := c.backgroundCell()
+	bgCellSize := ansi.StringWidth(bgCell)
 	for y := range c.buffer {
-		line := ""
+		var line strings.Builder
+		lineLen := 0
 		for x := range c.buffer[y] {
-			add := ""
+			var add string
 			if c.buffer[y][x] == "" {
-				add = c.backgroundCell()
+				add = bgCell
+				lineLen += bgCellSize
 			} else {
 				add = c.buffer[y][x]
+				lineLen += ansi.StringWidth(add)
 			}
-			if lipgloss.Width(line+add) < c.termWidth {
-				line += add
+			if lineLen < c.termWidth {
+				line.WriteString(add)
 			}
 			if c.clear {
 				c.buffer[y][x] = ""
 			}
 		}
-		output += forcePadding(line, c.termWidth, ' ')
+		forcePadding(&line, lineLen, c.termWidth, ' ')
 		if y < len(c.buffer)-1 {
-			output += "\n"
+			line.WriteString("\n")
 		}
+		output.WriteString(line.String())
 	}
 	c.Framecount++
 	c.clear = false
-	fmt.Fprint(c.output, output)
+	fmt.Fprint(c.output, output.String())
 }
 
 func (c *Canvas) resize(width, height int) {
