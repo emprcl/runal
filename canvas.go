@@ -141,7 +141,7 @@ func (c *Canvas) resize(width, height int) {
 	c.Width = newWidth
 	c.Height = newHeight
 	c.buffer = newBuffer
-	c.capture = newCapture(newWidth, newHeight)
+	c.capture = newCapture(c.termWidth, c.termHeight)
 }
 
 func (c *Canvas) style(str string) string {
