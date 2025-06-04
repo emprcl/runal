@@ -2,6 +2,10 @@ package runal
 
 import "math"
 
+func (c *Canvas) Translate(x, y int) {
+	c.originX = x
+	c.originY = y
+}
 
 func (c *Canvas) Rotate(angle float64) {
 	rows := len(c.buffer)

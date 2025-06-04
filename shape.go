@@ -1,14 +1,17 @@
 package runal
 
 func (c *Canvas) Text(text string, x, y int) {
-	if c.OutOfBounds(x, y) {
+	destX := c.originX + x
+	destY := c.originY + y
+
+	if c.OutOfBounds(destX, destY) {
 		return
 	}
 	for i, r := range text {
-		if x+i < len(c.buffer[y])-1 {
-			c.buffer[y][x+i] = c.formatCell(r)
-		} else if x+i == len(c.buffer[y])-1 {
-			c.buffer[y][x+i] = c.style(string(r))
+		if x+i < len(c.buffer[destY])-1 {
+			c.buffer[destY][destX+i] = c.formatCell(r)
+		} else if x+i == len(c.buffer[destY])-1 {
+			c.buffer[destY][destX+i] = c.style(string(r))
 		}
 	}
 }
@@ -18,10 +21,13 @@ func (c *Canvas) Point(x, y int) {
 }
 
 func (c *Canvas) char(char rune, x, y int) {
-	if c.OutOfBounds(x, y) {
+	destX := c.originX + x
+	destY := c.originY + y
+
+	if c.OutOfBounds(destX, destY) {
 		return
 	}
-	c.buffer[y][x] = c.formatCell(char)
+	c.buffer[destY][destX] = c.formatCell(char)
 }
 
 func (c *Canvas) Line(x1, y1, x2, y2 int) {

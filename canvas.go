@@ -36,6 +36,7 @@ type Canvas struct {
 
 	strokeIndex, backgroundIndex int
 	termWidth, termHeight        int
+	originX, originY             int
 	cellPaddingRune              rune
 	cellPadding                  bool
 	fill                         bool
@@ -114,6 +115,8 @@ func (c *Canvas) render() {
 	}
 	c.Framecount++
 	c.clear = false
+	c.originX = 0
+	c.originY = 0
 	fmt.Fprint(c.output, output.String())
 }
 
