@@ -9,7 +9,7 @@ func (c *Canvas) Translate(x, y int) {
 	c.originY = y
 }
 
-// TODO: fix weird empty characters after rotation (ex: scale.js)
+// TODO: check behavior with scale.js
 func (c *Canvas) Rotate(angle float64) {
 	rotated := newBuffer(c.Width, c.Height)
 
@@ -23,14 +23,19 @@ func (c *Canvas) Rotate(angle float64) {
 		for x := range c.Width {
 			xPrime := float64(x) - centerX
 			yPrime := float64(y) - centerY
-			xRot := xPrime*math.Cos(radians) - yPrime*math.Sin(radians)
-			yRot := xPrime*math.Sin(radians) + yPrime*math.Cos(radians)
-			xFinal := int(math.Round(xRot + centerX))
-			yFinal := int(math.Round(yRot + centerY))
-			if c.OutOfBounds(xFinal, yFinal) {
-				continue
+
+			srcX := xPrime*math.Cos(-radians) - yPrime*math.Sin(-radians)
+			srcY := xPrime*math.Sin(-radians) + yPrime*math.Cos(-radians)
+
+			srcX += centerX
+			srcY += centerY
+
+			sx := int(math.Round(srcX))
+			sy := int(math.Round(srcY))
+
+			if !c.OutOfBounds(sx, sy) {
+				rotated[y][x] = c.buffer[sy][sx]
 			}
-			rotated[yFinal][xFinal] = c.buffer[y][x]
 		}
 	}
 

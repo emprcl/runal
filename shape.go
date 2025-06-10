@@ -72,7 +72,7 @@ func (c *Canvas) Circle(xCenter, yCenter, r int) {
 	d := 1 - r
 	char := 0
 
-	for x < y {
+	for x <= y {
 		char = char + 8
 		c.plotCircle(c.strokeText, char, xCenter, yCenter, x, y)
 
