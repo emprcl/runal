@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"fmt"
 	"io"
+	"math"
 	"os"
 	"strings"
 
@@ -37,13 +38,16 @@ type Canvas struct {
 	strokeIndex, backgroundIndex int
 	termWidth, termHeight        int
 	originX, originY             int
-	cellPaddingRune              rune
-	cellPadding                  bool
-	fill                         bool
-	clear                        bool
-	save                         bool
-	autoResize                   bool
-	disabled                     bool
+	rotationAngle                float64
+	scale                        float64
+
+	cellPaddingRune rune
+	cellPadding     bool
+	fill            bool
+	clear           bool
+	save            bool
+	autoResize      bool
+	disabled        bool
 }
 
 func newCanvas(width, height int) *Canvas {
@@ -58,6 +62,7 @@ func newCanvas(width, height int) *Canvas {
 		buffer:          newBuffer(width, height),
 		output:          os.Stdout,
 		capture:         newCapture(width, height),
+		scale:           1,
 		strokeFg:        lipgloss.Color("#ffffff"),
 		strokeBg:        lipgloss.Color("#000000"),
 		fillFg:          lipgloss.Color("#ffffff"),
@@ -114,10 +119,16 @@ func (c *Canvas) render() {
 		c.save = false
 	}
 	c.Framecount++
+	c.reset()
+	fmt.Fprint(c.output, output.String())
+}
+
+func (c *Canvas) reset() {
 	c.clear = false
 	c.originX = 0
 	c.originY = 0
-	fmt.Fprint(c.output, output.String())
+	c.rotationAngle = 0
+	c.scale = 1
 }
 
 func (c *Canvas) resize(width, height int) {
@@ -145,6 +156,36 @@ func (c *Canvas) resize(width, height int) {
 	c.Height = newHeight
 	c.buffer = newBuffer
 	c.capture = newCapture(c.termWidth, c.termHeight)
+}
+
+func (c *Canvas) char(char rune, x, y int) {
+	scaledX := float64(c.originX+x) * c.scale
+	scaledY := float64(c.originY+y) * c.scale
+
+	radians := c.rotationAngle * math.Pi / 180.0
+	rotatedX := scaledX*math.Cos(radians) - scaledY*math.Sin(radians)
+	rotatedY := scaledX*math.Sin(radians) + scaledY*math.Cos(radians)
+
+	destX := int(math.Round(rotatedX)) + c.originX
+	destY := int(math.Round(rotatedY)) + c.originY
+
+	blockSize := max(int(math.Round(c.scale)), 1)
+	// NOTE: kind of hacky...
+	// Prevents hole in fills on rotated canvas
+	if c.rotationAngle > 0 {
+		blockSize = int(math.Round(c.scale) + 2)
+	}
+
+	for dy := range blockSize {
+		for dx := range blockSize {
+			sx := destX + dx
+			sy := destY + dy
+			if c.OutOfBounds(sx, sy) {
+				continue
+			}
+			c.buffer[sy][sx] = c.formatCell(char)
+		}
+	}
 }
 
 func (c *Canvas) style(str string) string {
