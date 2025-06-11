@@ -158,3 +158,9 @@ func (c *Canvas) fillCircle(xCenter, yCenter, r int) {
 		}
 	}
 }
+
+func (c *Canvas) Triangle(x1, y1, x2, y2, x3, y3 int) {
+	c.Line(x1, y1, x2, y2)
+	c.Line(x2, y2, x3, y3)
+	c.Line(x3, y3, x1, y1)
+}
