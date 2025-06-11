@@ -146,8 +146,8 @@ func (c *Canvas) resize(width, height int) {
 		minHeight = newHeight
 	}
 
-	for y := 0; y < minHeight; y++ {
-		for x := 0; x < minWidth; x++ {
+	for y := range minHeight {
+		for x := range minWidth {
 			newBuffer[y][x] = c.buffer[y][x]
 		}
 	}
@@ -159,8 +159,8 @@ func (c *Canvas) resize(width, height int) {
 }
 
 func (c *Canvas) char(char rune, x, y int) {
-	scaledX := float64(c.originX+x) * c.scale
-	scaledY := float64(c.originY+y) * c.scale
+	scaledX := float64(x) * c.scale
+	scaledY := float64(y) * c.scale
 
 	radians := c.rotationAngle * math.Pi / 180.0
 	rotatedX := scaledX*math.Cos(radians) - scaledY*math.Sin(radians)
