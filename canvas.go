@@ -170,11 +170,6 @@ func (c *Canvas) char(char rune, x, y int) {
 	destY := int(math.Round(rotatedY)) + c.originY
 
 	blockSize := max(int(math.Round(c.scale)), 1)
-	// NOTE: kind of hacky...
-	// Prevents hole in fills on rotated canvas
-	if c.rotationAngle > 0 {
-		blockSize = int(math.Round(c.scale) + 2)
-	}
 
 	for dy := range blockSize {
 		for dx := range blockSize {

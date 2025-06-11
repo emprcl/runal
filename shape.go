@@ -1,5 +1,7 @@
 package runal
 
+import "math"
+
 func (c *Canvas) Text(text string, x, y int) {
 	destX := c.originX + x
 	destY := c.originY + y
@@ -56,6 +58,47 @@ func (c *Canvas) Line(x1, y1, x2, y2 int) {
 	}
 }
 
+func (c *Canvas) Square(x, y, size int) {
+	c.Rect(x, y, size, size)
+}
+
+func (c *Canvas) Rect(x, y, w, h int) {
+	if c.fill {
+		c.toggleFill()
+		c.fillRect(x, y, w, h)
+		c.toggleFill()
+	}
+	c.Line(x, y, x+w, y)
+	c.Line(x+w, y, x+w, y+h)
+	c.Line(x+w, y+h, x, y+h)
+	c.Line(x, y+h, x, y)
+}
+
+func (c *Canvas) fillRect(x, y, w, h int) {
+	for sy := range c.Height {
+		for sx := range c.Width {
+			tx := float64(sx - c.originX)
+			ty := float64(sy - c.originY)
+
+			radians := -c.rotationAngle * math.Pi / 180.0
+			rotX := tx*math.Cos(radians) - ty*math.Sin(radians)
+			rotY := tx*math.Sin(radians) + ty*math.Cos(radians)
+
+			modelX := rotX / c.scale
+			modelY := rotY / c.scale
+
+			inX := modelX >= float64(x) && modelX <= float64(x+w)
+			inY := modelY >= float64(y) && modelY <= float64(y+h)
+
+			if !inX || !inY {
+				continue
+			}
+
+			c.buffer[sy][sx] = c.formatCell(c.nextStrokeRune())
+		}
+	}
+}
+
 func (c *Canvas) Circle(xCenter, yCenter, r int) {
 	x := 0
 	y := r
@@ -64,7 +107,20 @@ func (c *Canvas) Circle(xCenter, yCenter, r int) {
 
 	for x <= y {
 		char = char + 8
-		c.plotCircle(c.strokeText, char, xCenter, yCenter, x, y)
+		if c.fill {
+			c.toggleFill()
+			c.fillCircle(xCenter, yCenter, r)
+			c.toggleFill()
+		}
+
+		c.char(strIndex(c.strokeText, char), xCenter+x, yCenter+y)
+		c.char(strIndex(c.strokeText, char+1), xCenter-x, yCenter+y)
+		c.char(strIndex(c.strokeText, char+2), xCenter+x, yCenter-y)
+		c.char(strIndex(c.strokeText, char+3), xCenter-x, yCenter-y)
+		c.char(strIndex(c.strokeText, char+4), xCenter+y, yCenter+x)
+		c.char(strIndex(c.strokeText, char+5), xCenter-y, yCenter+x)
+		c.char(strIndex(c.strokeText, char+6), xCenter+y, yCenter-x)
+		c.char(strIndex(c.strokeText, char+7), xCenter-y, yCenter-x)
 
 		x++
 		if d < 0 {
@@ -76,22 +132,29 @@ func (c *Canvas) Circle(xCenter, yCenter, r int) {
 	}
 }
 
-func (c *Canvas) plotCircle(borderText string, char, xCenter, yCenter, x, y int) {
-	if c.fill {
-		c.toggleFill()
-		c.Line(xCenter-x, yCenter+y, xCenter+x, yCenter+y)
-		c.Line(xCenter-x, yCenter-y, xCenter+x, yCenter-y)
-		c.Line(xCenter-y, yCenter+x, xCenter+y, yCenter+x)
-		c.Line(xCenter-y, yCenter-x, xCenter+y, yCenter-x)
-		c.toggleFill()
-	}
+func (c *Canvas) fillCircle(xCenter, yCenter, r int) {
+	radiusSq := float64(r * r)
+	rotation := -c.rotationAngle * math.Pi / 180.0
 
-	c.char(strIndex(borderText, char), xCenter+x, yCenter+y)
-	c.char(strIndex(borderText, char+1), xCenter-x, yCenter+y)
-	c.char(strIndex(borderText, char+2), xCenter+x, yCenter-y)
-	c.char(strIndex(borderText, char+3), xCenter-x, yCenter-y)
-	c.char(strIndex(borderText, char+4), xCenter+y, yCenter+x)
-	c.char(strIndex(borderText, char+5), xCenter-y, yCenter+x)
-	c.char(strIndex(borderText, char+6), xCenter+y, yCenter-x)
-	c.char(strIndex(borderText, char+7), xCenter-y, yCenter-x)
+	for y := range c.Height {
+		for x := range c.Width {
+			dx := float64(x - c.originX)
+			dy := float64(y - c.originY)
+
+			sx := dx*math.Cos(rotation) - dy*math.Sin(rotation)
+			sy := dx*math.Sin(rotation) + dy*math.Cos(rotation)
+
+			sx /= c.scale
+			sy /= c.scale
+
+			origX := sx
+			origY := sy
+
+			dx = origX - float64(xCenter)
+			dy = origY - float64(yCenter)
+			if dx*dx+dy*dy < radiusSq-1 {
+				c.buffer[y][x] = c.formatCell(c.nextStrokeRune())
+			}
+		}
+	}
 }
