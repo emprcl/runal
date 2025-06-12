@@ -74,43 +74,121 @@ func (c *Canvas) Rect(x, y, w, h int) {
 	c.Line(x, y+h, x, y)
 }
 
-func (c *Canvas) Circle(xCenter, yCenter, r int) {
+func (c *Canvas) Ellipse(xCenter, yCenter, rx, ry int) {
 	x := 0
-	y := r
-	d := 1 - r
+	y := ry
+
+	rx2 := rx * rx
+	ry2 := ry * ry
+	twory2 := 2 * ry2
+	tworx2 := 2 * rx2
+
+	px := 0
+	py := tworx2 * y
+
 	char := 0
 
-	for x <= y {
-		char = char + 8
-		if c.fill {
+	// Region 1
+	d := ry2 - (rx2 * ry) + (rx2 / 4)
+	for px < py {
+		char += 8
+		c.plotEllipsePoints(xCenter, yCenter, x, y, char)
+
+		if c.fill && y < ry {
 			c.toggleFill()
-			if y <= r-1 {
-				c.Line(xCenter-x, yCenter+y, xCenter+x, yCenter+y)
-				c.Line(xCenter-x, yCenter-y, xCenter+x, yCenter-y)
-			}
-			c.Line(xCenter-y, yCenter+x, xCenter+y, yCenter+x)
-			c.Line(xCenter-y, yCenter-x, xCenter+y, yCenter-x)
+			c.Line(xCenter-x, yCenter+y, xCenter+x, yCenter+y)
+			c.Line(xCenter-x, yCenter-y, xCenter+x, yCenter-y)
 			c.toggleFill()
 		}
 
-		c.char(strIndex(c.strokeText, char), xCenter+x, yCenter+y)
-		c.char(strIndex(c.strokeText, char+1), xCenter-x, yCenter+y)
-		c.char(strIndex(c.strokeText, char+2), xCenter+x, yCenter-y)
-		c.char(strIndex(c.strokeText, char+3), xCenter-x, yCenter-y)
-		c.char(strIndex(c.strokeText, char+4), xCenter+y, yCenter+x)
-		c.char(strIndex(c.strokeText, char+5), xCenter-y, yCenter+x)
-		c.char(strIndex(c.strokeText, char+6), xCenter+y, yCenter-x)
-		c.char(strIndex(c.strokeText, char+7), xCenter-y, yCenter-x)
-
 		x++
+		px += twory2
 		if d < 0 {
-			d += 2*x + 1
+			d += ry2 + px
 		} else {
 			y--
-			d += 2*(x-y) + 1
+			py -= tworx2
+			d += ry2 + px - py
+		}
+	}
+
+	// Region 2
+	d = 4*ry2*(x+1)*(x+1) + rx2*(2*y-1)*(2*y-1) - 4*rx2*ry2
+	for y >= 0 {
+		char += 8
+		c.plotEllipsePoints(xCenter, yCenter, x, y, char)
+
+		if c.fill && y < ry {
+			c.toggleFill()
+			c.Line(xCenter-x, yCenter+y, xCenter+x, yCenter+y)
+			c.Line(xCenter-x, yCenter-y, xCenter+x, yCenter-y)
+			c.toggleFill()
+		}
+
+		y--
+		py -= tworx2
+		if d > 0 {
+			d += rx2 - py
+		} else {
+			x++
+			px += twory2
+			d += rx2 - py + px
 		}
 	}
 }
+
+func (c *Canvas) plotEllipsePoints(cx, cy, x, y, char int) {
+	c.char(strIndex(c.strokeText, char+0), cx+x, cy+y)
+	c.char(strIndex(c.strokeText, char+1), cx-x, cy+y)
+	c.char(strIndex(c.strokeText, char+2), cx+x, cy-y)
+	c.char(strIndex(c.strokeText, char+3), cx-x, cy-y)
+	c.char(strIndex(c.strokeText, char+4), cx+y, cy+x)
+	c.char(strIndex(c.strokeText, char+5), cx-y, cy+x)
+	c.char(strIndex(c.strokeText, char+6), cx+y, cy-x)
+	c.char(strIndex(c.strokeText, char+7), cx-y, cy-x)
+}
+
+func (c *Canvas) Circle(xCenter, yCenter, r int) {
+	c.Ellipse(xCenter, yCenter, r, r)
+}
+
+// func (c *Canvas) Circle(xCenter, yCenter, r int) {
+// 	x := 0
+// 	y := r
+// 	d := 1 - r
+// 	char := 0
+
+// 	for x <= y {
+// 		char = char + 8
+// 		if c.fill {
+// 			c.toggleFill()
+// 			if y <= r-1 {
+// 				c.Line(xCenter-x, yCenter+y, xCenter+x, yCenter+y)
+// 				c.Line(xCenter-x, yCenter-y, xCenter+x, yCenter-y)
+// 			}
+// 			c.Line(xCenter-y, yCenter+x, xCenter+y, yCenter+x)
+// 			c.Line(xCenter-y, yCenter-x, xCenter+y, yCenter-x)
+// 			c.toggleFill()
+// 		}
+
+// 		c.char(strIndex(c.strokeText, char), xCenter+x, yCenter+y)
+// 		c.char(strIndex(c.strokeText, char+1), xCenter-x, yCenter+y)
+// 		c.char(strIndex(c.strokeText, char+2), xCenter+x, yCenter-y)
+// 		c.char(strIndex(c.strokeText, char+3), xCenter-x, yCenter-y)
+// 		c.char(strIndex(c.strokeText, char+4), xCenter+y, yCenter+x)
+// 		c.char(strIndex(c.strokeText, char+5), xCenter-y, yCenter+x)
+// 		c.char(strIndex(c.strokeText, char+6), xCenter+y, yCenter-x)
+// 		c.char(strIndex(c.strokeText, char+7), xCenter-y, yCenter-x)
+
+// 		x++
+// 		if d < 0 {
+// 			d += 2*x + 1
+// 		} else {
+// 			y--
+// 			d += 2*(x-y) + 1
+// 		}
+// 	}
+// }
 
 func (c *Canvas) Triangle(x1, y1, x2, y2, x3, y3 int) {
 	if c.fill {
