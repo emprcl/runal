@@ -4,8 +4,8 @@ function setup() {
 
 function draw() {
   c.clear();
-  c.stroke(".", "#ffffff", "#000000");
-  c.fill(" ", "#ffffff", "#eeeeee");
+  c.stroke("test", "#ffffff", "#000000");
+  c.fill("blop", "#ffffff", "#000000");
   c.translate(c.width / 2, c.height / 2);
   c.rotate(c.framecount);
   c.scale(1);
