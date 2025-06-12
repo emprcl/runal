@@ -111,7 +111,54 @@ func (c *Canvas) Circle(xCenter, yCenter, r int) {
 }
 
 func (c *Canvas) Triangle(x1, y1, x2, y2, x3, y3 int) {
+	if c.fill {
+		c.toggleFill()
+		c.fillTriangle(x1, y1, x2, y2, x3, y3)
+		c.toggleFill()
+	}
 	c.Line(x1, y1, x2, y2)
 	c.Line(x2, y2, x3, y3)
 	c.Line(x3, y3, x1, y1)
+}
+
+func (c *Canvas) fillTriangle(x1, y1, x2, y2, x3, y3 int) {
+	minX := min(x1, min(x2, x3))
+	maxX := max(x1, max(x2, x3))
+	minY := min(y1, min(y2, y3))
+	maxY := max(y1, max(y2, y3))
+
+	for y := minY; y <= maxY; y++ {
+		for x := minX; x <= maxX; x++ {
+			if pointInTriangle(x, y, x1, y1, x2, y2, x3, y3) {
+				c.Point(x, y)
+			}
+		}
+	}
+}
+
+func pointInTriangle(px, py, x1, y1, x2, y2, x3, y3 int) bool {
+	ax, ay := float64(x1), float64(y1)
+	bx, by := float64(x2), float64(y2)
+	cx, cy := float64(x3), float64(y3)
+	pxf, pyf := float64(px), float64(py)
+
+	v0x, v0y := cx-ax, cy-ay
+	v1x, v1y := bx-ax, by-ay
+	v2x, v2y := pxf-ax, pyf-ay
+
+	d00 := v0x*v0x + v0y*v0y
+	d01 := v0x*v1x + v0y*v1y
+	d02 := v0x*v2x + v0y*v2y
+	d11 := v1x*v1x + v1y*v1y
+	d12 := v1x*v2x + v1y*v2y
+
+	denom := d00*d11 - d01*d01
+	if denom == 0 {
+		return false
+	}
+	invDenom := 1 / denom
+	u := (d11*d02 - d01*d12) * invDenom
+	v := (d00*d12 - d01*d02) * invDenom
+
+	return u >= 0 && v >= 0 && u+v <= 1
 }

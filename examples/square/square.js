@@ -5,7 +5,7 @@ function setup() {
 function draw() {
   c.clear();
   c.stroke("A", "#ffffff", "#555555");
-  c.fill("B", "#ffffff", "#eeeeee");
+  c.fill("B", "#ffffff", "#000000");
   c.translate(c.width / 2, c.height / 2);
   c.rotate(c.framecount);
   c.scale(1);

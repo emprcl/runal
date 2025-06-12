@@ -44,6 +44,7 @@ type Canvas struct {
 	cellPaddingRune rune
 	cellPadding     bool
 	fill            bool
+	isFilling       bool
 	clear           bool
 	save            bool
 	autoResize      bool
@@ -159,6 +160,7 @@ func (c *Canvas) resize(width, height int) {
 }
 
 func (c *Canvas) char(char rune, x, y int) {
+	formattedChar := c.formatCell(char)
 	scaledX := float64(x) * c.scale
 	scaledY := float64(y) * c.scale
 
@@ -179,7 +181,24 @@ func (c *Canvas) char(char rune, x, y int) {
 				continue
 			}
 			c.buffer[sy][sx] = c.formatCell(char)
+
+			if c.isFilling {
+				// NOTE: hack to fill missing black spots
+				// due to rotation approx.
+				c.forceFill(sx, sy, scaledX, scaledY, formattedChar)
+			}
 		}
+	}
+}
+
+func (c *Canvas) forceFill(sx, sy int, scaledX, scaledY float64, char string) {
+	xLow := float64(sx) < (scaledX + float64(c.originX))
+	yLow := float64(sy) < (scaledY + float64(c.originY))
+
+	if xLow && c.buffer[sy][sx+1] == "" && c.buffer[sy][sx+2] == char {
+		c.buffer[sy][sx+1] = char
+	} else if yLow && c.buffer[sy][sx-1] == "" && c.buffer[sy][sx-2] == char {
+		c.buffer[sy][sx-1] = char
 	}
 }
 
@@ -215,6 +234,7 @@ func (c *Canvas) widthWithPadding(w int) int {
 }
 
 func (c *Canvas) toggleFill() {
+	c.isFilling = !c.isFilling
 	stroke := c.strokeText
 	bg := c.strokeBg
 	fg := c.strokeFg
