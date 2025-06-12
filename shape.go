@@ -1,7 +1,5 @@
 package runal
 
-import "math"
-
 func (c *Canvas) Text(text string, x, y int) {
 	destX := c.originX + x
 	destY := c.originY + y
@@ -65,38 +63,15 @@ func (c *Canvas) Square(x, y, size int) {
 func (c *Canvas) Rect(x, y, w, h int) {
 	if c.fill {
 		c.toggleFill()
-		c.fillRect(x, y, w, h)
+		for dy := range h {
+			c.Line(x, y+dy, x+w, y+dy)
+		}
 		c.toggleFill()
 	}
 	c.Line(x, y, x+w, y)
 	c.Line(x+w, y, x+w, y+h)
 	c.Line(x+w, y+h, x, y+h)
 	c.Line(x, y+h, x, y)
-}
-
-func (c *Canvas) fillRect(x, y, w, h int) {
-	for sy := range c.Height {
-		for sx := range c.Width {
-			tx := float64(sx - c.originX)
-			ty := float64(sy - c.originY)
-
-			radians := -c.rotationAngle * math.Pi / 180.0
-			rotX := tx*math.Cos(radians) - ty*math.Sin(radians)
-			rotY := tx*math.Sin(radians) + ty*math.Cos(radians)
-
-			modelX := rotX / c.scale
-			modelY := rotY / c.scale
-
-			inX := modelX >= float64(x) && modelX <= float64(x+w)
-			inY := modelY >= float64(y) && modelY <= float64(y+h)
-
-			if !inX || !inY {
-				continue
-			}
-
-			c.buffer[sy][sx] = c.formatCell(c.nextStrokeRune())
-		}
-	}
 }
 
 func (c *Canvas) Circle(xCenter, yCenter, r int) {
@@ -109,7 +84,10 @@ func (c *Canvas) Circle(xCenter, yCenter, r int) {
 		char = char + 8
 		if c.fill {
 			c.toggleFill()
-			c.fillCircle(xCenter, yCenter, r)
+			c.Line(xCenter-x, yCenter+y, xCenter+x, yCenter+y)
+			c.Line(xCenter-x, yCenter-y, xCenter+x, yCenter-y)
+			c.Line(xCenter-y, yCenter+x, xCenter+y, yCenter+x)
+			c.Line(xCenter-y, yCenter-x, xCenter+y, yCenter-x)
 			c.toggleFill()
 		}
 
@@ -128,33 +106,6 @@ func (c *Canvas) Circle(xCenter, yCenter, r int) {
 		} else {
 			y--
 			d += 2*(x-y) + 1
-		}
-	}
-}
-
-func (c *Canvas) fillCircle(xCenter, yCenter, r int) {
-	radiusSq := float64(r * r)
-	rotation := -c.rotationAngle * math.Pi / 180.0
-
-	for y := range c.Height {
-		for x := range c.Width {
-			dx := float64(x - c.originX)
-			dy := float64(y - c.originY)
-
-			sx := dx*math.Cos(rotation) - dy*math.Sin(rotation)
-			sy := dx*math.Sin(rotation) + dy*math.Cos(rotation)
-
-			sx /= c.scale
-			sy /= c.scale
-
-			origX := sx
-			origY := sy
-
-			dx = origX - float64(xCenter)
-			dy = origY - float64(yCenter)
-			if dx*dx+dy*dy < radiusSq-1 {
-				c.buffer[y][x] = c.formatCell(c.nextStrokeRune())
-			}
 		}
 	}
 }
