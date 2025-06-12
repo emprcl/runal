@@ -192,12 +192,15 @@ func (c *Canvas) char(char rune, x, y int) {
 }
 
 func (c *Canvas) forceFill(sx, sy int, scaledX, scaledY float64, char string) {
+	// TODO: fix with rotation (check scale.js)
 	xLow := float64(sx) < (scaledX + float64(c.originX))
 	yLow := float64(sy) < (scaledY + float64(c.originY))
 
-	if xLow && c.buffer[sy][sx+1] == "" && c.buffer[sy][sx+2] == char {
+	if !c.OutOfBounds(sx+2, sy) && xLow && c.buffer[sy][sx+1] == "" && c.buffer[sy][sx+2] == char {
 		c.buffer[sy][sx+1] = char
-	} else if yLow && c.buffer[sy][sx-1] == "" && c.buffer[sy][sx-2] == char {
+	}
+
+	if !c.OutOfBounds(sx-2, sy) && yLow && c.buffer[sy][sx-1] == "" && c.buffer[sy][sx-2] == char {
 		c.buffer[sy][sx-1] = char
 	}
 }
