@@ -84,8 +84,10 @@ func (c *Canvas) Circle(xCenter, yCenter, r int) {
 		char = char + 8
 		if c.fill {
 			c.toggleFill()
-			c.Line(xCenter-x, yCenter+y, xCenter+x, yCenter+y)
-			c.Line(xCenter-x, yCenter-y, xCenter+x, yCenter-y)
+			if y <= r-1 {
+				c.Line(xCenter-x, yCenter+y, xCenter+x, yCenter+y)
+				c.Line(xCenter-x, yCenter-y, xCenter+x, yCenter-y)
+			}
 			c.Line(xCenter-y, yCenter+x, xCenter+y, yCenter+x)
 			c.Line(xCenter-y, yCenter-x, xCenter+y, yCenter-x)
 			c.toggleFill()

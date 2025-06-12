@@ -180,29 +180,36 @@ func (c *Canvas) char(char rune, x, y int) {
 			if c.OutOfBounds(sx, sy) {
 				continue
 			}
-			c.buffer[sy][sx] = c.formatCell(char)
+			c.buffer[sy][sx] = formattedChar
 
 			if c.isFilling {
 				// NOTE: hack to fill missing black spots
 				// due to rotation approx.
-				c.forceFill(sx, sy, scaledX, scaledY, formattedChar)
+				c.forceFill(sx, sy, formattedChar)
 			}
 		}
 	}
 }
 
-func (c *Canvas) forceFill(sx, sy int, scaledX, scaledY float64, char string) {
-	// TODO: fix with rotation (check scale.js)
-	xLow := float64(sx) < (scaledX + float64(c.originX))
-	yLow := float64(sy) < (scaledY + float64(c.originY))
-
-	if !c.OutOfBounds(sx+2, sy) && xLow && c.buffer[sy][sx+1] == "" && c.buffer[sy][sx+2] == char {
-		c.buffer[sy][sx+1] = char
+func (c *Canvas) forceFill(sx, sy int, char string) {
+	for dy := -1; dy <= 1; dy++ {
+		for dx := -1; dx <= 1; dx++ {
+			px := sx + dx
+			py := sy + dy
+			if c.OutOfBounds(px, py) || (dx == 0 && dy == 0) {
+				continue
+			}
+			if c.buffer[py][px] == "" {
+				if c.inBoundsAndMatch(px+dx, py+dy, char) && c.inBoundsAndMatch(px-dx, py-dy, char) {
+					c.buffer[py][px] = char
+				}
+			}
+		}
 	}
+}
 
-	if !c.OutOfBounds(sx-2, sy) && yLow && c.buffer[sy][sx-1] == "" && c.buffer[sy][sx-2] == char {
-		c.buffer[sy][sx-1] = char
-	}
+func (c *Canvas) inBoundsAndMatch(x, y int, char string) bool {
+	return !c.OutOfBounds(x, y) && c.buffer[y][x] == char
 }
 
 func (c *Canvas) style(str string) string {
