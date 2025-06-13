@@ -79,6 +79,57 @@ func (c *Canvas) Rect(x, y, w, h int) {
 	c.Line(x, y+h, x, y)
 }
 
+func (c *Canvas) Quad(x1, y1, x2, y2, x3, y3, x4, y4 int) {
+	if c.fill {
+		vertices := [][2]int{{x1, y1}, {x2, y2}, {x3, y3}, {x4, y4}}
+		scanlineIntersections := map[int][]int{}
+		for i := 0; i < 4; i++ {
+			xStart, yStart := vertices[i][0], vertices[i][1]
+			xEnd, yEnd := vertices[(i+1)%4][0], vertices[(i+1)%4][1]
+
+			if yStart == yEnd {
+				y := yStart
+				xmin := xStart
+				xmax := xEnd
+				if xmin > xmax {
+					xmin, xmax = xmax, xmin
+				}
+				scanlineIntersections[y] = append(scanlineIntersections[y], xmin, xmax)
+			} else {
+				if yStart > yEnd {
+					yStart, yEnd = yEnd, yStart
+					xStart, xEnd = xEnd, xStart
+				}
+				for y := yStart; y <= yEnd; y++ {
+					t := float64(y-yStart) / float64(yEnd-yStart)
+					x := int(math.Round(float64(xStart) + t*float64(xEnd-xStart)))
+					scanlineIntersections[y] = append(scanlineIntersections[y], x)
+				}
+			}
+		}
+
+		c.toggleFill()
+		for y, xs := range scanlineIntersections {
+			if len(xs) < 2 {
+				continue
+			}
+			sort.Ints(xs)
+			for i := 0; i < len(xs); i += 2 {
+				if i+1 < len(xs) {
+					c.Line(xs[i], y, xs[i+1], y)
+				}
+			}
+		}
+		c.toggleFill()
+	}
+
+	// Draw outline lines
+	c.Line(x1, y1, x2, y2)
+	c.Line(x2, y2, x3, y3)
+	c.Line(x3, y3, x4, y4)
+	c.Line(x4, y4, x1, y1)
+}
+
 func (c *Canvas) Ellipse(xCenter, yCenter, rx, ry int) {
 	steps := 360
 	points := make([][2]int, 0, steps)
