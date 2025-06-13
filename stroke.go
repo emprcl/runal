@@ -1,9 +1,5 @@
 package runal
 
-import (
-	"github.com/charmbracelet/lipgloss"
-)
-
 func (c *Canvas) Background(text, fg, bg string) {
 	c.BackgroundText(text)
 	c.BackgroundBg(bg)
@@ -20,11 +16,11 @@ func (c *Canvas) BackgroundText(text string) {
 }
 
 func (c *Canvas) BackgroundFg(fg string) {
-	c.backgroundFg = lipgloss.Color(fg)
+	c.backgroundFg = color(fg)
 }
 
 func (c *Canvas) BackgroundBg(bg string) {
-	c.backgroundBg = lipgloss.Color(bg)
+	c.backgroundBg = color(bg)
 }
 
 func (c *Canvas) Fill(text, fg, bg string) {
@@ -44,12 +40,12 @@ func (c *Canvas) FillText(text string) {
 
 func (c *Canvas) FillFg(fg string) {
 	c.fill = true
-	c.fillFg = lipgloss.Color(fg)
+	c.fillFg = color(fg)
 }
 
 func (c *Canvas) FillBg(bg string) {
 	c.fill = true
-	c.fillBg = lipgloss.Color(bg)
+	c.fillBg = color(bg)
 }
 
 func (c *Canvas) Stroke(text, fg, bg string) {
@@ -67,11 +63,11 @@ func (c *Canvas) StrokeText(text string) {
 }
 
 func (c *Canvas) StrokeFg(fg string) {
-	c.strokeFg = lipgloss.Color(fg)
+	c.strokeFg = color(fg)
 }
 
 func (c *Canvas) StrokeBg(bg string) {
-	c.strokeBg = lipgloss.Color(bg)
+	c.strokeBg = color(bg)
 }
 
 func (c *Canvas) NoFill() {

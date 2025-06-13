@@ -13,6 +13,14 @@ import (
 )
 
 func main() {
+	// p := perlin.NewPerlin(2., 2., 3, time.Now().UnixNano())
+	// for x := 0.; x < 3; x++ {
+	// 	for y := 0.; y < 3; y++ {
+	// 		fmt.Printf("%0.0f;%0.0f;%0.4f\n", x, y, p.Noise2D(x*0.05, y*0.05))
+	// 	}
+
+	// }
+	// os.Exit(0)
 	file := flag.String("f", "", "sketch file (.js)")
 	flag.Parse()
 

@@ -8,6 +8,7 @@ import (
 	"os"
 	"strings"
 
+	perlin "github.com/aquilax/go-perlin"
 	"github.com/charmbracelet/lipgloss"
 	"github.com/charmbracelet/x/ansi"
 	ansitoimage "github.com/pavelpatrin/go-ansi-to-image"
@@ -21,9 +22,11 @@ const (
 )
 
 type Canvas struct {
-	buffer  buffer
-	output  io.Writer
-	capture *ansitoimage.Converter
+	buffer    buffer
+	output    io.Writer
+	capture   *ansitoimage.Converter
+	noise     *perlin.Perlin
+	noiseSeed int64
 
 	strokeFg, strokeBg                   lipgloss.Color
 	fillFg, fillBg                       lipgloss.Color
@@ -63,13 +66,14 @@ func newCanvas(width, height int) *Canvas {
 		buffer:          newBuffer(width, height),
 		output:          os.Stdout,
 		capture:         newCapture(width, height),
+		noise:           newNoise(),
 		scale:           1,
-		strokeFg:        lipgloss.Color("#ffffff"),
-		strokeBg:        lipgloss.Color("#000000"),
-		fillFg:          lipgloss.Color("#ffffff"),
-		fillBg:          lipgloss.Color("#000000"),
-		backgroundFg:    lipgloss.Color("#ffffff"),
-		backgroundBg:    lipgloss.Color("#000000"),
+		strokeFg:        color("#ffffff"),
+		strokeBg:        color("#000000"),
+		fillFg:          color("#ffffff"),
+		fillBg:          color("#000000"),
+		backgroundFg:    color("#ffffff"),
+		backgroundBg:    color("#000000"),
 		strokeText:      defaultStrokeText,
 		fillText:        defaultFillText,
 		backgroundText:  defaultBackgroundText,

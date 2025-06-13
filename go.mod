@@ -3,6 +3,7 @@ module github.com/emprcl/runal
 go 1.23.0
 
 require (
+	github.com/aquilax/go-perlin v1.1.0
 	github.com/charmbracelet/lipgloss v1.0.0
 	github.com/charmbracelet/x/ansi v0.4.2
 	github.com/pavelpatrin/go-ansi-to-image v0.0.0-20220322093528-7a32ac9e149c
