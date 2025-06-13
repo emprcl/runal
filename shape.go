@@ -9,7 +9,7 @@ func (c *Canvas) Text(text string, x, y int) {
 	destX := c.originX + x
 	destY := c.originY + y
 
-	if c.OutOfBounds(destX, destY) {
+	if c.outOfBounds(destX, destY) {
 		return
 	}
 	for i, r := range text {

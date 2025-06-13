@@ -177,7 +177,7 @@ func (c *Canvas) char(char rune, x, y int) {
 		for dx := range blockSize {
 			sx := destX + dx
 			sy := destY + dy
-			if c.OutOfBounds(sx, sy) {
+			if c.outOfBounds(sx, sy) {
 				continue
 			}
 			c.buffer[sy][sx] = formattedChar
@@ -196,7 +196,7 @@ func (c *Canvas) forceFill(sx, sy int, char string) {
 		for dx := -1; dx <= 1; dx++ {
 			px := sx + dx
 			py := sy + dy
-			if c.OutOfBounds(px, py) || (dx == 0 && dy == 0) {
+			if c.outOfBounds(px, py) || (dx == 0 && dy == 0) {
 				continue
 			}
 			if c.buffer[py][px] == "" {
@@ -209,7 +209,7 @@ func (c *Canvas) forceFill(sx, sy int, char string) {
 }
 
 func (c *Canvas) inBoundsAndMatch(x, y int, char string) bool {
-	return !c.OutOfBounds(x, y) && c.buffer[y][x] == char
+	return !c.outOfBounds(x, y) && c.buffer[y][x] == char
 }
 
 func (c *Canvas) style(str string) string {
@@ -268,6 +268,6 @@ func (c *Canvas) nextStrokeRune() rune {
 	return rune(r)
 }
 
-func (c *Canvas) OutOfBounds(x, y int) bool {
+func (c *Canvas) outOfBounds(x, y int) bool {
 	return x < 0 || y < 0 || x > c.Width-1 || y > c.Height-1
 }
