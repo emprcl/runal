@@ -7,6 +7,8 @@ import (
 	"sync"
 	"syscall"
 	"time"
+
+	"golang.org/x/term"
 )
 
 const (
@@ -15,10 +17,11 @@ const (
 
 func Run(ctx context.Context, setup, draw func(c *Canvas)) {
 	ctx, _ = signal.NotifyContext(ctx, os.Interrupt)
-	Start(ctx, setup, draw).Wait()
+	Start(ctx, setup, draw, nil).Wait()
 }
 
-func Start(ctx context.Context, setup, draw func(c *Canvas)) *sync.WaitGroup {
+func Start(ctx context.Context, setup, draw func(c *Canvas), onKey func(c *Canvas, key string)) *sync.WaitGroup {
+	ctx, cancel := context.WithCancel(ctx)
 	w, h := termSize()
 	c := newCanvas(w, h)
 
@@ -26,6 +29,23 @@ func Start(ctx context.Context, setup, draw func(c *Canvas)) *sync.WaitGroup {
 	signal.Notify(resize, syscall.SIGWINCH)
 
 	enterAltScreen()
+
+	oldState, _ := term.MakeRaw(int(os.Stdin.Fd()))
+	defer term.Restore(int(os.Stdin.Fd()), oldState)
+
+	go func() {
+		buf := make([]byte, 1)
+		for {
+			os.Stdin.Read(buf)
+			if buf[0] == 3 { // ctrl+c
+				cancel()
+				return
+			}
+			if onKey != nil {
+				onKey(c, string(buf))
+			}
+		}
+	}()
 
 	setup(c)
 	render := func() {

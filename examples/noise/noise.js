@@ -1,5 +1,4 @@
 function setup() {
-  c.cellPadding(" ");
   c.noLoop();
 }
 

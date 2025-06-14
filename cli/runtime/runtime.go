@@ -44,12 +44,12 @@ func (s runtime) Run() {
 	signal.Notify(done, os.Interrupt)
 	ctx, cancel := context.WithCancel(context.Background())
 	content, err := os.ReadFile(s.filename)
-	vm, setup, draw, err := parseJS(string(content))
+	vm, setup, draw, onKey, err := parseJS(string(content))
 	var wg *sync.WaitGroup
 	if err != nil {
 		log.Error(err)
 	} else {
-		wg = s.runSketch(ctx, vm, setup, draw)
+		wg = s.runSketch(ctx, vm, setup, draw, onKey)
 	}
 
 	go func() {
@@ -72,13 +72,13 @@ func (s runtime) Run() {
 						log.Error(err)
 						continue
 					}
-					vm, setup, draw, err := parseJS(string(content))
+					vm, setup, draw, onKey, err := parseJS(string(content))
 					if err != nil {
 						log.Error(err)
 						continue
 					}
 					ctx, cancel = context.WithCancel(context.Background())
-					wg = s.runSketch(ctx, vm, setup, draw)
+					wg = s.runSketch(ctx, vm, setup, draw, onKey)
 				}
 			case err, ok := <-s.watcher.Errors:
 				if !ok {
@@ -99,7 +99,7 @@ func (s runtime) Run() {
 	wg.Wait()
 }
 
-func (s runtime) runSketch(ctx context.Context, vm *goja.Runtime, setup, draw goja.Callable) *sync.WaitGroup {
+func (s runtime) runSketch(ctx context.Context, vm *goja.Runtime, setup, draw goja.Callable, onKey goja.Callable) *sync.WaitGroup {
 	return runal.Start(
 		ctx,
 		func(c *runal.Canvas) {
@@ -114,6 +114,14 @@ func (s runtime) runSketch(ctx context.Context, vm *goja.Runtime, setup, draw go
 		func(c *runal.Canvas) {
 			vm.Set("c", c)
 			_, err := draw(goja.Undefined())
+			if err != nil {
+				log.Error(err)
+				c.DisableRendering()
+			}
+		},
+		func(c *runal.Canvas, key string) {
+			vm.Set("key", key)
+			_, err := onKey(goja.Undefined())
 			if err != nil {
 				log.Error(err)
 				c.DisableRendering()
