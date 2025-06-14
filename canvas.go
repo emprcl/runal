@@ -187,7 +187,7 @@ func (c *Canvas) char(char rune, x, y int) {
 			c.buffer[sy][sx] = formattedChar
 
 			if c.isFilling {
-				// NOTE: hack to fill missing black spots
+				// NOTE: hack to fill blank spots
 				// due to rotation approx.
 				c.forceFill(sx, sy, formattedChar)
 			}
