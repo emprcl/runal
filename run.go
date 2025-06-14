@@ -100,6 +100,7 @@ func Start(ctx context.Context, setup, draw func(c *Canvas), onKey func(c *Canva
 	return &wg
 }
 
+// TODO: check weird behavior when spamming keys
 func inputChannel(ctx context.Context) <-chan byte {
 	ch := make(chan byte)
 	go func() {
