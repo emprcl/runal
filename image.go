@@ -10,6 +10,7 @@ import (
 
 const screenshotFilename = "screenshot_%s.png"
 
+// TODO: check weird last col rendering in image
 func (c *Canvas) SaveCanvas() {
 	c.save = true
 	c.Redraw()

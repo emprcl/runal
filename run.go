@@ -87,6 +87,7 @@ func Start(ctx context.Context, setup, draw func(c *Canvas), onKey func(c *Canva
 					exit()
 					return
 				}
+				// TODO: check how spaces are handled
 				if onKey != nil {
 					onKey(c, string(char))
 				}
