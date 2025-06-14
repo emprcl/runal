@@ -17,3 +17,9 @@ func newStopEvent() event {
 		name: "stop",
 	}
 }
+
+func newRenderEvent() event {
+	return event{
+		name: "render",
+	}
+}

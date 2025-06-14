@@ -2,6 +2,7 @@ package runal
 
 import (
 	"context"
+	"log"
 	"os"
 	"os/signal"
 	"sync"
@@ -15,37 +16,26 @@ const (
 	defaultFPS = 30
 )
 
-func Run(ctx context.Context, setup, draw func(c *Canvas)) {
+func Run(ctx context.Context, setup, draw func(c *Canvas), onKey func(c *Canvas, key string)) {
 	ctx, _ = signal.NotifyContext(ctx, os.Interrupt)
-	Start(ctx, setup, draw, nil).Wait()
+	Start(ctx, setup, draw, onKey).Wait()
 }
 
 func Start(ctx context.Context, setup, draw func(c *Canvas), onKey func(c *Canvas, key string)) *sync.WaitGroup {
-	ctx, cancel := context.WithCancel(ctx)
 	w, h := termSize()
 	c := newCanvas(w, h)
 
 	resize := make(chan os.Signal, 1)
 	signal.Notify(resize, syscall.SIGWINCH)
 
+	input := inputChannel(ctx)
+
 	enterAltScreen()
 
-	oldState, _ := term.MakeRaw(int(os.Stdin.Fd()))
-	defer term.Restore(int(os.Stdin.Fd()), oldState)
-
-	go func() {
-		buf := make([]byte, 1)
-		for {
-			os.Stdin.Read(buf)
-			if buf[0] == 3 { // ctrl+c
-				cancel()
-				return
-			}
-			if onKey != nil {
-				onKey(c, string(buf))
-			}
-		}
-	}()
+	oldState, err := term.MakeRaw(int(os.Stdin.Fd()))
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	setup(c)
 	render := func() {
@@ -54,6 +44,13 @@ func Start(ctx context.Context, setup, draw func(c *Canvas), onKey func(c *Canva
 		c.render()
 	}
 	render()
+
+	exit := func() {
+		term.Restore(int(os.Stdin.Fd()), oldState)
+		clearScreen()
+		resetCursorPosition()
+		showCursor()
+	}
 
 	ticker := time.NewTicker(newFramerate(defaultFPS))
 	wg := sync.WaitGroup{}
@@ -64,9 +61,7 @@ func Start(ctx context.Context, setup, draw func(c *Canvas), onKey func(c *Canva
 		for {
 			select {
 			case <-ctx.Done():
-				clearScreen()
-				resetCursorPosition()
-				showCursor()
+				exit()
 				return
 			case <-resize:
 				clearScreen()
@@ -83,6 +78,17 @@ func Start(ctx context.Context, setup, draw func(c *Canvas), onKey func(c *Canva
 					ticker.Reset(newFramerate(event.value))
 				case "stop":
 					ticker.Stop()
+				case "render":
+					render()
+				}
+			case char := <-input:
+				// ctrl+c
+				if char == 3 {
+					exit()
+					return
+				}
+				if onKey != nil {
+					onKey(c, string(char))
 				}
 			case <-ticker.C:
 				render()
@@ -91,6 +97,27 @@ func Start(ctx context.Context, setup, draw func(c *Canvas), onKey func(c *Canva
 	}()
 
 	return &wg
+}
+
+func inputChannel(ctx context.Context) <-chan byte {
+	ch := make(chan byte)
+	go func() {
+		defer close(ch)
+		buf := make([]byte, 1)
+		for {
+			select {
+			case <-ctx.Done():
+				return
+			default:
+			}
+			n, err := os.Stdin.Read(buf)
+			if err != nil || n == 0 {
+				continue
+			}
+			ch <- buf[0]
+		}
+	}()
+	return ch
 }
 
 func newFramerate(fps int) time.Duration {

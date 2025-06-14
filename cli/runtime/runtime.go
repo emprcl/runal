@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"io"
 	"os"
-	"os/signal"
 	"path/filepath"
 	"sync"
 
@@ -40,8 +39,6 @@ func New(filename string, watcher *fsnotify.Watcher, logger io.Writer) runtime {
 }
 
 func (s runtime) Run() {
-	done := make(chan os.Signal, 1)
-	signal.Notify(done, os.Interrupt)
 	ctx, cancel := context.WithCancel(context.Background())
 	content, err := os.ReadFile(s.filename)
 	vm, setup, draw, onKey, err := parseJS(string(content))
@@ -94,8 +91,6 @@ func (s runtime) Run() {
 		log.Fatal(err)
 	}
 
-	<-done
-	cancel()
 	wg.Wait()
 }
 
@@ -120,6 +115,7 @@ func (s runtime) runSketch(ctx context.Context, vm *goja.Runtime, setup, draw go
 			}
 		},
 		func(c *runal.Canvas, key string) {
+			vm.Set("c", c)
 			vm.Set("key", key)
 			_, err := onKey(goja.Undefined())
 			if err != nil {

@@ -20,7 +20,7 @@ var (
 )
 
 func main() {
-	runal.Run(context.Background(), setup, draw)
+	runal.Run(context.Background(), setup, draw, nil)
 }
 
 func setup(c *runal.Canvas) {

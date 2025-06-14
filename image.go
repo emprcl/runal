@@ -12,6 +12,7 @@ const screenshotFilename = "screenshot_%s.png"
 
 func (c *Canvas) SaveCanvas() {
 	c.save = true
+	c.Redraw()
 }
 
 func newCapture(width, height int) *ansitoimage.Converter {

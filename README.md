@@ -70,12 +70,14 @@ import (
 )
 
 func main() {
-	runal.Run(context.Background(), setup, draw)
+	runal.Run(context.Background(), setup, draw, onKey)
 }
 
 func setup(c *runal.Canvas) {}
 
 func draw(c *runal.Canvas) {}
+
+func onKey(c *runal.Canvas, key string) {}
 ```
 
 Then, simply build it:

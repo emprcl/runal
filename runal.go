@@ -17,6 +17,10 @@ func (c *Canvas) NoLoop() {
 	c.bus <- newStopEvent()
 }
 
+func (c *Canvas) Redraw() {
+	c.bus <- newRenderEvent()
+}
+
 func (c *Canvas) DisableRendering() {
 	c.disabled = true
 	c.NoLoop()
