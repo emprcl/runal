@@ -2,7 +2,7 @@ package runal
 
 import "github.com/charmbracelet/lipgloss"
 
-type saveState struct {
+type state struct {
 	strokeFg, strokeBg                   lipgloss.Color
 	fillFg, fillBg                       lipgloss.Color
 	backgroundFg, backgroundBg           lipgloss.Color
@@ -16,7 +16,7 @@ type saveState struct {
 }
 
 func (c *Canvas) Push() {
-	c.saveState = &saveState{
+	c.state = &state{
 		strokeFg:       c.strokeFg,
 		strokeBg:       c.strokeBg,
 		fillFg:         c.fillFg,
@@ -35,24 +35,24 @@ func (c *Canvas) Push() {
 }
 
 func (c *Canvas) Pop() {
-	if c.saveState == nil {
+	if c.state == nil {
 		return
 	}
 
-	c.strokeFg = c.saveState.strokeFg
-	c.strokeBg = c.saveState.strokeBg
-	c.fillFg = c.saveState.fillFg
-	c.fillBg = c.saveState.fillBg
-	c.backgroundFg = c.saveState.backgroundFg
-	c.backgroundBg = c.saveState.backgroundBg
-	c.strokeText = c.saveState.strokeText
-	c.fillText = c.saveState.fillText
-	c.backgroundText = c.saveState.backgroundText
-	c.originX = c.saveState.originX
-	c.originY = c.saveState.originY
-	c.rotationAngle = c.saveState.rotationAngle
-	c.scale = c.saveState.scale
-	c.fill = c.saveState.fill
+	c.strokeFg = c.state.strokeFg
+	c.strokeBg = c.state.strokeBg
+	c.fillFg = c.state.fillFg
+	c.fillBg = c.state.fillBg
+	c.backgroundFg = c.state.backgroundFg
+	c.backgroundBg = c.state.backgroundBg
+	c.strokeText = c.state.strokeText
+	c.fillText = c.state.fillText
+	c.backgroundText = c.state.backgroundText
+	c.originX = c.state.originX
+	c.originY = c.state.originY
+	c.rotationAngle = c.state.rotationAngle
+	c.scale = c.state.scale
+	c.fill = c.state.fill
 
-	c.saveState = nil
+	c.state = nil
 }

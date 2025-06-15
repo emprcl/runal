@@ -2,10 +2,10 @@
 
 ![GitHub release (latest SemVer)](https://img.shields.io/github/v/release/emprcl/runal) ![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/emprcl/runal/build.yml)
 
-Runal is a simple creative coding tool for the terminal.
+Runal is a simple creative coding environment for the terminal.
 It works similarly as [p5js](https://p5js.org/) and can either be programmed with JavaScript, or used as a Go package.
 
-> :warning: _Runal is a work-in-progress. It has only been tested on Linux and the API should not be considered as stable._
+> :warning: _Runal is a work-in-progress. It has only been tested on Linux and the API should not be considered as stable until it reaches 1.0._
 
 _Feel free to [open an issue](https://github.com/emprcl/runal/issues/new)._
 
@@ -70,14 +70,12 @@ import (
 )
 
 func main() {
-	runal.Run(context.Background(), setup, draw, onKey)
+	runal.Run(context.Background(), setup, draw, nil)
 }
 
 func setup(c *runal.Canvas) {}
 
 func draw(c *runal.Canvas) {}
-
-func onKey(c *runal.Canvas, key string) {}
 ```
 
 Then, simply build it:

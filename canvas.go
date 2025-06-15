@@ -29,12 +29,14 @@ type Canvas struct {
 	noise   *perlin.Perlin
 	random  *rand.Rand
 
-	saveState *saveState
+	state *state
 
 	strokeFg, strokeBg                   lipgloss.Color
 	fillFg, fillBg                       lipgloss.Color
 	backgroundFg, backgroundBg           lipgloss.Color
 	strokeText, fillText, backgroundText string
+
+	saveFilename string
 
 	bus chan event
 

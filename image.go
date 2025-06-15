@@ -1,17 +1,14 @@
 package runal
 
 import (
-	"fmt"
 	"os"
-	"time"
 
 	ansitoimage "github.com/pavelpatrin/go-ansi-to-image"
 )
 
-const canvasFilename = "canvas_%s.png"
-
-func (c *Canvas) SaveCanvas() {
+func (c *Canvas) SaveCanvas(filename string) {
 	c.save = true
+	c.saveFilename = filename
 	c.Redraw()
 }
 
@@ -41,5 +38,5 @@ func newCaptureConfig(width, height int) ansitoimage.Config {
 func (c *Canvas) exportCanvasToPNG(frame string) {
 	c.capture.Parse(frame)
 	img, _ := c.capture.ToPNG()
-	os.WriteFile(fmt.Sprintf(canvasFilename, time.Now().Local().Format(time.RFC3339Nano)), img, 0644)
+	os.WriteFile(c.saveFilename, img, 0644)
 }
