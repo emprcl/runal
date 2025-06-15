@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"math"
+	"math/rand"
 	"os"
 	"strings"
 
@@ -22,11 +23,11 @@ const (
 )
 
 type Canvas struct {
-	buffer    buffer
-	output    io.Writer
-	capture   *ansitoimage.Converter
-	noise     *perlin.Perlin
-	noiseSeed int64
+	buffer  buffer
+	output  io.Writer
+	capture *ansitoimage.Converter
+	noise   *perlin.Perlin
+	random  *rand.Rand
 
 	strokeFg, strokeBg                   lipgloss.Color
 	fillFg, fillBg                       lipgloss.Color
@@ -67,6 +68,7 @@ func newCanvas(width, height int) *Canvas {
 		output:          os.Stdout,
 		capture:         newCapture(width, height),
 		noise:           newNoise(),
+		random:          newRandom(),
 		scale:           1,
 		strokeFg:        color("#ffffff"),
 		strokeBg:        color("#000000"),
