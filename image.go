@@ -15,7 +15,7 @@ func (c *Canvas) SaveCanvas() {
 	c.Redraw()
 }
 
-func (c *Canvas) SaveCanvasFont(filename string) {
+func (c *Canvas) CanvasFont(filename string) {
 	file, err := os.ReadFile(filename)
 	if err != nil {
 		return
