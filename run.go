@@ -87,7 +87,6 @@ func Start(ctx context.Context, setup, draw func(c *Canvas), onKey func(c *Canva
 					exit()
 					return
 				}
-				// TODO: check how spaces are handled
 				if onKey != nil {
 					onKey(c, string(char))
 				}
@@ -100,9 +99,8 @@ func Start(ctx context.Context, setup, draw func(c *Canvas), onKey func(c *Canva
 	return &wg
 }
 
-// TODO: check weird behavior when spamming keys
 func inputChannel(ctx context.Context) <-chan byte {
-	ch := make(chan byte)
+	ch := make(chan byte, 32)
 	go func() {
 		defer close(ch)
 		buf := make([]byte, 1)

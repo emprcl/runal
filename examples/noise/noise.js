@@ -25,7 +25,7 @@ function onKey() {
   if (key == "c") {
     c.saveCanvas();
   }
-  if (key == "a") {
+  if (key == " ") {
     c.noiseSeed(Date.now());
     c.redraw();
   }
