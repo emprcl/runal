@@ -1,5 +1,5 @@
 function setup() {
-  c.noLoop();
+  c.cellPadding("0");
 }
 
 function draw() {
@@ -7,8 +7,8 @@ function draw() {
     for (let j = 0; j < c.height; j++) {
       let color = c.map(
         c.noise2D(
-          i * 0.05 + c.framecount / 1000,
-          j * 0.05 + c.framecount / 1000,
+          i * 0.005 + c.framecount / 1000,
+          j * 0.005 + c.framecount / 1000,
         ),
         0,
         1,
