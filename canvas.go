@@ -29,6 +29,8 @@ type Canvas struct {
 	noise   *perlin.Perlin
 	random  *rand.Rand
 
+	saveState *saveState
+
 	strokeFg, strokeBg                   lipgloss.Color
 	fillFg, fillBg                       lipgloss.Color
 	backgroundFg, backgroundBg           lipgloss.Color
