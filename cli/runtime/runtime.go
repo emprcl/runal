@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"os/signal"
 	"path/filepath"
 	"sync"
 
@@ -39,6 +40,8 @@ func New(filename string, watcher *fsnotify.Watcher, logger io.Writer) runtime {
 }
 
 func (s runtime) Run() {
+	done := make(chan os.Signal, 1)
+	signal.Notify(done, os.Interrupt)
 	ctx, cancel := context.WithCancel(context.Background())
 	content, err := os.ReadFile(s.filename)
 	vm, setup, draw, onKey, err := parseJS(string(content))
@@ -46,7 +49,7 @@ func (s runtime) Run() {
 	if err != nil {
 		log.Error(err)
 	} else {
-		wg = s.runSketch(ctx, vm, setup, draw, onKey)
+		wg = s.runSketch(ctx, done, vm, setup, draw, onKey)
 	}
 
 	go func() {
@@ -75,7 +78,7 @@ func (s runtime) Run() {
 						continue
 					}
 					ctx, cancel = context.WithCancel(context.Background())
-					wg = s.runSketch(ctx, vm, setup, draw, onKey)
+					wg = s.runSketch(ctx, done, vm, setup, draw, onKey)
 				}
 			case err, ok := <-s.watcher.Errors:
 				if !ok {
@@ -91,12 +94,15 @@ func (s runtime) Run() {
 		log.Fatal(err)
 	}
 
+	<-done
+	cancel()
 	wg.Wait()
 }
 
-func (s runtime) runSketch(ctx context.Context, vm *goja.Runtime, setup, draw goja.Callable, onKey goja.Callable) *sync.WaitGroup {
+func (s runtime) runSketch(ctx context.Context, done chan os.Signal, vm *goja.Runtime, setup, draw goja.Callable, onKey goja.Callable) *sync.WaitGroup {
 	return runal.Start(
 		ctx,
+		done,
 		func(c *runal.Canvas) {
 			vm.Set("console", s.console)
 			vm.Set("c", c)

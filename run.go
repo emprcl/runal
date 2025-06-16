@@ -18,10 +18,10 @@ const (
 
 func Run(ctx context.Context, setup, draw func(c *Canvas), onKey func(c *Canvas, key string)) {
 	ctx, _ = signal.NotifyContext(ctx, os.Interrupt)
-	Start(ctx, setup, draw, onKey).Wait()
+	Start(ctx, nil, setup, draw, onKey).Wait()
 }
 
-func Start(ctx context.Context, setup, draw func(c *Canvas), onKey func(c *Canvas, key string)) *sync.WaitGroup {
+func Start(ctx context.Context, done chan os.Signal, setup, draw func(c *Canvas), onKey func(c *Canvas, key string)) *sync.WaitGroup {
 	w, h := termSize()
 	c := newCanvas(w, h)
 
@@ -85,6 +85,9 @@ func Start(ctx context.Context, setup, draw func(c *Canvas), onKey func(c *Canva
 				// ctrl+c
 				if char == 3 {
 					exit()
+					if done != nil {
+						done <- os.Interrupt
+					}
 					return
 				}
 				if onKey != nil {
