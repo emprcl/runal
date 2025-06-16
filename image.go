@@ -30,7 +30,7 @@ func newCapture(width, height int) *ansitoimage.Converter {
 func newCaptureConfig(width, height int) ansitoimage.Config {
 	captureConfig := ansitoimage.DefaultConfig
 	captureConfig.Padding = 0
-	captureConfig.PageCols = width - 1
+	captureConfig.PageCols = width - 2
 	captureConfig.PageRows = height
 	return captureConfig
 }
