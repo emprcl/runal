@@ -2,7 +2,6 @@ package runal
 
 import (
 	"context"
-	"fmt"
 	"os"
 	"os/signal"
 	"sync"
@@ -58,7 +57,6 @@ func Start(ctx context.Context, done chan os.Signal, setup, draw func(c *Canvas)
 		for {
 			select {
 			case <-ctx.Done():
-				fmt.Println("close main")
 				exit()
 				return
 			case <-resize:
@@ -90,7 +88,7 @@ func Start(ctx context.Context, done chan os.Signal, setup, draw func(c *Canvas)
 					}
 					return
 				}
-				// keyboard package has a small bug on
+				// NOTE: keyboard package has a small bug on
 				// space key not filling the Rune attribute.
 				if event.Key == keyboard.KeySpace {
 					event.Rune = ' '
