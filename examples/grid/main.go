@@ -8,7 +8,7 @@ import (
 )
 
 func main() {
-	runal.Run(context.Background(), setup, draw, nil)
+	runal.Run(context.Background(), setup, draw, onKey)
 }
 
 func setup(c *runal.Canvas) {
@@ -23,5 +23,11 @@ func draw(c *runal.Canvas) {
 				c.Text(".", i, j)
 			}
 		}
+	}
+}
+
+func onKey(c *runal.Canvas, key string) {
+	if key == " " {
+		c.Redraw()
 	}
 }
