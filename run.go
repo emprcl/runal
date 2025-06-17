@@ -76,6 +76,8 @@ func Start(ctx context.Context, done chan os.Signal, setup, draw func(c *Canvas)
 					ticker.Reset(newFramerate(event.value))
 				case "stop":
 					ticker.Stop()
+				case "start":
+					ticker.Reset(newFramerate(defaultFPS))
 				case "render":
 					render()
 				}

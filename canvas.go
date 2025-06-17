@@ -53,6 +53,7 @@ type Canvas struct {
 	cellPadding     bool
 	fill            bool
 	isFilling       bool
+	isLooping       bool
 	clear           bool
 	save            bool
 	autoResize      bool
@@ -84,6 +85,7 @@ func newCanvas(width, height int) *Canvas {
 		fillText:        defaultFillText,
 		backgroundText:  defaultBackgroundText,
 		autoResize:      true,
+		isLooping:       true,
 	}
 }
 

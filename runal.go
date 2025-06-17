@@ -13,8 +13,18 @@ func (c *Canvas) Clear() {
 	c.clear = true
 }
 
+func (c *Canvas) Loop() {
+	c.isLooping = true
+	c.bus <- newStartEvent()
+}
+
 func (c *Canvas) NoLoop() {
+	c.isLooping = false
 	c.bus <- newStopEvent()
+}
+
+func (c *Canvas) IsLooping() bool {
+	return c.isLooping
 }
 
 func (c *Canvas) Redraw() {

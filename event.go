@@ -12,6 +12,12 @@ func newFPSEvent(fps int) event {
 	}
 }
 
+func newStartEvent() event {
+	return event{
+		name: "start",
+	}
+}
+
 func newStopEvent() event {
 	return event{
 		name: "stop",
