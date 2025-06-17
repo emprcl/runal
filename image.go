@@ -17,7 +17,7 @@ func (c *Canvas) CanvasFont(filename string) {
 	if err != nil {
 		return
 	}
-	config := newCaptureConfig(c.termWidth, c.termHeight)
+	config := newCaptureConfig(c.Width, c.Height)
 	config.MonoRegularFontBytes = file
 	c.capture, _ = ansitoimage.NewConverter(config)
 }
