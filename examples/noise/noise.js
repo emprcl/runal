@@ -1,6 +1,4 @@
-function setup() {
-  c.cellPadding("0");
-}
+function setup() {}
 
 function draw() {
   for (let i = 0; i < c.width; i++) {
@@ -15,7 +13,7 @@ function draw() {
         0,
         255,
       );
-      c.stroke("0", color, "#000000");
+      c.stroke("@", color, "#000000");
       c.point(i, j);
     }
   }
@@ -23,7 +21,7 @@ function draw() {
 
 function onKey() {
   if (key == "c") {
-    c.saveCanvas("canvas.png");
+    c.saveCanvas(`canvas_${Date.now()}.png`);
   }
   if (key == " ") {
     c.noiseSeed(Date.now());
