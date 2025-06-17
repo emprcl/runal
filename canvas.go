@@ -63,7 +63,7 @@ func newCanvas(width, height int) *Canvas {
 	return &Canvas{
 		Width:           width,
 		Height:          height,
-		bus:             make(chan event, 1),
+		bus:             make(chan event, 16),
 		termWidth:       width,
 		termHeight:      height,
 		cellPaddingRune: defaultPaddingRune,

@@ -2,14 +2,14 @@ package runal
 
 import (
 	"context"
-	"log"
+	"fmt"
 	"os"
 	"os/signal"
 	"sync"
 	"syscall"
 	"time"
 
-	"golang.org/x/term"
+	"github.com/eiannone/keyboard"
 )
 
 const (
@@ -28,14 +28,7 @@ func Start(ctx context.Context, done chan os.Signal, setup, draw func(c *Canvas)
 	resize := make(chan os.Signal, 1)
 	signal.Notify(resize, syscall.SIGWINCH)
 
-	input := inputChannel(ctx)
-
 	enterAltScreen()
-
-	oldState, err := term.MakeRaw(int(os.Stdin.Fd()))
-	if err != nil {
-		log.Fatal(err)
-	}
 
 	setup(c)
 	render := func() {
@@ -45,22 +38,27 @@ func Start(ctx context.Context, done chan os.Signal, setup, draw func(c *Canvas)
 	}
 	render()
 
+	ticker := time.NewTicker(newFramerate(defaultFPS))
+
 	exit := func() {
-		term.Restore(int(os.Stdin.Fd()), oldState)
+		ticker.Stop()
 		clearScreen()
 		resetCursorPosition()
 		showCursor()
 	}
 
-	ticker := time.NewTicker(newFramerate(defaultFPS))
 	wg := sync.WaitGroup{}
 	wg.Add(1)
-
 	go func() {
-		defer wg.Done()
+		defer func() {
+			wg.Done()
+			_ = keyboard.Close()
+		}()
+		keyEvent, _ := keyboard.GetKeys(1)
 		for {
 			select {
 			case <-ctx.Done():
+				fmt.Println("close main")
 				exit()
 				return
 			case <-resize:
@@ -81,17 +79,22 @@ func Start(ctx context.Context, done chan os.Signal, setup, draw func(c *Canvas)
 				case "render":
 					render()
 				}
-			case char := <-input:
+			case event := <-keyEvent:
 				// ctrl+c
-				if char == 3 {
+				if event.Key == keyboard.KeyCtrlC {
 					exit()
 					if done != nil {
 						done <- os.Interrupt
 					}
 					return
 				}
+				// keyboard package has a small bug on
+				// space key not filling the Rune attribute.
+				if event.Key == keyboard.KeySpace {
+					event.Rune = ' '
+				}
 				if onKey != nil {
-					onKey(c, string(char))
+					onKey(c, string(event.Rune))
 				}
 			case <-ticker.C:
 				render()
@@ -100,27 +103,6 @@ func Start(ctx context.Context, done chan os.Signal, setup, draw func(c *Canvas)
 	}()
 
 	return &wg
-}
-
-func inputChannel(ctx context.Context) <-chan byte {
-	ch := make(chan byte, 32)
-	go func() {
-		defer close(ch)
-		buf := make([]byte, 1)
-		for {
-			select {
-			case <-ctx.Done():
-				return
-			default:
-			}
-			n, err := os.Stdin.Read(buf)
-			if err != nil || n == 0 {
-				continue
-			}
-			ch <- buf[0]
-		}
-	}()
-	return ch
 }
 
 func newFramerate(fps int) time.Duration {

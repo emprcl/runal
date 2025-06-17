@@ -10,6 +10,7 @@ import (
 	"sync"
 
 	"github.com/charmbracelet/log"
+
 	"github.com/dop251/goja"
 	"github.com/emprcl/runal"
 	"github.com/fsnotify/fsnotify"
@@ -100,6 +101,18 @@ func (s runtime) Run() {
 }
 
 func (s runtime) runSketch(ctx context.Context, done chan os.Signal, vm *goja.Runtime, setup, draw goja.Callable, onKey goja.Callable) *sync.WaitGroup {
+	var onKeyCallback func(c *runal.Canvas, key string)
+	if onKey != nil {
+		onKeyCallback = func(c *runal.Canvas, key string) {
+			vm.Set("c", c)
+			vm.Set("key", key)
+			_, err := onKey(goja.Undefined())
+			if err != nil {
+				log.Error(err)
+				c.DisableRendering()
+			}
+		}
+	}
 	return runal.Start(
 		ctx,
 		done,
@@ -120,14 +133,6 @@ func (s runtime) runSketch(ctx context.Context, done chan os.Signal, vm *goja.Ru
 				c.DisableRendering()
 			}
 		},
-		func(c *runal.Canvas, key string) {
-			vm.Set("c", c)
-			vm.Set("key", key)
-			_, err := onKey(goja.Undefined())
-			if err != nil {
-				log.Error(err)
-				c.DisableRendering()
-			}
-		},
+		onKeyCallback,
 	)
 }

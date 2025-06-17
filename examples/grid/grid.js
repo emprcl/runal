@@ -12,3 +12,9 @@ function draw() {
     }
   }
 }
+
+function onKey() {
+  if (key == " ") {
+    c.redraw();
+  }
+}

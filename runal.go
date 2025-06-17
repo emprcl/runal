@@ -38,6 +38,6 @@ func (c *Canvas) CellPadding(char string) {
 	}
 }
 
-func (c *Canvas) FPS(fps int) {
+func (c *Canvas) Fps(fps int) {
 	c.bus <- newFPSEvent(fps)
 }
