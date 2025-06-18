@@ -34,6 +34,8 @@ func (c cellPaddingMode) enabled() bool {
 	return c != cellPaddingDisabled
 }
 
+// Canvas represents a drawable area where shapes, text, and effects
+// can be rendered.
 type Canvas struct {
 	buffer  buffer
 	output  io.Writer
@@ -65,7 +67,7 @@ type Canvas struct {
 	cellPadding     cellPaddingMode
 	fill            bool
 	isFilling       bool
-	isLooping       bool
+	IsLooping       bool
 	clear           bool
 	save            bool
 	autoResize      bool
@@ -97,7 +99,7 @@ func newCanvas(width, height int) *Canvas {
 		fillText:        defaultFillText,
 		backgroundText:  defaultBackgroundText,
 		autoResize:      true,
-		isLooping:       true,
+		IsLooping:       true,
 	}
 }
 

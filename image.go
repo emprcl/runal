@@ -6,13 +6,16 @@ import (
 	ansitoimage "github.com/pavelpatrin/go-ansi-to-image"
 )
 
+// SaveCanvas exports the current canvas to a file (png).
 func (c *Canvas) SaveCanvas(filename string) {
 	c.save = true
 	c.saveFilename = filename
 	c.Redraw()
 }
 
-func (c *Canvas) CanvasFont(filename string) {
+// SavedCanvasFont sets a custom font (tff) file used for rendering text characters
+// in exported images generated via SaveCanvas().
+func (c *Canvas) SavedCanvasFont(filename string) {
 	file, err := os.ReadFile(filename)
 	if err != nil {
 		return

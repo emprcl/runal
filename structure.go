@@ -15,6 +15,7 @@ type state struct {
 	fill bool
 }
 
+// Push saves the current transformation state.
 func (c *Canvas) Push() {
 	c.state = &state{
 		strokeFg:       c.strokeFg,
@@ -34,6 +35,7 @@ func (c *Canvas) Push() {
 	}
 }
 
+// Pop restores the previous transformation state.
 func (c *Canvas) Pop() {
 	if c.state == nil {
 		return

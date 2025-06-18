@@ -5,6 +5,7 @@ import (
 	"sort"
 )
 
+// Text renders a string at the given canvas coordinates.
 func (c *Canvas) Text(text string, x, y int) {
 	destX := c.originX + x
 	destY := c.originY + y
@@ -21,10 +22,12 @@ func (c *Canvas) Text(text string, x, y int) {
 	}
 }
 
+// Point draws a single point at the given position.
 func (c *Canvas) Point(x, y int) {
 	c.char(c.nextStrokeRune(), x, y)
 }
 
+// Line draws a straight line between two points.
 func (c *Canvas) Line(x1, y1, x2, y2 int) {
 	// Bresenham algorithm
 	// https://en.wikipedia.org/wiki/Bresenham%27s_line_algorithm
@@ -61,10 +64,12 @@ func (c *Canvas) Line(x1, y1, x2, y2 int) {
 	}
 }
 
+// Square draws a square with the given top-left corner and side length.
 func (c *Canvas) Square(x, y, size int) {
 	c.Rect(x, y, size, size)
 }
 
+// Rect draws a rectangle starting at (x, y) with width w and height h.
 func (c *Canvas) Rect(x, y, w, h int) {
 	if c.fill {
 		c.toggleFill()
@@ -79,6 +84,7 @@ func (c *Canvas) Rect(x, y, w, h int) {
 	c.Line(x, y+h, x, y)
 }
 
+// Quad draws a quadrilateral defined by four points.
 func (c *Canvas) Quad(x1, y1, x2, y2, x3, y3, x4, y4 int) {
 	if c.fill {
 		vertices := [][2]int{{x1, y1}, {x2, y2}, {x3, y3}, {x4, y4}}
@@ -130,6 +136,7 @@ func (c *Canvas) Quad(x1, y1, x2, y2, x3, y3, x4, y4 int) {
 	c.Line(x4, y4, x1, y1)
 }
 
+// Ellipse draws an ellipse centered at (x, y) with radiuses rx and ry.
 func (c *Canvas) Ellipse(xCenter, yCenter, rx, ry int) {
 	steps := 360
 	points := make([][2]int, 0, steps)
@@ -167,6 +174,7 @@ func (c *Canvas) Ellipse(xCenter, yCenter, rx, ry int) {
 	}
 }
 
+// Circle draws a circle centered at (x, y) with the given radius.
 func (c *Canvas) Circle(xCenter, yCenter, r int) {
 	x := 0
 	y := r
@@ -205,6 +213,7 @@ func (c *Canvas) Circle(xCenter, yCenter, r int) {
 	}
 }
 
+// Triangle draws a triangle using three vertex points.
 func (c *Canvas) Triangle(x1, y1, x2, y2, x3, y3 int) {
 	if c.fill {
 		c.toggleFill()

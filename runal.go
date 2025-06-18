@@ -1,5 +1,6 @@
 package runal
 
+// Size sets the dimensions of the canvas.
 func (c *Canvas) Size(w, h int) {
 	c.autoResize = false
 	if c.cellPadding.enabled() {
@@ -9,33 +10,36 @@ func (c *Canvas) Size(w, h int) {
 	}
 }
 
+// Clear clears the canvas contents.
 func (c *Canvas) Clear() {
 	c.clear = true
 }
 
+// Loop enables continuous redrawing of the canvas.
 func (c *Canvas) Loop() {
-	c.isLooping = true
+	c.IsLooping = true
 	c.bus <- newStartEvent()
 }
 
+// NoLoop disables automatic canvas redrawing.
 func (c *Canvas) NoLoop() {
-	c.isLooping = false
+	c.IsLooping = false
 	c.bus <- newStopEvent()
 }
 
-func (c *Canvas) IsLooping() bool {
-	return c.isLooping
-}
-
+// Redraw triggers a manual rendering pass.
 func (c *Canvas) Redraw() {
 	c.bus <- newRenderEvent()
 }
 
+// DisableRendering disables all rendering updates.
+// Used when an error is rendered.
 func (c *Canvas) DisableRendering() {
 	c.disabled = true
 	c.NoLoop()
 }
 
+// CellPadding sets a character used for cell spacing between elements.
 func (c *Canvas) CellPadding(char string) {
 	previousValue := c.cellPadding.enabled()
 	c.cellPadding = cellPaddingCustom
@@ -48,6 +52,7 @@ func (c *Canvas) CellPadding(char string) {
 	}
 }
 
+// CellPaddingDouble makes every cell duplicated.
 func (c *Canvas) CellPaddingDouble() {
 	previousValue := c.cellPadding.enabled()
 	c.cellPadding = cellPaddingDouble
@@ -59,6 +64,7 @@ func (c *Canvas) CellPaddingDouble() {
 	}
 }
 
+// Fps sets the rendering framerate in frames per second.
 func (c *Canvas) Fps(fps int) {
 	c.bus <- newFPSEvent(fps)
 }
