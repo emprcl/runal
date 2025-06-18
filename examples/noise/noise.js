@@ -1,6 +1,6 @@
-function setup() {}
+function setup(c) {}
 
-function draw() {
+function draw(c) {
   for (let i = 0; i < c.width; i++) {
     for (let j = 0; j < c.height; j++) {
       let color = c.map(
@@ -13,13 +13,13 @@ function draw() {
         0,
         255,
       );
-      c.stroke("@", color, "#000000");
+      c.stroke("0", color, "#000000");
       c.point(i, j);
     }
   }
 }
 
-function onKey() {
+function onKey(c, key) {
   if (key == "c") {
     c.saveCanvas(`canvas_${Date.now()}.png`);
   }

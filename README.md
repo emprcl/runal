@@ -36,13 +36,13 @@ go install github.com/emprcl/runal@latest
 
 ### JavaScript runtime
 
-You can use JavaScript for scripting your sketch. Your js file should contain a `setup` and a `draw` method, like so:
+You can use JavaScript for scripting your sketch. Your js file should contain a `setup` and a `draw` method. Both methods take a single argument (here `c`) representing a canvas object that holds all the available primitives:
 ```js
 // sketch.js
 
-function setup() {}
+function setup(c) {}
 
-function draw() {}
+function draw(c) {}
 ```
 
 And you can then execute the file with:

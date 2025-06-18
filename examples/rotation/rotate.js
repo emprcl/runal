@@ -1,9 +1,9 @@
-function setup() {
+function setup(c) {
   //c.noLoop();
   c.cellPadding(" ");
 }
 
-function draw() {
+function draw(c) {
   c.clear();
   c.stroke(".", "#ffffff", "#ffffff");
   c.fill(".", "#ffffff", "#000000");

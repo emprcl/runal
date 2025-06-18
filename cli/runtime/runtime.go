@@ -104,9 +104,7 @@ func (s runtime) runSketch(ctx context.Context, done chan os.Signal, vm *goja.Ru
 	var onKeyCallback func(c *runal.Canvas, key string)
 	if onKey != nil {
 		onKeyCallback = func(c *runal.Canvas, key string) {
-			vm.Set("c", c)
-			vm.Set("key", key)
-			_, err := onKey(goja.Undefined())
+			_, err := onKey(goja.Undefined(), vm.ToValue(c), vm.ToValue(key))
 			if err != nil {
 				log.Error(err)
 				c.DisableRendering()
@@ -118,8 +116,7 @@ func (s runtime) runSketch(ctx context.Context, done chan os.Signal, vm *goja.Ru
 		done,
 		func(c *runal.Canvas) {
 			vm.Set("console", s.console)
-			vm.Set("c", c)
-			_, err := setup(goja.Undefined())
+			_, err := setup(goja.Undefined(), vm.ToValue(c))
 			if err != nil {
 				log.Error(err)
 				c.DisableRendering()
@@ -127,7 +124,7 @@ func (s runtime) runSketch(ctx context.Context, done chan os.Signal, vm *goja.Ru
 		},
 		func(c *runal.Canvas) {
 			vm.Set("c", c)
-			_, err := draw(goja.Undefined())
+			_, err := draw(goja.Undefined(), vm.ToValue(c))
 			if err != nil {
 				log.Error(err)
 				c.DisableRendering()

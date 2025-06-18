@@ -1,8 +1,8 @@
-function setup() {
+function setup(c) {
   c.cellPadding(".");
 }
 
-function draw() {
+function draw(c) {
   c.clear();
 
   let radius1 = ((Math.sin(c.framecount * 0.1) * 0.5 + 0.5) * c.width) / 2;

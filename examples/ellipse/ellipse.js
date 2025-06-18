@@ -1,8 +1,8 @@
-function setup() {
+function setup(c) {
   c.cellPadding(" ");
 }
 
-function draw() {
+function draw(c) {
   c.clear();
   //c.stroke("TEST", "#ffffff", "#555555");
   c.fill("blop", "#ffffff", "#000000");

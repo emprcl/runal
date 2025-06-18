@@ -1,8 +1,8 @@
-function setup() {
+function setup(c) {
   c.noLoop();
 }
 
-function draw() {
+function draw(c) {
   c.clear();
   for (let i = 0; i < c.width; i++) {
     for (let j = 0; j < c.height; j++) {
@@ -13,7 +13,7 @@ function draw() {
   }
 }
 
-function onKey() {
+function onKey(c, key) {
   if (key == " ") {
     c.redraw();
   }

@@ -1,9 +1,9 @@
-function setup() {
+function setup(c) {
   c.noLoop();
   c.cellPadding(" ");
 }
 
-function draw() {
+function draw(c) {
   c.clear();
   c.circle(0, 0, 5);
   c.translate(c.width / 2, c.height / 2);
