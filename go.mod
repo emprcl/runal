@@ -2,6 +2,8 @@ module github.com/emprcl/runal
 
 go 1.23.0
 
+toolchain go1.23.3
+
 require (
 	github.com/aquilax/go-perlin v1.1.0
 	github.com/charmbracelet/lipgloss v1.1.0

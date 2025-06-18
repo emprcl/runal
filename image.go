@@ -36,7 +36,10 @@ func newCaptureConfig(width, height int) ansitoimage.Config {
 }
 
 func (c *Canvas) exportCanvasToPNG(frame string) {
-	c.capture.Parse(frame)
+	err := c.capture.Parse(frame)
+	if err != nil {
+		return
+	}
 	img, _ := c.capture.ToPNG()
-	os.WriteFile(c.saveFilename, img, 0644)
+	_ = os.WriteFile(c.saveFilename, img, 0o644)
 }

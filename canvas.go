@@ -293,13 +293,13 @@ func (c *Canvas) toggleFill() {
 func (c *Canvas) nextBackgroundRune() rune {
 	r := []rune(c.backgroundText)[c.backgroundIndex]
 	c.backgroundIndex = (c.backgroundIndex + 1) % len(c.backgroundText)
-	return rune(r)
+	return r
 }
 
 func (c *Canvas) nextStrokeRune() rune {
 	r := []rune(c.strokeText)[c.strokeIndex]
 	c.strokeIndex = (c.strokeIndex + 1) % len(c.strokeText)
-	return rune(r)
+	return r
 }
 
 func (c *Canvas) outOfBounds(x, y int) bool {

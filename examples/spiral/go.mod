@@ -1,6 +1,6 @@
 module spiral
 
-go 1.23.0
+go 1.24
 
 replace github.com/emprcl/runal => ../../
 
