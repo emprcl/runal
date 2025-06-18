@@ -17,7 +17,7 @@ jobs:
         os: [ubuntu-20.04, macos-13, windows-2019]
     runs-on: ${{ matrix.os }}
     env:
-      CGO_ENABLED: 1
+      CGO_ENABLED: 0
     steps:
       - uses: actions/checkout@v4
 
@@ -39,11 +39,11 @@ jobs:
         if: ${{ github.ref_type == 'branch' }}
 
       - name: Build linux|mac
-        run: go build -C cli -o bin/runal && chmod +x bin/runal
+        run: go build -C cli -ldflags="-w -s" -o ../bin/runal && chmod +x bin/runal
         if: ${{ !startsWith(matrix.os, 'windows') }}
 
       - name: Build windows
-        run: go build -C cli -ldflags "-linkmode 'external' -extldflags '-static'" -o bin/runal.exe
+        run: go build -C cli -ldflags "-linkmode 'external' -extldflags '-static'" -o ../bin/runal.exe
         if: startsWith(matrix.os, 'windows')
 
       - name: Tar.gz linux|mac files
