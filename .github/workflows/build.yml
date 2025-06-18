@@ -43,7 +43,7 @@ jobs:
         if: ${{ !startsWith(matrix.os, 'windows') }}
 
       - name: Build windows
-        run: go build -C cli -ldflags "-linkmode 'external' -extldflags '-static'" -o ../bin/runal.exe
+        run: go build -C cli -ldflags="-w -s" -o ../bin/runal.exe
         if: startsWith(matrix.os, 'windows')
 
       - name: Tar.gz linux|mac files
