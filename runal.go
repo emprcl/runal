@@ -2,7 +2,7 @@ package runal
 
 func (c *Canvas) Size(w, h int) {
 	c.autoResize = false
-	if c.cellPadding {
+	if c.cellPadding.enabled() {
 		c.resize(w*2, h)
 	} else {
 		c.resize(w, h)
@@ -37,9 +37,20 @@ func (c *Canvas) DisableRendering() {
 }
 
 func (c *Canvas) CellPadding(char string) {
-	previousValue := c.cellPadding
-	c.cellPadding = true
+	previousValue := c.cellPadding.enabled()
+	c.cellPadding = cellPaddingCustom
 	c.cellPaddingRune = rune(char[0])
+
+	if c.autoResize && !previousValue {
+		c.resize(c.Width, c.Height)
+	} else if !previousValue {
+		c.resize(c.Width*2, c.Height)
+	}
+}
+
+func (c *Canvas) CellPaddingDouble() {
+	previousValue := c.cellPadding.enabled()
+	c.cellPadding = cellPaddingDouble
 
 	if c.autoResize && !previousValue {
 		c.resize(c.Width, c.Height)

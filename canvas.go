@@ -22,6 +22,18 @@ const (
 	defaultBackgroundText = " "
 )
 
+type cellPaddingMode uint8
+
+const (
+	cellPaddingDisabled cellPaddingMode = iota
+	cellPaddingDouble
+	cellPaddingCustom
+)
+
+func (c cellPaddingMode) enabled() bool {
+	return c != cellPaddingDisabled
+}
+
 type Canvas struct {
 	buffer  buffer
 	output  io.Writer
@@ -50,7 +62,7 @@ type Canvas struct {
 	scale                        float64
 
 	cellPaddingRune rune
-	cellPadding     bool
+	cellPadding     cellPaddingMode
 	fill            bool
 	isFilling       bool
 	isLooping       bool
@@ -68,7 +80,7 @@ func newCanvas(width, height int) *Canvas {
 		termWidth:       width,
 		termHeight:      height,
 		cellPaddingRune: defaultPaddingRune,
-		cellPadding:     false,
+		cellPadding:     cellPaddingDisabled,
 		buffer:          newBuffer(width, height),
 		output:          os.Stdout,
 		capture:         newCapture(width, height),
@@ -232,24 +244,35 @@ func (c *Canvas) style(str string) string {
 }
 
 func (c *Canvas) formatCell(char rune) string {
-	if c.cellPadding {
+	switch c.cellPadding {
+	case cellPaddingCustom:
 		return c.style(string([]rune{char, c.cellPaddingRune}))
+	case cellPaddingDouble:
+		return c.style(string([]rune{char, char}))
+	default:
+		return c.style(string(char))
+
 	}
-	return c.style(string(char))
 }
 
 func (c *Canvas) backgroundCell() string {
 	style := lipgloss.NewStyle().
 		Background(c.backgroundBg).
 		Foreground(c.backgroundFg)
-	if c.cellPadding {
-		return style.Render(string([]rune{c.nextBackgroundRune(), c.cellPaddingRune}))
+	switch c.cellPadding {
+	case cellPaddingCustom:
+		return c.style(string([]rune{c.nextBackgroundRune(), c.cellPaddingRune}))
+	case cellPaddingDouble:
+		next := c.nextBackgroundRune()
+		return c.style(string([]rune{next, next}))
+	default:
+		return style.Render(string(c.cellPaddingRune))
+
 	}
-	return style.Render(string(c.cellPaddingRune))
 }
 
 func (c *Canvas) widthWithPadding(w int) int {
-	if c.cellPadding {
+	if c.cellPadding.enabled() {
 		return w / 2
 	}
 	return w

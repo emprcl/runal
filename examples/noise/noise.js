@@ -1,4 +1,6 @@
-function setup(c) {}
+function setup(c) {
+  c.cellPaddingDouble();
+}
 
 function draw(c) {
   for (let i = 0; i < c.width; i++) {
