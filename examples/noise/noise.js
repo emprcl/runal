@@ -7,15 +7,15 @@ function draw(c) {
     for (let j = 0; j < c.height; j++) {
       let color = c.map(
         c.noise2D(
-          i * 0.005 + c.framecount / 1000,
-          j * 0.005 + c.framecount / 1000,
+          i * 0.009 + c.framecount / 1000,
+          j * 0.009 + c.framecount / 1000,
         ),
         0,
         1,
-        0,
-        255,
+        150,
+        231,
       );
-      c.stroke("0", color, "#000000");
+      c.stroke("§", color, "#000000");
       c.point(i, j);
     }
   }
