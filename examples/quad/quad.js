@@ -4,10 +4,8 @@ function setup(c) {
 
 function draw(c) {
   c.clear();
-  c.stroke("TEST", "#ffffff", "#555555");
-  c.fill("blop", "#ffffff", "#000000");
-  //c.rotate(c.framecount);
-  //c.scale(2);
+  c.stroke(".", "#ffffff", "#555555");
+  c.fill("quad", "#ffffff", "#000000");
   c.quad(
     c.map(Math.sin(c.framecount * 0.1), -1, 1, 1, 35),
     1,
