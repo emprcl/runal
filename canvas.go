@@ -261,10 +261,10 @@ func (c *Canvas) backgroundCell() string {
 		Foreground(c.backgroundFg)
 	switch c.cellPadding {
 	case cellPaddingCustom:
-		return c.style(string([]rune{c.nextBackgroundRune(), c.cellPaddingRune}))
+		return style.Render(string([]rune{c.nextBackgroundRune(), c.cellPaddingRune}))
 	case cellPaddingDouble:
 		next := c.nextBackgroundRune()
-		return c.style(string([]rune{next, next}))
+		return style.Render(string([]rune{next, next}))
 	default:
 		return style.Render(string(c.cellPaddingRune))
 
