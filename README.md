@@ -4,8 +4,7 @@
 
 :notebook: **[User Manual](https://empr.cl/runal/)**
 
-Runal is a simple creative coding environment for the terminal.
-It works similarly as [p5js](https://p5js.org/) and can either be programmed with JavaScript, or used as a Go package.
+Runal is a simple creative coding environment for text and ascii art, that runs in the terminal. It works similarly as [processing](https://processing.org/) or [p5js](https://p5js.org/) and can either be programmed with [JavaScript](https://developer.mozilla.org/en-US/docs/Web/JavaScript), or used as a [Go](https://go.dev/) package.
 
 **_Runal is a work-in-progress. It has only been tested on Linux and the API should not be considered as stable until it reaches 1.0._**
 
@@ -96,3 +95,10 @@ go run sketch.go
 
 Check the [API reference](https://empr.cl/runal/#reference).
 You can also check some examples in the [examples directory](https://github.com/emprcl/runal/tree/main/examples).
+
+## Acknowledgments
+
+Runal uses a few awesome packages:
+ - [dop251/goja](https://github.com/dop251/goja) for the JavaScript engine
+ - [fsnotify/fsnotify](https://github.com/fsnotify/fsnotify) for watching file changes in realtime
+ - [charmbracelet/lipgloss](https://github.com/charmbracelet/lipgloss) for handling colors
