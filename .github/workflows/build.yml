@@ -1,0 +1,97 @@
+name: build
+
+on:
+  push:
+    branches: ["main"]
+    tags: ["v*"]
+  pull_request:
+    branches: ["main"]
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        os: [ubuntu-20.04, macos-13, windows-2019]
+    runs-on: ${{ matrix.os }}
+    env:
+      CGO_ENABLED: 1
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Alsa headers
+        run: sudo apt-get install libasound2-dev
+        if: startsWith(matrix.os, 'ubuntu')
+
+      - name: Install Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: 1.23
+
+      - name: Release version number
+        run: echo '${{ github.ref_name}}' > VERSION
+        if: ${{ github.ref_type == 'tag' }}
+
+      - name: Development version number
+        run: echo 'dev-${{ github.sha}}' > VERSION
+        if: ${{ github.ref_type == 'branch' }}
+
+      - name: Build linux|mac
+        run: go build -C cli -o bin/runal && chmod +x bin/runal
+        if: ${{ !startsWith(matrix.os, 'windows') }}
+
+      - name: Build windows
+        run: go build -C cli -ldflags "-linkmode 'external' -extldflags '-static'" -o bin/runal.exe
+        if: startsWith(matrix.os, 'windows')
+
+      - name: Tar.gz linux|mac files
+        run: tar -zcvf runal_${{ github.ref_name }}_${{ runner.os}}.tar.gz LICENSE -C bin runal
+        if: ${{ !startsWith(matrix.os, 'windows') }}
+
+      - name: Zip windows files
+        shell: pwsh
+        run: |
+          Compress-Archive bin\runal.exe runal_${{ github.ref_name }}_${{ runner.os}}.zip
+        if: ${{ startsWith(matrix.os, 'windows') }}
+
+      - name: Upload linux|mac artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: runal_${{ github.sha }}_${{ runner.os}}
+          path: runal_${{ github.ref_name }}_${{ runner.os}}.tar.gz
+          if-no-files-found: error
+        if: ${{ !startsWith(matrix.os, 'windows') }}
+
+      - name: Upload windows artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: runal_${{ github.sha }}_${{ runner.os}}
+          path: runal_${{ github.ref_name }}_${{ runner.os}}.zip
+          if-no-files-found: error
+        if: ${{ startsWith(matrix.os, 'windows') }}
+
+  release:
+    needs: build
+    if: startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4.1.7
+        with:
+          name: runal_${{ github.sha }}_macOS
+
+      - uses: actions/download-artifact@v4.1.7
+        with:
+          name: runal_${{ github.sha }}_Linux
+
+      - uses: actions/download-artifact@v4.1.7
+        with:
+          name: runal_${{ github.sha }}_Windows
+
+      - name: Create release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: |
+            runal_*.tar.gz
+            runal_*.zip
