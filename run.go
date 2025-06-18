@@ -5,7 +5,6 @@ import (
 	"os"
 	"os/signal"
 	"sync"
-	"syscall"
 	"time"
 
 	"github.com/eiannone/keyboard"
@@ -24,8 +23,7 @@ func Start(ctx context.Context, done chan os.Signal, setup, draw func(c *Canvas)
 	w, h := termSize()
 	c := newCanvas(w, h)
 
-	resize := make(chan os.Signal, 1)
-	signal.Notify(resize, syscall.SIGWINCH)
+	resize := listenForResize()
 
 	enterAltScreen()
 
