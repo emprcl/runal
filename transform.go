@@ -1,5 +1,6 @@
 package runal
 
+// Translate offsets the drawing context by (x, y).
 func (c *Canvas) Translate(x, y int) {
 	c.originX = x
 	c.originY = y

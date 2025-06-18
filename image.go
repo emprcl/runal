@@ -6,7 +6,7 @@ import (
 	ansitoimage "github.com/pavelpatrin/go-ansi-to-image"
 )
 
-// SaveCanvas exports the current canvas to a file (png).
+// SaveCanvas exports the current canvas to a image file (png).
 func (c *Canvas) SaveCanvas(filename string) {
 	c.save = true
 	c.saveFilename = filename
