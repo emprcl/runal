@@ -56,6 +56,7 @@ type Canvas struct {
 
 	Width, Height int
 	Framecount    int
+	fps           int
 
 	strokeIndex, backgroundIndex int
 	termWidth, termHeight        int
@@ -78,6 +79,7 @@ func newCanvas(width, height int) *Canvas {
 	return &Canvas{
 		Width:           width,
 		Height:          height,
+		fps:             defaultFPS,
 		bus:             make(chan event, 16),
 		termWidth:       width,
 		termHeight:      height,

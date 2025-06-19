@@ -66,5 +66,6 @@ func (c *Canvas) CellPaddingDouble() {
 
 // Fps sets the rendering framerate in frames per second.
 func (c *Canvas) Fps(fps int) {
+	c.fps = fps
 	c.bus <- newFPSEvent(fps)
 }
