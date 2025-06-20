@@ -9,7 +9,7 @@ require (
 	github.com/charmbracelet/lipgloss v1.1.0
 	github.com/charmbracelet/x/ansi v0.9.3
 	github.com/eiannone/keyboard v0.0.0-20220611211555-0d226195f203
-	github.com/xaviergodart/go-ansi-to-image v0.0.0-20250620144739-b26119b3dbba
+	github.com/xaviergodart/go-ansi-to-image v0.0.0-20250620163834-f2b31334a2bb
 	golang.org/x/term v0.32.0
 )
 

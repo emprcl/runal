@@ -31,14 +31,22 @@ func (c *Canvas) SaveCanvasToGIF(filename string, duration int) {
 }
 
 // SavedCanvasFont sets a custom font (tff) file used for rendering text characters
-// in exported images generated via SaveCanvas().
+// in exported images generated via SaveCanvasTo...().
 func (c *Canvas) SavedCanvasFont(filename string) {
 	file, err := os.ReadFile(filename)
 	if err != nil {
 		return
 	}
-	config := newCaptureConfig(c.termWidth, c.termHeight)
+	config := c.capture.Config()
 	config.MonoRegularFontBytes = file
+	c.capture, _ = ansitoimage.NewConverter(config)
+}
+
+// SavedCanvasFontSize sets the font size used for rendering text characters
+// in exported images generated via SaveCanvas().
+func (c *Canvas) SavedCanvasFontSize(size int) {
+	config := c.capture.Config()
+	config.MonoRegularFontPoints = float64(size)
 	c.capture, _ = ansitoimage.NewConverter(config)
 }
 
@@ -53,6 +61,13 @@ func newCaptureConfig(width, height int) ansitoimage.Config {
 	captureConfig.PageCols = width - 2
 	captureConfig.PageRows = height
 	return captureConfig
+}
+
+func (c *Canvas) captureResize(width, height int) {
+	config := c.capture.Config()
+	config.PageCols = width - 2
+	config.PageRows = height
+	c.capture, _ = ansitoimage.NewConverter(config)
 }
 
 func (c *Canvas) generateFrame(frame string) {
