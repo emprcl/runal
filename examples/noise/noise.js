@@ -23,7 +23,7 @@ function draw(c) {
 
 function onKey(c, key) {
   if (key == "c") {
-    c.saveCanvas(`canvas_${Date.now()}.png`);
+    c.saveCanvasToPNG(`canvas_${Date.now()}.png`);
   }
   if (key == " ") {
     c.noiseSeed(Date.now());

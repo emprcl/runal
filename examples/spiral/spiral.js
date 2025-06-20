@@ -36,10 +36,6 @@ function draw(c) {
     }
   }
 
-  if (c.framecount == 300) {
-    c.saveCanvas();
-  }
-
   t += 0.5;
 }
 

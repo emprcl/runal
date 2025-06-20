@@ -3,6 +3,7 @@ package runal
 import (
 	"bytes"
 	"fmt"
+	"image"
 	"io"
 	"math"
 	"math/rand"
@@ -12,7 +13,7 @@ import (
 	perlin "github.com/aquilax/go-perlin"
 	"github.com/charmbracelet/lipgloss"
 	"github.com/charmbracelet/x/ansi"
-	ansitoimage "github.com/pavelpatrin/go-ansi-to-image"
+	ansitoimage "github.com/xaviergodart/go-ansi-to-image"
 )
 
 const (
@@ -40,6 +41,7 @@ type Canvas struct {
 	buffer  buffer
 	output  io.Writer
 	capture *ansitoimage.Converter
+	frames  []image.Image
 	noise   *perlin.Perlin
 	random  *rand.Rand
 
@@ -147,6 +149,9 @@ func (c *Canvas) render() {
 		c.exportCanvasToPNG(output.String())
 		c.save = false
 	}
+	if c.frames != nil {
+		c.recordFrame(output.String())
+	}
 	c.Framecount++
 	c.reset()
 	fmt.Fprint(c.output, output.String())
@@ -184,7 +189,7 @@ func (c *Canvas) resize(width, height int) {
 	c.Width = newWidth
 	c.Height = newHeight
 	c.buffer = newBuffer
-	c.capture = newCapture(newWidth, newHeight)
+	c.capture = newCapture(c.termWidth, c.termHeight)
 }
 
 func (c *Canvas) char(char rune, x, y int) {
