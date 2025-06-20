@@ -78,6 +78,7 @@ func (c *Canvas) generateFrame(frame string) {
 }
 
 func (c *Canvas) exportCanvasToPNG(frame string) {
+	fmt.Println("Saving png...")
 	c.generateFrame(frame)
 	img, _ := c.capture.ToPNG()
 	err := os.WriteFile(c.saveFilename, img, 0o644)
