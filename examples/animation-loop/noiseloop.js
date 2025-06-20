@@ -1,4 +1,4 @@
-let duration = 1;
+let duration = 3;
 let radius = 4;
 
 function setup(c) {
@@ -7,12 +7,17 @@ function setup(c) {
 
 function draw(c) {
   c.clear();
-  c.strokeText("0");
+
   let theta = c.loopAngle(duration);
+  let noise = c.noiseLoop(theta, 1);
 
-  let x = c.map(c.noiseLoop(theta, 1), 0, 1, radius, c.width - radius);
+  let x = c.map(noise, 0, 1, radius, c.width - radius);
   let y = c.map(Math.sin(theta), -1, 1, radius, c.height - radius);
+  let color = c.map(noise, 0, 1, 0, 255);
 
+  c.background("#", 3, 3);
+  c.stroke(" ", color, color);
+  c.fill(" ", color, color);
   c.circle(x, y, radius);
 }
 
