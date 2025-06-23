@@ -6,6 +6,7 @@ import (
 	"flag"
 	"fmt"
 	"os"
+	"strings"
 
 	"github.com/charmbracelet/lipgloss"
 	"github.com/charmbracelet/log"
@@ -78,7 +79,7 @@ func displayHelp() {
 			lipgloss.NewStyle().MarginLeft(5).Render(
 				lipgloss.JoinVertical(
 					lipgloss.Left,
-					lipgloss.NewStyle().Foreground(lipgloss.Color("79")).Render(fmt.Sprintf("%s - https://empr.cl/runal/", AppVersion)),
+					lipgloss.NewStyle().Foreground(lipgloss.Color("79")).Render(fmt.Sprintf("%s - https://empr.cl/runal/", strings.TrimSuffix(AppVersion, "\n"))),
 					lipgloss.NewStyle().MarginTop(2).Bold(true).Foreground(lipgloss.Color("81")).Render("USAGE"),
 					lipgloss.NewStyle().MarginLeft(2).Render(
 						lipgloss.JoinVertical(
