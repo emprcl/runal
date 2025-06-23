@@ -87,7 +87,7 @@ func displayHelp() {
 							lipgloss.JoinHorizontal(
 								lipgloss.Left,
 								lipgloss.NewStyle().Width(15).Render("-f [FILE]"),
-								lipgloss.NewStyle().Foreground(lipgloss.Color("244")).Render("the javascript (.js) sketch file to watch."),
+								lipgloss.NewStyle().Foreground(lipgloss.Color("244")).Render("the javascript sketch file (.js) to watch"),
 							),
 						),
 					),
