@@ -14,7 +14,16 @@ _Feel free to [open an issue](https://github.com/emprcl/runal/issues/new)._
 
 ## Installation
 
-### Download executables
+### Quick-install
+
+On **linux** or **macOS**, you can run this quick-install bash script:
+```sh
+curl -sSL empr.cl/get/runal | bash
+```
+
+### Manual installation
+
+#### Linux & macOS
 
 [Download the last release](https://github.com/emprcl/runal/releases) for your platform.
 
@@ -25,7 +34,16 @@ mkdir -p runal && tar -zxvf runal_VERSION_PLATFORM.tar.gz -C runal
 cd runal
 
 # Run runal
-./runal -f sketch.js
+./runal
+```
+
+#### Windows
+
+> _We recommend using Windows Terminal with a good monospace font like Iosevka to display Signls correctly on Windows._
+
+Unzip the last [windows release](https://github.com/emprcl/runal/releases) and, in the same directory, run:
+```
+.\runal.exe
 ```
 
 ### Go install
