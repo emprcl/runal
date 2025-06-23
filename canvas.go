@@ -194,7 +194,6 @@ func (c *Canvas) resize(width, height int) {
 	} else {
 		c.captureResize(newWidth, newHeight)
 	}
-
 }
 
 func (c *Canvas) char(char rune, x, y int) {
