@@ -45,7 +45,7 @@ func main() {
 	}
 
 	if _, err := os.Stat(*file); errors.Is(err, os.ErrNotExist) {
-		log.Fatalf("sketch file %s does not exit", *file)
+		log.Fatalf("sketch file %s does not exist", *file)
 	}
 
 	watcher, err := fsnotify.NewWatcher()
