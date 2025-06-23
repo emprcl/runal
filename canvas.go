@@ -189,7 +189,12 @@ func (c *Canvas) resize(width, height int) {
 	c.Width = newWidth
 	c.Height = newHeight
 	c.buffer = newBuffer
-	c.captureResize(c.termWidth, c.termHeight)
+	if c.autoResize {
+		c.captureResize(c.termWidth, c.termHeight)
+	} else {
+		c.captureResize(newWidth, newHeight)
+	}
+
 }
 
 func (c *Canvas) char(char rune, x, y int) {
