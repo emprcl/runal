@@ -53,6 +53,26 @@ If your a developer using Go, you can use the `go install` command:
 go install github.com/emprcl/runal@latest
 ```
 
+### Build it yourself
+
+You'll need [go 1.23](https://go.dev/dl/) minimum.
+Although you should be able to build it for either **linux**, **macOS** or **Windows**, it has only been tested on **linux**.
+
+```sh
+# Linux
+make GOLANG_OS=linux build
+
+# macOS
+make GOLANG_OS=darwin build
+
+# Windows
+make GOLANG_OS=windows build
+
+# Raspberry Pi OS
+make GOLANG_OS=linux GOLANG_ARCH=arm64 build
+```
+
+
 ## Usage
 
 ### JavaScript runtime
