@@ -1,21 +1,21 @@
-let duration = 3;
-let scale = 0.3;
+let duration = 5;
+let margin = 3;
 
 function setup(c) {
+  c.size(40, 21);
+  c.backgroundBg("197");
   c.saveCanvasToGIF("canvas.gif", duration);
 }
 
 function draw(c) {
   c.clear();
+  c.stroke("RUNAL", "255", "197");
   let theta = c.loopAngle(duration);
 
-  for (let x = 0; x < c.width; x++) {
-    for (let y = 0; y < c.height; y++) {
-      let noise = c.noiseLoop2D(theta, 1, x * scale, y * scale);
-      let color = c.map(noise, 0, 1, 232, 255);
-      c.stroke("0", color, color);
-      c.point(x, y);
-    }
+  for (let y = margin; y < c.height - margin; y++) {
+    let x = c.map(Math.sin(theta + y), -1, 1, margin, c.width - margin);
+
+    c.point(x, y);
   }
 }
 
