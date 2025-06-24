@@ -100,6 +100,20 @@ func (s runtime) Run() {
 	wg.Wait()
 }
 
+func (s runtime) RunDemo(demo string) {
+	done := make(chan os.Signal, 1)
+	vm, setup, draw, onKey, err := parseJS(demo)
+	if err != nil {
+		log.Error(err)
+		return
+	}
+	ctx, cancel := context.WithCancel(context.Background())
+	wg := s.runSketch(ctx, done, vm, setup, draw, onKey)
+	<-done
+	cancel()
+	wg.Wait()
+}
+
 func (s runtime) runSketch(ctx context.Context, done chan os.Signal, vm *goja.Runtime, setup, draw goja.Callable, onKey goja.Callable) *sync.WaitGroup {
 	var onKeyCallback func(c *runal.Canvas, key string)
 	if onKey != nil {

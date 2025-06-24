@@ -1,3 +1,4 @@
 *.js
+!demo.js
 *.log
 *.swp

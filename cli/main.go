@@ -19,6 +19,9 @@ import (
 //go:embed VERSION
 var AppVersion string
 
+//go:embed demo.js
+var Demo string
+
 const (
 	logo = `
       ___           ___           ___           ___           ___
@@ -38,7 +41,14 @@ const (
 
 func main() {
 	file := flag.String("f", "", "sketch file (.js)")
+	demo := flag.Bool("demo", false, "demo mode")
 	flag.Parse()
+
+	if *demo {
+		r := runtime.New("", nil, nil)
+		r.RunDemo(Demo)
+		return
+	}
 
 	if *file == "" {
 		displayHelp()
@@ -89,6 +99,11 @@ func displayHelp() {
 								lipgloss.NewStyle().Width(15).Render("-f [FILE]"),
 								lipgloss.NewStyle().Foreground(lipgloss.Color("244")).Render("the javascript sketch file (.js) to watch"),
 							),
+							lipgloss.JoinHorizontal(
+								lipgloss.Left,
+								lipgloss.NewStyle().Width(15).Render("-demo"),
+								lipgloss.NewStyle().Foreground(lipgloss.Color("244")).Render("demo sketch (press space to reseed, c to capture png)"),
+							),
 						),
 					),
 					lipgloss.NewStyle().MarginTop(2).Bold(true).Foreground(lipgloss.Color("81")).Render("EXAMPLE"),
@@ -96,6 +111,7 @@ func displayHelp() {
 						lipgloss.JoinVertical(
 							lipgloss.Left,
 							"runal -f my_sketch.js",
+							"runal -demo",
 						),
 					),
 					lipgloss.NewStyle().MarginTop(2).Bold(true).Foreground(lipgloss.Color("81")).Render("LOGS"),

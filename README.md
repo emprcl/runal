@@ -35,6 +35,9 @@ cd runal
 
 # Run runal
 ./runal
+
+# Run runal demo
+./runal -demo
 ```
 
 #### Windows
@@ -42,8 +45,12 @@ cd runal
 > _We recommend using Windows Terminal with a good monospace font like Iosevka to display Signls correctly on Windows._
 
 Unzip the last [windows release](https://github.com/emprcl/runal/releases) and, in the same directory, run:
-```
+```windows
+# Run runal
 .\runal.exe
+
+# Run runal demo
+.\runal.exe -demo
 ```
 
 ### Go install
