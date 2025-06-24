@@ -45,11 +45,11 @@ cd runal
 > _We recommend using Windows Terminal with a good monospace font like Iosevka to display Signls correctly on Windows._
 
 Unzip the last [windows release](https://github.com/emprcl/runal/releases) and, in the same directory, run:
-```windows
-# Run runal
+```winbatch
+; Run runal
 .\runal.exe
 
-# Run runal demo
+; Run runal demo
 .\runal.exe -demo
 ```
 
