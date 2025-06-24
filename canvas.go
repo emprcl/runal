@@ -278,8 +278,7 @@ func (c *Canvas) backgroundCell() string {
 		next := c.nextBackgroundRune()
 		return style.Render(string([]rune{next, next}))
 	default:
-		return style.Render(string(c.cellPaddingRune))
-
+		return style.Render(string(c.nextBackgroundRune()))
 	}
 }
 
