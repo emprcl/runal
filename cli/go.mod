@@ -7,6 +7,7 @@ toolchain go1.23.3
 replace github.com/emprcl/runal => ../
 
 require (
+	github.com/charmbracelet/lipgloss v1.1.0
 	github.com/charmbracelet/log v0.4.2
 	github.com/dop251/goja v0.0.0-20250531102226-cb187b08699c
 	github.com/emprcl/runal v0.0.0-00010101000000-000000000000
@@ -17,7 +18,6 @@ require (
 	github.com/aquilax/go-perlin v1.1.0 // indirect
 	github.com/aymanbagabas/go-osc52/v2 v2.0.1 // indirect
 	github.com/charmbracelet/colorprofile v0.3.1 // indirect
-	github.com/charmbracelet/lipgloss v1.1.0 // indirect
 	github.com/charmbracelet/x/ansi v0.9.3 // indirect
 	github.com/charmbracelet/x/cellbuf v0.0.13 // indirect
 	github.com/charmbracelet/x/term v0.2.1 // indirect
