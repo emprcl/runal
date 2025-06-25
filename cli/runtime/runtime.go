@@ -7,6 +7,7 @@ import (
 	"os"
 	"os/signal"
 	"path/filepath"
+	"strings"
 	"sync"
 
 	"github.com/charmbracelet/log"
@@ -61,7 +62,7 @@ func (s runtime) Run() {
 					return
 				}
 				if event.Has(fsnotify.Write) {
-					if event.Name != s.filename {
+					if !strings.HasSuffix(event.Name, s.filename) {
 						continue
 					}
 					cancel()
