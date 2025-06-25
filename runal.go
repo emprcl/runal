@@ -41,27 +41,15 @@ func (c *Canvas) DisableRendering() {
 
 // CellPadding sets a character used for cell spacing between elements.
 func (c *Canvas) CellPadding(char string) {
-	previousValue := c.cellPadding.enabled()
 	c.cellPadding = cellPaddingCustom
 	c.cellPaddingRune = rune(char[0])
-
-	if c.autoResize && !previousValue {
-		c.resize(c.Width, c.Height)
-	} else if !previousValue {
-		c.resize(c.Width*2, c.Height)
-	}
+	c.resize(c.Width, c.Height)
 }
 
 // CellPaddingDouble makes every cell duplicated.
 func (c *Canvas) CellPaddingDouble() {
-	previousValue := c.cellPadding.enabled()
 	c.cellPadding = cellPaddingDouble
-
-	if c.autoResize && !previousValue {
-		c.resize(c.Width, c.Height)
-	} else if !previousValue {
-		c.resize(c.Width*2, c.Height)
-	}
+	c.resize(c.Width, c.Height)
 }
 
 // Fps sets the rendering framerate in frames per second.
