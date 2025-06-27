@@ -7,6 +7,7 @@ toolchain go1.23.3
 require (
 	github.com/aquilax/go-perlin v1.1.0
 	github.com/charmbracelet/lipgloss v1.1.0
+	github.com/charmbracelet/log v0.4.2
 	github.com/charmbracelet/x/ansi v0.9.3
 	github.com/eiannone/keyboard v0.0.0-20220611211555-0d226195f203
 	github.com/xaviergodart/go-ansi-to-image v0.0.0-20250620163834-f2b31334a2bb
@@ -19,6 +20,7 @@ require (
 	github.com/charmbracelet/x/cellbuf v0.0.13 // indirect
 	github.com/charmbracelet/x/term v0.2.1 // indirect
 	github.com/fogleman/gg v1.3.0 // indirect
+	github.com/go-logfmt/logfmt v0.6.0 // indirect
 	github.com/golang/freetype v0.0.0-20170609003504-e2365dfdc4a0 // indirect
 	github.com/leaanthony/go-ansi-parser v1.6.1 // indirect
 	github.com/lucasb-eyer/go-colorful v1.2.0 // indirect

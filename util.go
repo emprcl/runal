@@ -2,9 +2,10 @@ package runal
 
 import (
 	"fmt"
-	"log"
 	"os"
 	"strings"
+
+	"github.com/charmbracelet/log"
 
 	"golang.org/x/term"
 )

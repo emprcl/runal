@@ -7,8 +7,9 @@ import (
 	"image/draw"
 	"image/gif"
 	"image/png"
-	"log"
 	"os"
+
+	"github.com/charmbracelet/log"
 
 	ansitoimage "github.com/xaviergodart/go-ansi-to-image"
 )
@@ -34,9 +35,10 @@ func (c *Canvas) SaveCanvasToGIF(filename string, duration int) {
 
 // SaveCanvasToMP4 exports the canvas to a mp4 (h264) video
 // for a given duration (in seconds).
+// Depends on ffmpeg.
 func (c *Canvas) SaveCanvasToMP4(filename string, duration int) {
 	if !checkFFMPEG() {
-		fmt.Println("ffmpeg is not installed")
+		log.Error("Can't use SaveCanvasToMP4(). ffmpeg is not installed.")
 		c.DisableRendering()
 	}
 	if c.frames != nil {
