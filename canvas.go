@@ -35,6 +35,13 @@ func (c cellPaddingMode) enabled() bool {
 	return c != cellPaddingDisabled
 }
 
+type videoFormat uint8
+
+const (
+	videoFormatGif videoFormat = iota
+	videoFormatMp4
+)
+
 // Canvas represents a drawable area where shapes, text, and effects
 // can be rendered.
 type Canvas struct {
@@ -42,8 +49,9 @@ type Canvas struct {
 	output  io.Writer
 	capture *ansitoimage.Converter
 	frames  []image.Image
-	noise   *perlin.Perlin
-	random  *rand.Rand
+	videoFormat
+	noise  *perlin.Perlin
+	random *rand.Rand
 
 	state *state
 

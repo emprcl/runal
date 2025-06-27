@@ -6,6 +6,7 @@ import (
 	"image/color/palette"
 	"image/draw"
 	"image/gif"
+	"image/png"
 	"log"
 	"os"
 
@@ -25,6 +26,19 @@ func (c *Canvas) SaveCanvasToGIF(filename string, duration int) {
 	if c.frames != nil {
 		return
 	}
+	c.videoFormat = videoFormatGif
+	totalFrames := duration * c.fps
+	c.frames = make([]image.Image, 0, totalFrames)
+	c.saveFilename = filename
+}
+
+// SaveCanvasToMP4 exports the canvas to a mp4 (h264) video
+// for a given duration (in seconds).
+func (c *Canvas) SaveCanvasToMP4(filename string, duration int) {
+	if c.frames != nil {
+		return
+	}
+	c.videoFormat = videoFormatMp4
 	totalFrames := duration * c.fps
 	c.frames = make([]image.Image, 0, totalFrames)
 	c.saveFilename = filename
@@ -109,10 +123,44 @@ func (c *Canvas) exportFramesToGIF() error {
 	return gif.EncodeAll(file, outGif)
 }
 
+func (c *Canvas) exportFramesToMP4() error {
+	dir, err := os.MkdirTemp("", "runal_video_*")
+	if err != nil {
+		log.Fatal(err)
+	}
+	for i, img := range c.frames {
+		f, err := os.Create(fmt.Sprintf("%s/frame_%d.png", dir, i))
+		defer f.Close()
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		if err := png.Encode(f, img); err != nil {
+			log.Fatal(err)
+		}
+		f.Close()
+	}
+
+	file, err := os.Create(c.saveFilename)
+	if err != nil {
+		return err
+	}
+	defer file.Close()
+
+	return nil
+}
+
 func (c *Canvas) recordFrame(output string) {
 	if len(c.frames) >= cap(c.frames) {
-		fmt.Println("Saving gif...")
-		err := c.exportFramesToGIF()
+		fmt.Println("Saving file...")
+		var err error
+		switch c.videoFormat {
+		case videoFormatGif:
+			err = c.exportFramesToGIF()
+		case videoFormatMp4:
+			err = nil
+		}
+
 		if err != nil {
 			log.Fatal(err)
 		}
