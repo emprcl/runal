@@ -1,7 +1,9 @@
 package runal
 
 import (
+	"fmt"
 	"log"
+	"os"
 	"strings"
 
 	"golang.org/x/term"
@@ -32,4 +34,12 @@ func absInt(a int) int {
 
 func strIndex(str string, index int) rune {
 	return rune(str[index%len(str)])
+}
+
+func randomDir() string {
+	tmp, err := os.MkdirTemp(os.TempDir(), "runal")
+	if err != nil {
+		log.Fatal(fmt.Errorf("Error creating temporary directory: %v", err))
+	}
+	return tmp
 }

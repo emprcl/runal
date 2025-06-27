@@ -2,3 +2,6 @@
 !demo.js
 *.log
 *.swp
+*.png
+*.gif
+*.mp4

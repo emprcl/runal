@@ -35,6 +35,10 @@ func (c *Canvas) SaveCanvasToGIF(filename string, duration int) {
 // SaveCanvasToMP4 exports the canvas to a mp4 (h264) video
 // for a given duration (in seconds).
 func (c *Canvas) SaveCanvasToMP4(filename string, duration int) {
+	if !checkFFMPEG() {
+		fmt.Println("ffmpeg is not installed")
+		c.DisableRendering()
+	}
 	if c.frames != nil {
 		return
 	}
@@ -124,10 +128,9 @@ func (c *Canvas) exportFramesToGIF() error {
 }
 
 func (c *Canvas) exportFramesToMP4() error {
-	dir, err := os.MkdirTemp("", "runal_video_*")
-	if err != nil {
-		log.Fatal(err)
-	}
+	dir := randomDir()
+	defer os.RemoveAll(dir)
+
 	for i, img := range c.frames {
 		f, err := os.Create(fmt.Sprintf("%s/frame_%d.png", dir, i))
 		if err != nil {
@@ -141,27 +144,19 @@ func (c *Canvas) exportFramesToMP4() error {
 		f.Close()
 	}
 
-	file, err := os.Create(c.saveFilename)
-	if err != nil {
-		return err
-	}
-	defer file.Close()
-
-	// exec.Command("ffmpeg -framerate 30 -pattern_type glob -i '*.png' \
-	//  -c:v libx264 -pix_fmt yuv420p out.mp4", arg ...string)
-
-	return nil
+	return framesToMP4Videos(c.fps, fmt.Sprintf("%s/frame_%%d.png", dir), c.saveFilename)
 }
 
 func (c *Canvas) recordFrame(output string) {
 	if len(c.frames) >= cap(c.frames) {
-		fmt.Println("Saving file...")
 		var err error
 		switch c.videoFormat {
 		case videoFormatGif:
+			fmt.Println("Saving GIF...")
 			err = c.exportFramesToGIF()
 		case videoFormatMp4:
-			err = nil
+			fmt.Println("Saving MP4...")
+			err = c.exportFramesToMP4()
 		}
 
 		if err != nil {
