@@ -130,10 +130,10 @@ func (c *Canvas) exportFramesToMP4() error {
 	}
 	for i, img := range c.frames {
 		f, err := os.Create(fmt.Sprintf("%s/frame_%d.png", dir, i))
-		defer f.Close()
 		if err != nil {
 			log.Fatal(err)
 		}
+		defer f.Close()
 
 		if err := png.Encode(f, img); err != nil {
 			log.Fatal(err)
@@ -146,6 +146,9 @@ func (c *Canvas) exportFramesToMP4() error {
 		return err
 	}
 	defer file.Close()
+
+	// exec.Command("ffmpeg -framerate 30 -pattern_type glob -i '*.png' \
+	//  -c:v libx264 -pix_fmt yuv420p out.mp4", arg ...string)
 
 	return nil
 }
