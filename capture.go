@@ -93,7 +93,7 @@ func (c *Canvas) captureResize(width, height int) {
 func (c *Canvas) generateFrame(frame string) {
 	err := c.capture.Parse(frame)
 	if err != nil {
-		log.Fatal(err)
+		log.Fatalf("can't generate frame: %v", err)
 	}
 }
 
@@ -103,7 +103,7 @@ func (c *Canvas) exportCanvasToPNG(frame string) {
 	img, _ := c.capture.ToPNG()
 	err := os.WriteFile(c.saveFilename, img, 0o644)
 	if err != nil {
-		log.Fatal(err)
+		log.Fatal("can't create png file: %v", err)
 	}
 }
 
@@ -136,12 +136,12 @@ func (c *Canvas) exportFramesToMP4() error {
 	for i, img := range c.frames {
 		f, err := os.Create(fmt.Sprintf("%s/frame_%d.png", dir, i))
 		if err != nil {
-			log.Fatal(err)
+			log.Fatal("can't create frame file: %v", err)
 		}
 		defer f.Close()
 
 		if err := png.Encode(f, img); err != nil {
-			log.Fatal(err)
+			log.Fatal("can't encode frame: %v", err)
 		}
 		f.Close()
 	}
@@ -162,7 +162,7 @@ func (c *Canvas) recordFrame(output string) {
 		}
 
 		if err != nil {
-			log.Fatal(err)
+			log.Fatal("can't export frames: %v", err)
 		}
 		c.frames = nil
 		return

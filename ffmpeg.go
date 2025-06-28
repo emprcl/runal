@@ -12,10 +12,7 @@ const (
 
 func checkFFMPEG() bool {
 	_, err := exec.LookPath(ffmpegBinary)
-	if err != nil {
-		return false
-	}
-	return true
+	return err == nil
 }
 
 func framesToMP4Videos(fps int, input, output string) error {

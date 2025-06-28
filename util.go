@@ -1,7 +1,6 @@
 package runal
 
 import (
-	"fmt"
 	"os"
 	"strings"
 
@@ -40,7 +39,7 @@ func strIndex(str string, index int) rune {
 func randomDir() string {
 	tmp, err := os.MkdirTemp(os.TempDir(), "runal")
 	if err != nil {
-		log.Fatal(fmt.Errorf("Error creating temporary directory: %v", err))
+		log.Fatalf("error creating temporary directory: %v", err)
 	}
 	return tmp
 }
