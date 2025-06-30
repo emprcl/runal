@@ -33,10 +33,10 @@ func (c *Canvas) Noise2D(x, y float64) float64 {
 }
 
 // LoopAngle returns the angular progress (in radians, range [0, 2π]) through a looping cycle
-// of given duration in seconds, with a given frame offset.
-func (c *Canvas) LoopAngle(duration, offset int) float64 {
+// of given duration in seconds.
+func (c *Canvas) LoopAngle(duration int) float64 {
 	totalFrames := c.fps * duration
-	frame := (c.Framecount + offset) % totalFrames
+	frame := c.Framecount % totalFrames
 	return c.Map(float64(frame), 0, float64(totalFrames), 0, 2*math.Pi)
 }
 
