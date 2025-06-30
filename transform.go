@@ -2,16 +2,16 @@ package runal
 
 // Translate offsets the drawing context by (x, y).
 func (c *Canvas) Translate(x, y int) {
-	c.originX = x
-	c.originY = y
+	c.originX = c.originX + x
+	c.originY = c.originY + y
 }
 
 // Rotate rotates the drawing context by the given angle in radians.
 func (c *Canvas) Rotate(angle float64) {
-	c.rotationAngle = angle
+	c.rotationAngle = c.rotationAngle + angle
 }
 
 // Scale scales the drawing context by the given factor.
 func (c *Canvas) Scale(scale float64) {
-	c.scale = scale
+	c.scale = c.scale * scale
 }
