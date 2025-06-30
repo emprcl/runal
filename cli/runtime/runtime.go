@@ -116,9 +116,17 @@ func (s runtime) RunDemo(demo string) {
 }
 
 func (s runtime) runSketch(ctx context.Context, done chan os.Signal, vm *goja.Runtime, setup, draw goja.Callable, onKey goja.Callable) *sync.WaitGroup {
+	panicRecover := func(c *runal.Canvas) {
+		if r := recover(); r != nil {
+			log.Errorf("%v", r)
+			c.DisableRendering()
+		}
+	}
+
 	var onKeyCallback func(c *runal.Canvas, key string)
 	if onKey != nil {
 		onKeyCallback = func(c *runal.Canvas, key string) {
+			defer panicRecover(c)
 			_, err := onKey(goja.Undefined(), vm.ToValue(c), vm.ToValue(key))
 			if err != nil {
 				log.Error(err)
@@ -126,10 +134,12 @@ func (s runtime) runSketch(ctx context.Context, done chan os.Signal, vm *goja.Ru
 			}
 		}
 	}
+
 	return runal.Start(
 		ctx,
 		done,
 		func(c *runal.Canvas) {
+			defer panicRecover(c)
 			vm.Set("console", s.console)
 			_, err := setup(goja.Undefined(), vm.ToValue(c))
 			if err != nil {
@@ -138,6 +148,7 @@ func (s runtime) runSketch(ctx context.Context, done chan os.Signal, vm *goja.Ru
 			}
 		},
 		func(c *runal.Canvas) {
+			defer panicRecover(c)
 			vm.Set("c", c)
 			_, err := draw(goja.Undefined(), vm.ToValue(c))
 			if err != nil {
