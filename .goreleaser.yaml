@@ -1,0 +1,136 @@
+version: 2
+
+project_name: runal
+
+before:
+  hooks:
+    - go mod tidy -C cli
+    - go generate -C cli ./...
+
+builds:
+  - id: runal
+    main: ./cli
+    binary: runal
+    env:
+      - CGO_ENABLED=0
+    goos:
+      - linux
+      - darwin
+      - windows
+    goarch:
+      - amd64
+      - arm64
+    goarm:
+      - "7"
+    ldflags:
+      - -s -w -X main.version={{.Version}} -X main.commit={{.Commit}} -X main.date={{.Date}}
+    mod_timestamp: "{{ .CommitTimestamp }}"
+
+archives:
+  - id: default
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}{{ if .Arm }}v{{ .Arm }}{{ end }}"
+    format_overrides:
+      - goos: windows
+        format: zip
+    files:
+      - LICENSE
+      - README.md
+      - docs/*
+
+nfpms:
+  - id: packages
+    package_name: runal
+    vendor: emprcl
+    homepage: https://empr.cl/runal/
+    maintainer: emprcl <emprcl@github.com>
+    description: |
+      Runal - A cross-platform animation and graphics library for Go
+    license: MIT
+    formats:
+      - deb
+      - rpm
+      - apk
+      - archlinux
+    bindir: /usr/bin
+    section: utils
+    priority: optional
+    meta: true
+    contents:
+      - src: LICENSE
+        dst: /usr/share/doc/runal/LICENSE
+      - src: README.md
+        dst: /usr/share/doc/runal/README.md
+    scripts:
+      postinstall: |
+        echo "runal installed successfully"
+        echo "Run 'runal --help' for usage information"
+
+brews:
+  - name: runal
+    repository:
+      owner: emprcl
+      name: homebrew-tap
+    folder: Formula
+    homepage: https://github.com/emprcl/runal
+    description: "A cross-platform animation and graphics library for Go"
+    license: MIT
+    skip_upload: auto
+    install: |
+      bin.install "runal"
+    test: |
+      system "#{bin}/runal", "--version"
+
+changelog:
+  sort: asc
+  use: github
+  filters:
+    exclude:
+      - "^docs:"
+      - "^test:"
+      - "typo"
+      - "merge conflict"
+      - Merge pull request
+      - Merge remote-tracking branch
+      - Merge branch
+  groups:
+    - title: Features
+      regexp: "^.*feat[(\\w)]*:+.*$"
+      order: 0
+    - title: Bug fixes
+      regexp: "^.*fix[(\\w)]*:+.*$"
+      order: 1
+    - title: Others
+      order: 999
+
+release:
+  github:
+    owner: emprcl
+    name: runal
+  draft: false
+  prerelease: auto
+  mode: replace
+  header: |
+    ## Release {{ .Tag }}
+
+    Welcome to this new release!
+
+  footer: |
+    ## Thanks
+
+    Thanks to all contributors who made this release possible!
+
+  name_template: "v{{ .Version }}"
+
+checksum:
+  name_template: "checksums.txt"
+
+snapshot:
+  name_template: "{{ incpatch .Version }}-next"
+
+announce:
+  skip: true
+
+milestones:
+  - close: true
+    fail_on_error: false
+    name_template: "{{ .Tag }}"

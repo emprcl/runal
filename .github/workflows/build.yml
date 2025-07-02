@@ -11,87 +11,46 @@ permissions:
   contents: write
 
 jobs:
-  build:
-    strategy:
-      matrix:
-        os: [ubuntu-22.04, macos-13, windows-2019]
-    runs-on: ${{ matrix.os }}
-    env:
-      CGO_ENABLED: 0
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Install Alsa headers
-        run: sudo apt-get install libasound2-dev
-        if: startsWith(matrix.os, 'ubuntu')
-
-      - name: Install Go
-        uses: actions/setup-go@v5
-        with:
-          go-version: 1.23
-
-      - name: Release version number
-        run: echo '${{ github.ref_name}}' > cli/VERSION
-        if: ${{ github.ref_type == 'tag' }}
-
-      - name: Development version number
-        run: echo 'dev-${{ github.sha}}' > cli/VERSION
-        if: ${{ github.ref_type == 'branch' }}
-
-      - name: Build linux|mac
-        run: go build -C cli -ldflags="-w -s" -o ../bin/runal && chmod +x bin/runal
-        if: ${{ !startsWith(matrix.os, 'windows') }}
-
-      - name: Build windows
-        run: go build -C cli -ldflags="-w -s" -o ../bin/runal.exe
-        if: startsWith(matrix.os, 'windows')
-
-      - name: Tar.gz linux|mac files
-        run: tar -zcvf runal_${{ github.ref_name }}_${{ runner.os}}.tar.gz LICENSE -C bin runal
-        if: ${{ !startsWith(matrix.os, 'windows') }}
-
-      - name: Zip windows files
-        shell: pwsh
-        run: |
-          Compress-Archive bin\runal.exe runal_${{ github.ref_name }}_${{ runner.os}}.zip
-        if: ${{ startsWith(matrix.os, 'windows') }}
-
-      - name: Upload linux|mac artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: runal_${{ github.sha }}_${{ runner.os}}
-          path: runal_${{ github.ref_name }}_${{ runner.os}}.tar.gz
-          if-no-files-found: error
-        if: ${{ !startsWith(matrix.os, 'windows') }}
-
-      - name: Upload windows artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: runal_${{ github.sha }}_${{ runner.os}}
-          path: runal_${{ github.ref_name }}_${{ runner.os}}.zip
-          if-no-files-found: error
-        if: ${{ startsWith(matrix.os, 'windows') }}
-
-  release:
-    needs: build
-    if: startsWith(github.ref, 'refs/tags/v')
+  goreleaser:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/download-artifact@v4.1.7
+      - name: Checkout
+        uses: actions/checkout@v4
         with:
-          name: runal_${{ github.sha }}_macOS
+          fetch-depth: 0
 
-      - uses: actions/download-artifact@v4.1.7
-        with:
-          name: runal_${{ github.sha }}_Linux
+      - name: Install Alsa headers
+        run: sudo apt-get update && sudo apt-get install libasound2-dev
 
-      - uses: actions/download-artifact@v4.1.7
+      - name: Set up Go
+        uses: actions/setup-go@v5
         with:
-          name: runal_${{ github.sha }}_Windows
+          go-version: "1.23"
 
-      - name: Create release
-        uses: softprops/action-gh-release@v1
+      - name: Run GoReleaser (snapshot)
+        uses: goreleaser/goreleaser-action@v6
+        if: github.event_name == 'pull_request' || (github.event_name == 'push' && github.ref == 'refs/heads/main')
         with:
-          files: |
-            runal_*.tar.gz
-            runal_*.zip
+          distribution: goreleaser
+          version: "~> v2"
+          args: release --snapshot --clean
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Run GoReleaser (release)
+        uses: goreleaser/goreleaser-action@v6
+        if: startsWith(github.ref, 'refs/tags/v')
+        with:
+          distribution: goreleaser
+          version: "~> v2"
+          args: release --clean
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Upload snapshot artifacts
+        uses: actions/upload-artifact@v4
+        if: github.event_name == 'pull_request' || (github.event_name == 'push' && github.ref == 'refs/heads/main')
+        with:
+          name: dist-snapshot
+          path: dist/
+          retention-days: 30

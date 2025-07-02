@@ -6,7 +6,6 @@ import (
 	"flag"
 	"fmt"
 	"os"
-	"strings"
 
 	"github.com/charmbracelet/lipgloss"
 	"github.com/charmbracelet/log"
@@ -16,8 +15,12 @@ import (
 	"runal-cli/runtime"
 )
 
-//go:embed VERSION
-var AppVersion string
+// Build information injected by GoReleaser
+var (
+	version = "dev"
+	commit  = "none"
+	date    = "unknown"
+)
 
 //go:embed demo.js
 var Demo string
@@ -89,7 +92,7 @@ func displayHelp() {
 			lipgloss.NewStyle().MarginLeft(5).Render(
 				lipgloss.JoinVertical(
 					lipgloss.Left,
-					lipgloss.NewStyle().Foreground(lipgloss.Color("79")).Render(fmt.Sprintf("%s - https://empr.cl/runal/", strings.TrimSuffix(AppVersion, "\n"))),
+					lipgloss.NewStyle().Foreground(lipgloss.Color("79")).Render(fmt.Sprintf("%s - https://empr.cl/runal/", version)),
 					lipgloss.NewStyle().MarginTop(2).Bold(true).Foreground(lipgloss.Color("81")).Render("USAGE"),
 					lipgloss.NewStyle().MarginLeft(2).Render(
 						lipgloss.JoinVertical(

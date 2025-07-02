@@ -14,6 +14,41 @@ _Feel free to [open an issue](https://github.com/emprcl/runal/issues/new)._
 
 ## Installation
 
+### Package Managers
+
+#### Homebrew (macOS/Linux)
+```sh
+brew install emprcl/tap/runal
+```
+
+#### APT (Debian/Ubuntu)
+```sh
+# Download and install the .deb package from releases
+wget https://github.com/emprcl/runal/releases/latest/download/runal_*.deb
+sudo dpkg -i runal_*.deb
+```
+
+#### RPM (RHEL/Fedora/CentOS)
+```sh
+# Download and install the .rpm package from releases
+wget https://github.com/emprcl/runal/releases/latest/download/runal_*.rpm
+sudo rpm -i runal_*.rpm
+```
+
+#### APK (Alpine Linux)
+```sh
+# Download and install the .apk package from releases
+wget https://github.com/emprcl/runal/releases/latest/download/runal_*.apk
+sudo apk add --allow-untrusted runal_*.apk
+```
+
+#### Arch Linux
+```sh
+# Download and install the package from releases
+wget https://github.com/emprcl/runal/releases/latest/download/runal_*.pkg.tar.zst
+sudo pacman -U runal_*.pkg.tar.zst
+```
+
 ### Quick-install
 
 On **linux** or **macOS**, you can run this quick-install bash script:
@@ -57,7 +92,7 @@ Unzip the last [windows release](https://github.com/emprcl/runal/releases) and, 
 
 If your a developer using Go, you can use the `go install` command:
 ```
-go install github.com/emprcl/runal@latest
+go install github.com/emprcl/runal/cli@latest
 ```
 
 ### Build it yourself
