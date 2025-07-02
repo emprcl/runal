@@ -18,8 +18,6 @@ import (
 // Build information injected by GoReleaser
 var (
 	version = "dev"
-	commit  = "none"
-	date    = "unknown"
 )
 
 //go:embed demo.js

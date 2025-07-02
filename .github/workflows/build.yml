@@ -19,9 +19,6 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Install Alsa headers
-        run: sudo apt-get update && sudo apt-get install libasound2-dev
-
       - name: Set up Go
         uses: actions/setup-go@v5
         with:

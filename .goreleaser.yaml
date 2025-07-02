@@ -2,17 +2,8 @@ version: 2
 
 project_name: runal
 
-before:
-  hooks:
-    - go mod tidy -C cli
-    - go generate -C cli ./...
-
 builds:
-  - id: runal
-    main: ./cli
-    binary: runal
-    env:
-      - CGO_ENABLED=0
+  - dir: cli
     goos:
       - linux
       - darwin
@@ -20,65 +11,64 @@ builds:
     goarch:
       - amd64
       - arm64
+      - "386"
+      - arm
     goarm:
       - "7"
+    ignore:
+      - goos: windows
+        goarch: arm64
+      - goos: windows
+        goarm: "7"
     ldflags:
-      - -s -w -X main.version={{.Version}} -X main.commit={{.Commit}} -X main.date={{.Date}}
+      - -s -w -X main.version=v{{.Version}}
     mod_timestamp: "{{ .CommitTimestamp }}"
 
 archives:
   - id: default
-    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}{{ if .Arm }}v{{ .Arm }}{{ end }}"
+    name_template: >-
+      {{ .ProjectName }}_
+      {{- .Version }}_
+      {{- title .Os }}_
+      {{- if eq .Arch "amd64" }}x86_64
+      {{- else if eq .Arch "386" }}i386
+      {{- else }}{{ .Arch }}{{ end }}
     format_overrides:
       - goos: windows
-        format: zip
+        formats: zip
     files:
       - LICENSE
       - README.md
-      - docs/*
 
 nfpms:
-  - id: packages
-    package_name: runal
-    vendor: emprcl
-    homepage: https://empr.cl/runal/
-    maintainer: emprcl <emprcl@github.com>
-    description: |
-      Runal - A cross-platform animation and graphics library for Go
+  - vendor: "emprcl"
+    homepage: "https://empr.cl"
+    maintainer: "Xavier Godart <xavier@empr.cl>"
+    description: "A text-based creative coding environment for the terminal"
+    file_name_template: "{{ .ConventionalFileName }}"
     license: MIT
     formats:
       - deb
       - rpm
-      - apk
       - archlinux
-    bindir: /usr/bin
-    section: utils
-    priority: optional
-    meta: true
-    contents:
-      - src: LICENSE
-        dst: /usr/share/doc/runal/LICENSE
-      - src: README.md
-        dst: /usr/share/doc/runal/README.md
-    scripts:
-      postinstall: |
-        echo "runal installed successfully"
-        echo "Run 'runal --help' for usage information"
+      - apk
+    dependencies:
+      - ffmpeg
 
-brews:
-  - name: runal
-    repository:
-      owner: emprcl
-      name: homebrew-tap
-    folder: Formula
-    homepage: https://github.com/emprcl/runal
-    description: "A cross-platform animation and graphics library for Go"
-    license: MIT
-    skip_upload: auto
-    install: |
-      bin.install "runal"
-    test: |
-      system "#{bin}/runal", "--version"
+# brews:
+#   - name: runal
+#     repository:
+#       owner: emprcl
+#       name: homebrew-tap
+#     folder: Formula
+#     homepage: https://github.com/emprcl/runal
+#     description: "A cross-platform animation and graphics library for Go"
+#     license: MIT
+#     skip_upload: auto
+#     install: |
+#       bin.install "runal"
+#     test: |
+#       system "#{bin}/runal", "--version"
 
 changelog:
   sort: asc
@@ -102,35 +92,27 @@ changelog:
     - title: Others
       order: 999
 
-release:
-  github:
-    owner: emprcl
-    name: runal
-  draft: false
-  prerelease: auto
-  mode: replace
-  header: |
-    ## Release {{ .Tag }}
+# release:
+#   github:
+#     owner: emprcl
+#     name: runal
+#   draft: false
+#   prerelease: auto
+#   mode: replace
+#   header: |
+#     ## Release {{ .Tag }}
 
-    Welcome to this new release!
+#     Welcome to this new release!
 
-  footer: |
-    ## Thanks
+#   footer: |
+#     ## Thanks
 
-    Thanks to all contributors who made this release possible!
+#     Thanks to all contributors who made this release possible!
 
-  name_template: "v{{ .Version }}"
+#   name_template: "v{{ .Version }}"
 
 checksum:
   name_template: "checksums.txt"
 
-snapshot:
-  name_template: "{{ incpatch .Version }}-next"
-
 announce:
   skip: true
-
-milestones:
-  - close: true
-    fail_on_error: false
-    name_template: "{{ .Tag }}"
