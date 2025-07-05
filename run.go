@@ -39,8 +39,8 @@ func Start(ctx context.Context, done chan os.Signal, setup, draw func(c *Canvas)
 
 	exit := func() {
 		ticker.Stop()
-		clearScreen()
 		resetCursorPosition()
+		clearScreen()
 		showCursor()
 	}
 
