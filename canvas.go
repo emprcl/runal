@@ -2,7 +2,6 @@ package runal
 
 import (
 	"bytes"
-	"fmt"
 	"image"
 	"io"
 	"math"
@@ -121,9 +120,9 @@ func mockCanvas(width, height int) *Canvas {
 	return c
 }
 
-func (c *Canvas) render() {
+func (c *Canvas) render() string {
 	if c.disabled {
-		return
+		return ""
 	}
 	var output strings.Builder
 	bgCell := c.backgroundCell()
@@ -162,7 +161,7 @@ func (c *Canvas) render() {
 	}
 	c.Framecount++
 	c.reset()
-	fmt.Fprint(c.output, output.String())
+	return output.String()
 }
 
 func (c *Canvas) reset() {
