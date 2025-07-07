@@ -117,6 +117,8 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		}
 
 	case tea.MouseMsg:
+		m.canvas.PmouseX = m.canvas.MouseX
+		m.canvas.PmouseY = m.canvas.MouseY
 		m.canvas.MouseX = msg.X
 		m.canvas.MouseY = msg.Y
 		return m, nil
