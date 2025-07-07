@@ -91,10 +91,12 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			m.framerate = newFramerate(msg.value)
 		case "redraw":
 			m.draw(m.canvas)
+			m.canvas.shouldRender = true
 		}
 		return m, canvas(m)
 
 	case tickMsg:
+		m.canvas.shouldRender = true
 		if !m.canvas.IsLooping {
 			return m, nil
 		}

@@ -85,6 +85,7 @@ type Canvas struct {
 	clear           bool
 	save            bool
 	autoResize      bool
+	shouldRender    bool
 }
 
 func newCanvas(width, height int) *Canvas {
@@ -124,6 +125,9 @@ func mockCanvas(width, height int) *Canvas {
 }
 
 func (c *Canvas) render() string {
+	if !c.shouldRender {
+		return c.lastFrame
+	}
 	if len(c.errors) > 0 {
 		c.NoLoop()
 		var errors strings.Builder
@@ -177,6 +181,7 @@ func (c *Canvas) render() string {
 }
 
 func (c *Canvas) reset() {
+	c.shouldRender = false
 	c.clear = false
 	c.originX = 0
 	c.originY = 0
