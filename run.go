@@ -151,21 +151,20 @@ func render() tea.Cmd {
 
 func (m model) Init() tea.Cmd {
 	m.setup(m.canvas)
-	go func() {
-		for {
-			event := <-m.canvas.bus
-			switch event.name {
-			case "fps":
-				m.framerate = newFramerate(event.value)
-			case "render":
-				// todo
-			}
-		}
-	}()
 	return tea.Batch(tea.EnterAltScreen, tick(m))
 }
 
 func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+	// handle events coming from the canvas
+	select {
+	case event := <-m.canvas.bus:
+		switch event.name {
+		case "fps":
+			m.framerate = newFramerate(event.value)
+		}
+	default:
+	}
+
 	switch msg := msg.(type) {
 	case tea.WindowSizeMsg:
 		m.canvas.termWidth = msg.Width
@@ -187,6 +186,9 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		case "ctrl+c":
 			m.done <- struct{}{}
 			return m, tea.Quit
+		default:
+			m.onKey(m.canvas, msg.String())
+			return m, nil
 		}
 	}
 	return m, nil

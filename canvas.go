@@ -44,13 +44,14 @@ const (
 // Canvas represents a drawable area where shapes, text, and effects
 // can be rendered.
 type Canvas struct {
-	buffer  buffer
-	output  io.Writer
-	capture *ansitoimage.Converter
-	frames  []image.Image
-	videoFormat
-	noise  *perlin.Perlin
-	random *rand.Rand
+	buffer      buffer
+	output      io.Writer
+	capture     *ansitoimage.Converter
+	frames      []image.Image
+	lastFrame   string
+	videoFormat videoFormat
+	noise       *perlin.Perlin
+	random      *rand.Rand
 
 	state *state
 
@@ -124,6 +125,9 @@ func (c *Canvas) render() string {
 	if c.disabled {
 		return ""
 	}
+	if !c.IsLooping && c.lastFrame != "" {
+		return c.lastFrame
+	}
 	var output strings.Builder
 	bgCell := c.backgroundCell()
 	bgCellSize := ansi.StringWidth(bgCell)
@@ -161,7 +165,8 @@ func (c *Canvas) render() string {
 	}
 	c.Framecount++
 	c.reset()
-	return output.String()
+	c.lastFrame = output.String()
+	return c.lastFrame
 }
 
 func (c *Canvas) reset() {

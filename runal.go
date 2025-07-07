@@ -18,25 +18,23 @@ func (c *Canvas) Clear() {
 // Loop enables continuous redrawing of the canvas.
 func (c *Canvas) Loop() {
 	c.IsLooping = true
-	c.bus <- newStartEvent()
 }
 
 // NoLoop disables automatic canvas redrawing.
 func (c *Canvas) NoLoop() {
 	c.IsLooping = false
-	c.bus <- newStopEvent()
 }
 
-// Redraw triggers a manual rendering pass.
+// Redraw triggers a manual rendering pass when
+// canvas is not redrawing automatically.
 func (c *Canvas) Redraw() {
-	c.bus <- newRenderEvent()
+	c.lastFrame = ""
 }
 
 // DisableRendering disables all rendering updates.
 // Used when an error is rendered.
 func (c *Canvas) DisableRendering() {
 	c.disabled = true
-	c.NoLoop()
 }
 
 // CellPadding sets a character used for cell spacing between elements.

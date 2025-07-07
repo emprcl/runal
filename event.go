@@ -11,21 +11,3 @@ func newFPSEvent(fps int) event {
 		value: fps,
 	}
 }
-
-func newStartEvent() event {
-	return event{
-		name: "start",
-	}
-}
-
-func newStopEvent() event {
-	return event{
-		name: "stop",
-	}
-}
-
-func newRenderEvent() event {
-	return event{
-		name: "render",
-	}
-}

@@ -3,10 +3,12 @@ function setup(c) {
   c.background("/", "237", "#000000");
   c.stroke("0", "255", "#000000");
   c.cellPaddingDouble();
+  c.noLoop();
 }
 
 function draw(c) {
   c.clear();
+  c.loop();
   if (c.framecount % 30 < 15) {
     c.backgroundText("\\");
   } else {
