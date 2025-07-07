@@ -67,11 +67,10 @@ type Canvas struct {
 
 	bus chan event
 
-	Width, Height    int
-	Framecount       int
-	MouseX, MouseY   int
-	PmouseX, PmouseY int
-	fps              int
+	Width, Height  int
+	Framecount     int
+	MouseX, MouseY int
+	fps            int
 
 	strokeIndex, backgroundIndex int
 	termWidth, termHeight        int

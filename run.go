@@ -16,20 +16,60 @@ const (
 	defaultFPS = 30
 )
 
-func Run(ctx context.Context, setup, draw func(c *Canvas), onKey func(c *Canvas, key string)) {
+func Run(
+	ctx context.Context,
+	setup, draw func(c *Canvas),
+	onKey func(c *Canvas, e KeyEvent),
+	onMouse func(c *Canvas, e MouseEvent),
+) {
 	ctx, _ = signal.NotifyContext(ctx, os.Interrupt)
-	Start(ctx, nil, setup, draw, onKey).Wait()
+	Start(ctx, nil, setup, draw, onKey, onMouse).Wait()
+}
+
+func Start(
+	ctx context.Context,
+	done chan struct{},
+	setup, draw func(c *Canvas),
+	onKey func(c *Canvas, e KeyEvent),
+	onMouse func(c *Canvas, e MouseEvent),
+) *sync.WaitGroup {
+	p := tea.NewProgram(
+		newModel(done, setup, draw, onKey, onMouse),
+		tea.WithContext(ctx),
+		tea.WithFPS(defaultFPS),
+		tea.WithMouseAllMotion(),
+	)
+
+	wg := sync.WaitGroup{}
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		if _, err := p.Run(); err != nil {
+			if errors.Is(err, context.Canceled) {
+				return
+			}
+			log.Errorf("Error: %v", err)
+		}
+	}()
+
+	return &wg
 }
 
 type model struct {
 	canvas      *Canvas
 	done        chan struct{}
 	setup, draw func(c *Canvas)
-	onKey       func(c *Canvas, key string)
+	onKey       func(c *Canvas, e KeyEvent)
+	onMouse     func(c *Canvas, e MouseEvent)
 	framerate   time.Duration
 }
 
-func newModel(done chan struct{}, setup, draw func(c *Canvas), onKey func(c *Canvas, key string)) model {
+func newModel(
+	done chan struct{},
+	setup, draw func(c *Canvas),
+	onKey func(c *Canvas, e KeyEvent),
+	onMouse func(c *Canvas, e MouseEvent),
+) model {
 	w, h := termSize()
 	return model{
 		canvas:    newCanvas(w, h),
@@ -37,6 +77,7 @@ func newModel(done chan struct{}, setup, draw func(c *Canvas), onKey func(c *Can
 		setup:     setup,
 		draw:      draw,
 		onKey:     onKey,
+		onMouse:   onMouse,
 		framerate: newFramerate(defaultFPS),
 	}
 }
@@ -111,16 +152,23 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			return m, tea.Quit
 		default:
 			if m.onKey != nil {
-				m.onKey(m.canvas, msg.String())
+				m.onKey(m.canvas, KeyEvent{
+					Key:     msg.String(),
+					KeyCode: int(msg.Type),
+				})
 			}
 			return m, nil
 		}
 
 	case tea.MouseMsg:
-		m.canvas.PmouseX = m.canvas.MouseX
-		m.canvas.PmouseY = m.canvas.MouseY
 		m.canvas.MouseX = msg.X
 		m.canvas.MouseY = msg.Y
+		if msg.Action == tea.MouseActionMotion {
+			return m, nil
+		}
+		if m.onMouse != nil {
+			m.onMouse(m.canvas, MouseEvent(msg))
+		}
 		return m, nil
 	}
 
@@ -129,27 +177,4 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 func (m model) View() string {
 	return m.canvas.render()
-}
-
-func Start(ctx context.Context, done chan struct{}, setup, draw func(c *Canvas), onKey func(c *Canvas, key string)) *sync.WaitGroup {
-	p := tea.NewProgram(
-		newModel(done, setup, draw, onKey),
-		tea.WithContext(ctx),
-		tea.WithFPS(defaultFPS),
-		tea.WithMouseAllMotion(),
-	)
-
-	wg := sync.WaitGroup{}
-	wg.Add(1)
-	go func() {
-		defer wg.Done()
-		if _, err := p.Run(); err != nil {
-			if errors.Is(err, context.Canceled) {
-				return
-			}
-			log.Errorf("Error: %v", err)
-		}
-	}()
-
-	return &wg
 }
