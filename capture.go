@@ -1,6 +1,7 @@
 package runal
 
 import (
+	"errors"
 	"fmt"
 	"image"
 	"image/color/palette"
@@ -38,8 +39,7 @@ func (c *Canvas) SaveCanvasToGIF(filename string, duration int) {
 // Depends on ffmpeg.
 func (c *Canvas) SaveCanvasToMP4(filename string, duration int) {
 	if !checkFFMPEG() {
-		log.Error("Can't use SaveCanvasToMP4(). ffmpeg is not installed.")
-		c.DisableRendering()
+		c.AddError(errors.New("Can't use SaveCanvasToMP4(). ffmpeg is not installed."))
 	}
 	if c.frames != nil {
 		return

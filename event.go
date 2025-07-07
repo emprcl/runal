@@ -11,3 +11,9 @@ func newFPSEvent(fps int) event {
 		value: fps,
 	}
 }
+
+func newRedrawEvent() event {
+	return event{
+		name: "redraw",
+	}
+}

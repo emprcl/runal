@@ -29,12 +29,12 @@ func (c *Canvas) NoLoop() {
 // canvas is not redrawing automatically.
 func (c *Canvas) Redraw() {
 	c.lastFrame = ""
+	c.bus <- newRedrawEvent()
 }
 
-// DisableRendering disables all rendering updates.
-// Used when an error is rendered.
-func (c *Canvas) DisableRendering() {
-	c.disabled = true
+// AddError adds an error to render.
+func (c *Canvas) AddError(err error) {
+	c.errors = append(c.errors, err)
 }
 
 // CellPadding sets a character used for cell spacing between elements.

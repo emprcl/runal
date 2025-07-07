@@ -45,6 +45,7 @@ type tickMsg time.Time
 
 func tick(m model) tea.Cmd {
 	return tea.Tick(m.framerate, func(t time.Time) tea.Msg {
+		m.draw(m.canvas)
 		return tickMsg(t)
 	})
 }
@@ -53,30 +54,28 @@ func newFramerate(fps int) time.Duration {
 	return time.Second / time.Duration(fps)
 }
 
-type renderMsg struct{}
+type canvasMsg struct {
+	name  string
+	value int
+}
 
-func render() tea.Cmd {
+func canvas(m model) tea.Cmd {
 	return func() tea.Msg {
-		return struct{}{}
+		event := <-m.canvas.bus
+		return canvasMsg{
+			name:  event.name,
+			value: event.value,
+		}
 	}
 }
 
 func (m model) Init() tea.Cmd {
 	m.setup(m.canvas)
-	return tea.Batch(tea.EnterAltScreen, tick(m))
+	m.draw(m.canvas)
+	return tea.Batch(tea.EnterAltScreen, canvas(m), tick(m))
 }
 
 func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
-	// handle events coming from the canvas
-	select {
-	case event := <-m.canvas.bus:
-		switch event.name {
-		case "fps":
-			m.framerate = newFramerate(event.value)
-		}
-	default:
-	}
-
 	switch msg := msg.(type) {
 	case tea.WindowSizeMsg:
 		m.canvas.termWidth = msg.Width
@@ -85,6 +84,15 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			m.canvas.resize(msg.Width, msg.Height)
 		}
 		return m, nil
+
+	case canvasMsg:
+		switch msg.name {
+		case "fps":
+			m.framerate = newFramerate(msg.value)
+		case "redraw":
+			m.draw(m.canvas)
+		}
+		return m, canvas(m)
 
 	case tickMsg:
 		if !m.canvas.IsLooping {
@@ -111,7 +119,6 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (m model) View() string {
-	m.draw(m.canvas)
 	return m.canvas.render()
 }
 
@@ -120,6 +127,7 @@ func Start(ctx context.Context, done chan struct{}, setup, draw func(c *Canvas),
 		newModel(done, setup, draw, onKey),
 		tea.WithContext(ctx),
 		tea.WithFPS(defaultFPS),
+		tea.WithMouseAllMotion(),
 	)
 
 	wg := sync.WaitGroup{}

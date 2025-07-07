@@ -2,6 +2,7 @@ package runal
 
 import (
 	"bytes"
+	"fmt"
 	"image"
 	"io"
 	"math"
@@ -11,6 +12,7 @@ import (
 
 	perlin "github.com/aquilax/go-perlin"
 	"github.com/charmbracelet/lipgloss"
+	"github.com/charmbracelet/log"
 	"github.com/charmbracelet/x/ansi"
 	ansitoimage "github.com/xaviergodart/go-ansi-to-image"
 )
@@ -46,6 +48,7 @@ const (
 type Canvas struct {
 	buffer      buffer
 	output      io.Writer
+	errors      []error
 	capture     *ansitoimage.Converter
 	frames      []image.Image
 	lastFrame   string
@@ -122,8 +125,13 @@ func mockCanvas(width, height int) *Canvas {
 }
 
 func (c *Canvas) render() string {
-	if c.disabled {
-		return ""
+	if len(c.errors) > 0 {
+		c.NoLoop()
+		var errors strings.Builder
+		for _, e := range c.errors {
+			errors.WriteString(fmt.Sprintf("%s %s\n", log.DefaultStyles().Levels[log.ErrorLevel].Render("ERRO"), e.Error()))
+		}
+		return errors.String()
 	}
 	if !c.IsLooping && c.lastFrame != "" {
 		return c.lastFrame

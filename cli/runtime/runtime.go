@@ -116,8 +116,7 @@ func (s runtime) RunDemo(demo string) {
 func (s runtime) runSketch(ctx context.Context, done chan struct{}, vm *goja.Runtime, setup, draw goja.Callable, onKey goja.Callable) *sync.WaitGroup {
 	panicRecover := func(c *runal.Canvas) {
 		if r := recover(); r != nil {
-			log.Errorf("%v", r)
-			c.DisableRendering()
+			c.AddError(fmt.Errorf("%v", r))
 		}
 	}
 
@@ -127,8 +126,7 @@ func (s runtime) runSketch(ctx context.Context, done chan struct{}, vm *goja.Run
 			defer panicRecover(c)
 			_, err := onKey(goja.Undefined(), vm.ToValue(c), vm.ToValue(key))
 			if err != nil {
-				log.Error(err)
-				c.DisableRendering()
+				c.AddError(err)
 			}
 		}
 	}
@@ -141,8 +139,7 @@ func (s runtime) runSketch(ctx context.Context, done chan struct{}, vm *goja.Run
 			vm.Set("console", s.console)
 			_, err := setup(goja.Undefined(), vm.ToValue(c))
 			if err != nil {
-				log.Error(err)
-				c.DisableRendering()
+				c.AddError(err)
 			}
 		},
 		func(c *runal.Canvas) {
@@ -150,8 +147,7 @@ func (s runtime) runSketch(ctx context.Context, done chan struct{}, vm *goja.Run
 			vm.Set("c", c)
 			_, err := draw(goja.Undefined(), vm.ToValue(c))
 			if err != nil {
-				log.Error(err)
-				c.DisableRendering()
+				c.AddError(err)
 			}
 		},
 		onKeyCallback,
