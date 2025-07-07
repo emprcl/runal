@@ -148,7 +148,7 @@ func (c *Canvas) render() string {
 		}
 		forcePadding(&line, lineLen, c.termWidth, ' ')
 		if y < len(c.buffer)-1 {
-			line.WriteString("\r\n")
+			line.WriteString("\n")
 		}
 		output.WriteString(line.String())
 	}

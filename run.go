@@ -2,13 +2,14 @@ package runal
 
 import (
 	"context"
-	"fmt"
+	"errors"
 	"os"
 	"os/signal"
 	"sync"
 	"time"
 
 	tea "github.com/charmbracelet/bubbletea"
+	"github.com/charmbracelet/log"
 )
 
 const (
@@ -110,47 +111,81 @@ func Run(ctx context.Context, setup, draw func(c *Canvas), onKey func(c *Canvas,
 
 type model struct {
 	canvas      *Canvas
+	done        chan struct{}
 	setup, draw func(c *Canvas)
 	onKey       func(c *Canvas, key string)
+	framerate   time.Duration
 }
 
-func newModel(setup, draw func(c *Canvas), onKey func(c *Canvas, key string)) model {
+func newModel(done chan struct{}, setup, draw func(c *Canvas), onKey func(c *Canvas, key string)) model {
+	w, h := termSize()
 	return model{
-		canvas: newCanvas(80, 40),
-		setup:  setup,
-		draw:   draw,
-		onKey:  onKey,
+		canvas:    newCanvas(w, h),
+		done:      done,
+		setup:     setup,
+		draw:      draw,
+		onKey:     onKey,
+		framerate: newFramerate(defaultFPS),
 	}
 }
 
 type tickMsg time.Time
 
-func tick() tea.Cmd {
-	return tea.Tick(33*time.Millisecond, func(t time.Time) tea.Msg {
+func tick(m model) tea.Cmd {
+	return tea.Tick(m.framerate, func(t time.Time) tea.Msg {
 		return tickMsg(t)
 	})
 }
 
+func newFramerate(fps int) time.Duration {
+	return time.Second / time.Duration(fps)
+}
+
+type renderMsg struct{}
+
+func render() tea.Cmd {
+	return func() tea.Msg {
+		return struct{}{}
+	}
+}
+
 func (m model) Init() tea.Cmd {
 	m.setup(m.canvas)
-	return tea.Batch(tea.EnterAltScreen, tick())
+	go func() {
+		for {
+			event := <-m.canvas.bus
+			switch event.name {
+			case "fps":
+				m.framerate = newFramerate(event.value)
+			case "render":
+				// todo
+			}
+		}
+	}()
+	return tea.Batch(tea.EnterAltScreen, tick(m))
 }
 
 func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.WindowSizeMsg:
+		m.canvas.termWidth = msg.Width
+		m.canvas.termHeight = msg.Height
 		if m.canvas.autoResize {
 			m.canvas.resize(msg.Width, msg.Height)
 		}
 		return m, nil
 
 	case tickMsg:
-		return m, nil
+		if !m.canvas.IsLooping {
+			return m, nil
+		}
+		return m, tick(m)
 
 	case tea.KeyMsg:
 		switch msg.String() {
 
 		case "ctrl+c":
+			m.done <- struct{}{}
 			return m, tea.Quit
 		}
 	}
@@ -162,20 +197,22 @@ func (m model) View() string {
 	return m.canvas.render()
 }
 
-func Start(ctx context.Context, done chan os.Signal, setup, draw func(c *Canvas), onKey func(c *Canvas, key string)) *sync.WaitGroup {
+func Start(ctx context.Context, done chan struct{}, setup, draw func(c *Canvas), onKey func(c *Canvas, key string)) *sync.WaitGroup {
 	p := tea.NewProgram(
-		newModel(setup, draw, onKey),
+		newModel(done, setup, draw, onKey),
 		tea.WithContext(ctx),
 		tea.WithFPS(defaultFPS),
 	)
 
 	wg := sync.WaitGroup{}
+	wg.Add(1)
 	go func() {
-		wg.Add(1)
 		defer wg.Done()
 		if _, err := p.Run(); err != nil {
-			fmt.Printf("Alas, there's been an error: %v", err)
-			os.Exit(1)
+			if errors.Is(err, context.Canceled) {
+				return
+			}
+			log.Errorf("Error: %v", err)
 		}
 	}()
 
