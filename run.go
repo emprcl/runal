@@ -71,7 +71,6 @@ func canvas(m model) tea.Cmd {
 
 func (m model) Init() tea.Cmd {
 	m.setup(m.canvas)
-	m.draw(m.canvas)
 	return tea.Batch(tea.EnterAltScreen, canvas(m), tick(m))
 }
 
@@ -116,7 +115,13 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			}
 			return m, nil
 		}
+
+	case tea.MouseMsg:
+		m.canvas.MouseX = msg.X
+		m.canvas.MouseY = msg.Y
+		return m, nil
 	}
+
 	return m, nil
 }
 

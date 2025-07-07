@@ -67,9 +67,10 @@ type Canvas struct {
 
 	bus chan event
 
-	Width, Height int
-	Framecount    int
-	fps           int
+	Width, Height  int
+	Framecount     int
+	MouseX, MouseY int
+	fps            int
 
 	strokeIndex, backgroundIndex int
 	termWidth, termHeight        int
@@ -125,9 +126,6 @@ func mockCanvas(width, height int) *Canvas {
 }
 
 func (c *Canvas) render() string {
-	if !c.shouldRender {
-		return c.lastFrame
-	}
 	if len(c.errors) > 0 {
 		c.NoLoop()
 		var errors strings.Builder
@@ -136,7 +134,7 @@ func (c *Canvas) render() string {
 		}
 		c.lastFrame = errors.String()
 	}
-	if !c.IsLooping && c.lastFrame != "" {
+	if !c.shouldRender || (!c.IsLooping && c.lastFrame != "") {
 		return c.lastFrame
 	}
 	var output strings.Builder
