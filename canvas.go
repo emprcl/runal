@@ -85,7 +85,6 @@ type Canvas struct {
 	clear           bool
 	save            bool
 	autoResize      bool
-	disabled        bool
 }
 
 func newCanvas(width, height int) *Canvas {
@@ -131,7 +130,7 @@ func (c *Canvas) render() string {
 		for _, e := range c.errors {
 			errors.WriteString(fmt.Sprintf("%s %s\n", log.DefaultStyles().Levels[log.ErrorLevel].Render("ERRO"), e.Error()))
 		}
-		return errors.String()
+		c.lastFrame = errors.String()
 	}
 	if !c.IsLooping && c.lastFrame != "" {
 		return c.lastFrame

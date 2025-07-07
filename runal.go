@@ -1,5 +1,7 @@
 package runal
 
+import "slices"
+
 // Size sets the dimensions of the canvas.
 func (c *Canvas) Size(w, h int) {
 	c.autoResize = false
@@ -34,6 +36,11 @@ func (c *Canvas) Redraw() {
 
 // AddError adds an error to render.
 func (c *Canvas) AddError(err error) {
+	if slices.ContainsFunc(c.errors, func(e error) bool {
+		return e.Error() == err.Error()
+	}) {
+		return
+	}
 	c.errors = append(c.errors, err)
 }
 

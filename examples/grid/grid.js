@@ -1,5 +1,5 @@
 function setup(c) {
-  c.nLoop();
+  c.noLoop();
 }
 
 function draw(c) {
