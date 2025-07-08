@@ -2,12 +2,15 @@ package runal
 
 import (
 	"context"
+	"fmt"
 	"os"
 	"os/signal"
 	"sync"
 	"time"
 
-	"github.com/eiannone/keyboard"
+	"github.com/charmbracelet/log"
+	"github.com/charmbracelet/x/input"
+	"github.com/charmbracelet/x/term"
 )
 
 const (
@@ -24,6 +27,28 @@ func Start(ctx context.Context, done chan os.Signal, setup, draw func(c *Canvas)
 	c := newCanvas(w, h)
 
 	resize := listenForResize()
+
+	oldState, err := term.MakeRaw(os.Stdin.Fd())
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer term.Restore(os.Stdin.Fd(), oldState)
+
+	reader, err := input.NewReader(os.Stdin, os.Getenv("TERM"), 0)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer reader.Close()
+	inputEvents := make(chan input.Event, 2048)
+
+	go func() {
+		for {
+			events, _ := reader.ReadEvents()
+			for _, ev := range events {
+				inputEvents <- ev
+			}
+		}
+	}()
 
 	enterAltScreen()
 
@@ -49,9 +74,7 @@ func Start(ctx context.Context, done chan os.Signal, setup, draw func(c *Canvas)
 	go func() {
 		defer func() {
 			wg.Done()
-			_ = keyboard.Close()
 		}()
-		keyEvent, _ := keyboard.GetKeys(1)
 		for {
 			select {
 			case <-ctx.Done():
@@ -77,22 +100,22 @@ func Start(ctx context.Context, done chan os.Signal, setup, draw func(c *Canvas)
 				case "render":
 					render()
 				}
-			case event := <-keyEvent:
-				// ctrl+c
-				if event.Key == keyboard.KeyCtrlC {
-					exit()
-					if done != nil {
-						done <- os.Interrupt
+			case event := <-inputEvents:
+				switch e := event.(type) {
+				case input.KeyEvent:
+					switch e.String() {
+					case "ctrl+c":
+						exit()
+						if done != nil {
+							done <- os.Interrupt
+						}
+						fmt.Println("COUCOU")
+						return
+					default:
+						if onKey != nil {
+							onKey(c, e.String())
+						}
 					}
-					return
-				}
-				// NOTE: keyboard package has a small bug on
-				// space key not filling the Rune attribute.
-				if event.Key == keyboard.KeySpace {
-					event.Rune = ' '
-				}
-				if onKey != nil {
-					onKey(c, string(event.Rune))
 				}
 			case <-ticker.C:
 				render()

@@ -14,6 +14,7 @@ function draw(c) {
 }
 
 function onKey(c, key) {
+  console.log(key);
   if (key == " ") {
     c.redraw();
   }
