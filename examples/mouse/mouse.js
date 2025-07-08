@@ -7,7 +7,7 @@ function draw(c) {
 
 function onKey(c, e) {
   if (e.key == " ") {
-    c.backgroundBg(c.random(0, 256));
+    c.backgroundBg(c.random(0, 255));
   }
 }
 
