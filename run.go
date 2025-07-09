@@ -2,15 +2,12 @@ package runal
 
 import (
 	"context"
-	"fmt"
 	"os"
 	"os/signal"
 	"sync"
 	"time"
 
-	"github.com/charmbracelet/log"
 	"github.com/charmbracelet/x/input"
-	"github.com/charmbracelet/x/term"
 )
 
 const (
@@ -27,30 +24,10 @@ func Start(ctx context.Context, done chan os.Signal, setup, draw func(c *Canvas)
 	c := newCanvas(w, h)
 
 	resize := listenForResize()
-
-	oldState, err := term.MakeRaw(os.Stdin.Fd())
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer term.Restore(os.Stdin.Fd(), oldState)
-
-	reader, err := input.NewReader(os.Stdin, os.Getenv("TERM"), 0)
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer reader.Close()
-	inputEvents := make(chan input.Event, 2048)
-
-	go func() {
-		for {
-			events, _ := reader.ReadEvents()
-			for _, ev := range events {
-				inputEvents <- ev
-			}
-		}
-	}()
+	inputEvents := listenForInputEvents(ctx)
 
 	enterAltScreen()
+	enableMouse()
 
 	setup(c)
 	render := func() {
@@ -67,6 +44,7 @@ func Start(ctx context.Context, done chan os.Signal, setup, draw func(c *Canvas)
 		resetCursorPosition()
 		clearScreen()
 		showCursor()
+		disableMouse()
 	}
 
 	wg := sync.WaitGroup{}
@@ -102,6 +80,8 @@ func Start(ctx context.Context, done chan os.Signal, setup, draw func(c *Canvas)
 				}
 			case event := <-inputEvents:
 				switch e := event.(type) {
+				case input.MouseEvent:
+					//
 				case input.KeyEvent:
 					switch e.String() {
 					case "ctrl+c":
@@ -109,7 +89,6 @@ func Start(ctx context.Context, done chan os.Signal, setup, draw func(c *Canvas)
 						if done != nil {
 							done <- os.Interrupt
 						}
-						fmt.Println("COUCOU")
 						return
 					default:
 						if onKey != nil {
