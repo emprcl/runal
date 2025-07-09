@@ -35,7 +35,3 @@ function onKey(c, e) {
     c.saveCanvasToMP4("flash.mp4", duration);
   }
 }
-
-function onMouse(c, e) {
-  // Handle mouse events here
-}

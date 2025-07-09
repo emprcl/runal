@@ -33,5 +33,6 @@ function onKey(c, e) {
 }
 
 function onMouse(c, e) {
-  // Handle mouse events here
+  c.noiseSeed(Date.now());
+  c.redraw();
 }

@@ -53,7 +53,3 @@ function onKey(c, e) {
     c.noiseSeed(Date.now());
   }
 }
-
-function onMouse(c, e) {
-  // Handle mouse events here
-}
