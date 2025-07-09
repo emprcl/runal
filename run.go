@@ -3,7 +3,6 @@ package runal
 import (
 	"context"
 	"os"
-	"os/signal"
 	"sync"
 	"time"
 
@@ -15,8 +14,12 @@ const (
 )
 
 func Run(ctx context.Context, setup, draw func(c *Canvas), onKey func(c *Canvas, e KeyEvent), onMouse func(c *Canvas, e MouseEvent)) {
-	ctx, _ = signal.NotifyContext(ctx, os.Interrupt)
-	Start(ctx, nil, setup, draw, onKey, onMouse).Wait()
+	ctx, cancel := context.WithCancel(ctx)
+	done := make(chan os.Signal, 1)
+	wg := Start(ctx, done, setup, draw, onKey, onMouse)
+	<-done
+	cancel()
+	wg.Wait()
 }
 
 func Start(ctx context.Context, done chan os.Signal, setup, draw func(c *Canvas), onKey func(c *Canvas, e KeyEvent), onMouse func(c *Canvas, e MouseEvent)) *sync.WaitGroup {
