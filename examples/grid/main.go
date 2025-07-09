@@ -33,5 +33,7 @@ func onKey(c *runal.Canvas, e runal.KeyEvent) {
 }
 
 func onMouse(c *runal.Canvas, e runal.MouseEvent) {
-	// Handle mouse events here
+	if e.Button == "left" {
+		c.Redraw()
+	}
 }

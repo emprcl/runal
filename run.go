@@ -80,12 +80,14 @@ func Start(ctx context.Context, done chan os.Signal, setup, draw func(c *Canvas)
 				}
 			case event := <-inputEvents:
 				switch e := event.(type) {
+				case input.MouseMotionEvent:
+					c.MouseX = e.X
+					c.MouseY = e.Y
 				case input.MouseClickEvent:
 					if onMouse != nil {
-						mouse := e.Mouse()
 						onMouse(c, MouseEvent{
-							X:      mouse.X,
-							Y:      mouse.Y,
+							X:      e.X,
+							Y:      e.Y,
 							Button: e.Button.String(),
 						})
 					}

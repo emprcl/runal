@@ -14,13 +14,11 @@ function draw(c) {
 }
 
 function onKey(c, e) {
-  console.log(e.key, e.code);
   if (e.key == "space") {
     c.redraw();
   }
 }
 
 function onMouse(c, e) {
-  console.log(e.button);
   c.redraw();
 }
