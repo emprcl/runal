@@ -22,9 +22,10 @@ func Run(ctx context.Context, setup, draw func(c *Canvas), onKey func(c *Canvas,
 func Start(ctx context.Context, done chan os.Signal, setup, draw func(c *Canvas), onKey func(c *Canvas, e KeyEvent), onMouse func(c *Canvas, e MouseEvent)) *sync.WaitGroup {
 	w, h := termSize()
 	c := newCanvas(w, h)
+	wg := sync.WaitGroup{}
 
 	resize := listenForResize()
-	inputEvents := listenForInputEvents(ctx)
+	inputEvents := listenForInputEvents(ctx, &wg)
 
 	enterAltScreen()
 	enableMouse()
@@ -47,16 +48,15 @@ func Start(ctx context.Context, done chan os.Signal, setup, draw func(c *Canvas)
 		disableMouse()
 	}
 
-	wg := sync.WaitGroup{}
 	wg.Add(1)
 	go func() {
 		defer func() {
+			exit()
 			wg.Done()
 		}()
 		for {
 			select {
 			case <-ctx.Done():
-				exit()
 				return
 			case <-resize:
 				clearScreen()
@@ -94,7 +94,6 @@ func Start(ctx context.Context, done chan os.Signal, setup, draw func(c *Canvas)
 				case input.KeyEvent:
 					switch e.String() {
 					case "ctrl+c":
-						exit()
 						if done != nil {
 							done <- os.Interrupt
 						}

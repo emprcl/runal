@@ -3,6 +3,7 @@ package runal
 import (
 	"context"
 	"os"
+	"sync"
 
 	"github.com/charmbracelet/log"
 	"github.com/charmbracelet/x/input"
@@ -20,9 +21,11 @@ type MouseEvent struct {
 	Button string
 }
 
-func listenForInputEvents(ctx context.Context) chan input.Event {
+func listenForInputEvents(ctx context.Context, wg *sync.WaitGroup) chan input.Event {
 	inputEvents := make(chan input.Event, 2048)
+	wg.Add(1)
 	go func() {
+		defer wg.Done()
 		defer close(inputEvents)
 
 		state, err := term.MakeRaw(os.Stdin.Fd())
@@ -37,18 +40,29 @@ func listenForInputEvents(ctx context.Context) chan input.Event {
 		}
 		defer reader.Close()
 
-		for {
-			events, err := reader.ReadEvents()
-			if err != nil {
-				log.Fatal(err)
-				continue
-			}
-			for _, ev := range events {
-				select {
-				case inputEvents <- ev:
-				case <-ctx.Done():
+		readerEvents := make(chan []input.Event, 8)
+		readerErrors := make(chan error, 8)
+		go func() {
+			for {
+				events, err := reader.ReadEvents()
+				if err != nil {
+					readerErrors <- err
 					return
 				}
+				readerEvents <- events
+			}
+		}()
+
+		for {
+			select {
+			case <-ctx.Done():
+				return
+			case events := <-readerEvents:
+				for _, ev := range events {
+					inputEvents <- ev
+				}
+			case err := <-readerErrors:
+				log.Fatal(err)
 			}
 		}
 	}()

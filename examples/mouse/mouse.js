@@ -5,6 +5,12 @@ function draw(c) {
   c.circle(c.mouseX, c.mouseY, 5);
 }
 
+function onKey(c, event) {
+  if (event.key == "space") {
+    c.backgroundBg(c.random(0, 255));
+  }
+}
+
 function onMouse(c, event) {
   c.backgroundBg(c.random(0, 255));
 }
