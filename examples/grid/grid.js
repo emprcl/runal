@@ -21,5 +21,6 @@ function onKey(c, e) {
 }
 
 function onMouse(c, e) {
+  console.log(e.button);
   c.redraw();
 }

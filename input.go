@@ -15,8 +15,9 @@ type KeyEvent struct {
 }
 
 type MouseEvent struct {
-	X int
-	Y int
+	X      int
+	Y      int
+	Button string
 }
 
 func listenForInputEvents(ctx context.Context) chan input.Event {
