@@ -16,7 +16,7 @@ function draw(c) {
 }
 
 function onKey(c, e) {
-  if (e.Key == " ") {
+  if (e.key == "space") {
     c.noiseSeed(Date.now());
   }
 }

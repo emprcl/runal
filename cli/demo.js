@@ -26,7 +26,7 @@ function onKey(c, e) {
   if (e.Key == "c") {
     c.saveCanvasToPNG(`canvas_${Date.now()}.png`);
   }
-  if (e.Key == " ") {
+  if (e.key == "space") {
     c.noiseSeed(Date.now());
     c.redraw();
   }

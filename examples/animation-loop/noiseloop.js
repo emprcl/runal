@@ -27,7 +27,7 @@ function draw(c) {
 }
 
 function onKey(c, e) {
-  if (e.Key == " ") {
+  if (e.key == "space") {
     seed1 = Date.now();
     seed2 = seed1 + 1000;
   }

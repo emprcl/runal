@@ -21,8 +21,11 @@ type console struct {
 	logger io.Writer
 }
 
-func (c console) Log(msg string) {
-	fmt.Fprintln(c.logger, msg)
+func (c console) Log(messages ...string) {
+	for _, msg := range messages {
+		fmt.Fprintf(c.logger, "%s ", msg)
+	}
+	fmt.Fprintln(c.logger)
 }
 
 type runtime struct {

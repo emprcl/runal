@@ -27,7 +27,7 @@ func draw(c *runal.Canvas) {
 }
 
 func onKey(c *runal.Canvas, e runal.KeyEvent) {
-	if e.Key == " " {
+	if e.Key == "space" {
 		c.Redraw()
 	}
 }

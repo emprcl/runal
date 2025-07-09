@@ -95,8 +95,10 @@ func Start(ctx context.Context, done chan os.Signal, setup, draw func(c *Canvas)
 						return
 					default:
 						if onKey != nil {
-							key := e.Key()
-							onKey(c, KeyEvent{Key: e.String(), Code: int(key.Code)})
+							onKey(c, KeyEvent{
+								Key:  e.Key().String(),
+								Code: int(e.Key().Code),
+							})
 						}
 					}
 				}

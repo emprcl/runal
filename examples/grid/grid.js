@@ -14,7 +14,8 @@ function draw(c) {
 }
 
 function onKey(c, e) {
-  if (e.Key == " ") {
+  console.log(e.key, e.code);
+  if (e.key == "space") {
     c.redraw();
   }
 }
