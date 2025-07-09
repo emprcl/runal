@@ -31,7 +31,7 @@ func listenForInputEvents(ctx context.Context) chan input.Event {
 		}
 		defer term.Restore(os.Stdin.Fd(), state)
 
-		reader, err := input.NewReader(os.Stdin, os.Getenv("TERM"), 0)
+		reader, err := input.NewReader(os.Stdin, os.Getenv("TERM"), input.FlagMouseMode)
 		if err != nil {
 			log.Fatal(err)
 		}
