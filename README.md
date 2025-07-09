@@ -93,9 +93,10 @@ function setup(c) {}
 function draw(c) {}
 ```
 
-You can add an extra method `onKey` to catch keyboard events:
+You can add extra methods `onKey` and `onMouse` to catch keyboard and mouse events:
 ```js
-function onKey(c, key) {}
+function onKey(c, e) {}
+function onMouse(c, e) {}
 ````
 
 And you can then execute the file with:

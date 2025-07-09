@@ -14,12 +14,12 @@ const (
 	defaultFPS = 30
 )
 
-func Run(ctx context.Context, setup, draw func(c *Canvas), onKey func(c *Canvas, key string)) {
+func Run(ctx context.Context, setup, draw func(c *Canvas), onKey func(c *Canvas, e KeyEvent), onMouse func(c *Canvas, e MouseEvent)) {
 	ctx, _ = signal.NotifyContext(ctx, os.Interrupt)
-	Start(ctx, nil, setup, draw, onKey).Wait()
+	Start(ctx, nil, setup, draw, onKey, onMouse).Wait()
 }
 
-func Start(ctx context.Context, done chan os.Signal, setup, draw func(c *Canvas), onKey func(c *Canvas, key string)) *sync.WaitGroup {
+func Start(ctx context.Context, done chan os.Signal, setup, draw func(c *Canvas), onKey func(c *Canvas, e KeyEvent), onMouse func(c *Canvas, e MouseEvent)) *sync.WaitGroup {
 	w, h := termSize()
 	c := newCanvas(w, h)
 
@@ -80,8 +80,11 @@ func Start(ctx context.Context, done chan os.Signal, setup, draw func(c *Canvas)
 				}
 			case event := <-inputEvents:
 				switch e := event.(type) {
-				case input.MouseEvent:
-					//
+				case input.MouseClickEvent:
+					if onMouse != nil {
+						mouse := e.Mouse()
+						onMouse(c, MouseEvent{X: mouse.X, Y: mouse.Y})
+					}
 				case input.KeyEvent:
 					switch e.String() {
 					case "ctrl+c":
@@ -92,7 +95,8 @@ func Start(ctx context.Context, done chan os.Signal, setup, draw func(c *Canvas)
 						return
 					default:
 						if onKey != nil {
-							onKey(c, e.String())
+							key := e.Key()
+							onKey(c, KeyEvent{Key: e.String(), Code: int(key.Code)})
 						}
 					}
 				}

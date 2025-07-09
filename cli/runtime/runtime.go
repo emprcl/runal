@@ -46,12 +46,12 @@ func (s runtime) Run() {
 	signal.Notify(done, os.Interrupt)
 	ctx, cancel := context.WithCancel(context.Background())
 	content, err := os.ReadFile(s.filename)
-	vm, setup, draw, onKey, err := parseJS(string(content))
+	vm, setup, draw, cb, err := parseJS(string(content))
 	var wg *sync.WaitGroup
 	if err != nil {
 		log.Error(err)
 	} else {
-		wg = s.runSketch(ctx, done, vm, setup, draw, onKey)
+		wg = s.runSketch(ctx, done, vm, setup, draw, cb)
 	}
 
 	go func() {
@@ -74,13 +74,13 @@ func (s runtime) Run() {
 						log.Error(err)
 						continue
 					}
-					vm, setup, draw, onKey, err := parseJS(string(content))
+					vm, setup, draw, cb, err := parseJS(string(content))
 					if err != nil {
 						log.Error(err)
 						continue
 					}
 					ctx, cancel = context.WithCancel(context.Background())
-					wg = s.runSketch(ctx, done, vm, setup, draw, onKey)
+					wg = s.runSketch(ctx, done, vm, setup, draw, cb)
 				}
 			case err, ok := <-s.watcher.Errors:
 				if !ok {
@@ -103,19 +103,19 @@ func (s runtime) Run() {
 
 func (s runtime) RunDemo(demo string) {
 	done := make(chan os.Signal, 1)
-	vm, setup, draw, onKey, err := parseJS(demo)
+	vm, setup, draw, callbacks, err := parseJS(demo)
 	if err != nil {
 		log.Error(err)
 		return
 	}
 	ctx, cancel := context.WithCancel(context.Background())
-	wg := s.runSketch(ctx, done, vm, setup, draw, onKey)
+	wg := s.runSketch(ctx, done, vm, setup, draw, callbacks)
 	<-done
 	cancel()
 	wg.Wait()
 }
 
-func (s runtime) runSketch(ctx context.Context, done chan os.Signal, vm *goja.Runtime, setup, draw goja.Callable, onKey goja.Callable) *sync.WaitGroup {
+func (s runtime) runSketch(ctx context.Context, done chan os.Signal, vm *goja.Runtime, setup, draw goja.Callable, cb callbacks) *sync.WaitGroup {
 	panicRecover := func(c *runal.Canvas) {
 		if r := recover(); r != nil {
 			log.Errorf("%v", r)
@@ -123,11 +123,23 @@ func (s runtime) runSketch(ctx context.Context, done chan os.Signal, vm *goja.Ru
 		}
 	}
 
-	var onKeyCallback func(c *runal.Canvas, key string)
-	if onKey != nil {
-		onKeyCallback = func(c *runal.Canvas, key string) {
+	var onKeyCallback func(c *runal.Canvas, e runal.KeyEvent)
+	if cb.onKey != nil {
+		onKeyCallback = func(c *runal.Canvas, e runal.KeyEvent) {
 			defer panicRecover(c)
-			_, err := onKey(goja.Undefined(), vm.ToValue(c), vm.ToValue(key))
+			_, err := cb.onKey(goja.Undefined(), vm.ToValue(c), vm.ToValue(e))
+			if err != nil {
+				log.Error(err)
+				c.DisableRendering()
+			}
+		}
+	}
+
+	var onMouseCallback func(c *runal.Canvas, e runal.MouseEvent)
+	if cb.onMouse != nil {
+		onMouseCallback = func(c *runal.Canvas, e runal.MouseEvent) {
+			defer panicRecover(c)
+			_, err := cb.onMouse(goja.Undefined(), vm.ToValue(c), vm.ToValue(e))
 			if err != nil {
 				log.Error(err)
 				c.DisableRendering()
@@ -157,5 +169,6 @@ func (s runtime) runSketch(ctx context.Context, done chan os.Signal, vm *goja.Ru
 			}
 		},
 		onKeyCallback,
+		onMouseCallback,
 	)
 }

@@ -8,7 +8,7 @@ import (
 )
 
 func main() {
-	runal.Run(context.Background(), setup, draw, onKey)
+	runal.Run(context.Background(), setup, draw, onKey, onMouse)
 }
 
 func setup(c *runal.Canvas) {
@@ -26,8 +26,12 @@ func draw(c *runal.Canvas) {
 	}
 }
 
-func onKey(c *runal.Canvas, key string) {
-	if key == " " {
+func onKey(c *runal.Canvas, e runal.KeyEvent) {
+	if e.Key == " " {
 		c.Redraw()
 	}
+}
+
+func onMouse(c *runal.Canvas, e runal.MouseEvent) {
+	// Handle mouse events here
 }

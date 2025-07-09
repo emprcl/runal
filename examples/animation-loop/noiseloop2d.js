@@ -17,8 +17,12 @@ function draw(c) {
   }
 }
 
-function onKey(c, key) {
-  if (key == " ") {
+function onKey(c, e) {
+  if (e.Key == " ") {
     c.noiseSeed(Date.now());
   }
+}
+
+function onMouse(c, e) {
+  // Handle mouse events here
 }

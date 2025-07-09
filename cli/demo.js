@@ -22,12 +22,16 @@ function draw(c) {
   }
 }
 
-function onKey(c, key) {
-  if (key == "c") {
+function onKey(c, e) {
+  if (e.Key == "c") {
     c.saveCanvasToPNG(`canvas_${Date.now()}.png`);
   }
-  if (key == " ") {
+  if (e.Key == " ") {
     c.noiseSeed(Date.now());
     c.redraw();
   }
+}
+
+function onMouse(c, e) {
+  // Handle mouse events here
 }

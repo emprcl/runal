@@ -9,6 +9,16 @@ import (
 	"github.com/charmbracelet/x/term"
 )
 
+type KeyEvent struct {
+	Key  string
+	Code int
+}
+
+type MouseEvent struct {
+	X int
+	Y int
+}
+
 func listenForInputEvents(ctx context.Context) chan input.Event {
 	inputEvents := make(chan input.Event, 2048)
 	go func() {

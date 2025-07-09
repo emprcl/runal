@@ -26,12 +26,16 @@ function draw(c) {
   c.circle(x, y, radius);
 }
 
-function onKey(c, key) {
-  if (key == " ") {
+function onKey(c, e) {
+  if (e.Key == " ") {
     seed1 = Date.now();
     seed2 = seed1 + 1000;
   }
-  if (key == "c") {
+  if (e.Key == "c") {
     c.saveCanvasToMP4("flash.mp4", duration);
   }
+}
+
+function onMouse(c, e) {
+  // Handle mouse events here
 }
