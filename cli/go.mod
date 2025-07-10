@@ -4,13 +4,11 @@ go 1.23.0
 
 toolchain go1.23.3
 
-replace github.com/emprcl/runal => ../
-
 require (
 	github.com/charmbracelet/lipgloss v1.1.0
 	github.com/charmbracelet/log v0.4.2
 	github.com/dop251/goja v0.0.0-20250531102226-cb187b08699c
-	github.com/emprcl/runal v0.0.0-00010101000000-000000000000
+	github.com/emprcl/runal v0.5.0
 	github.com/fsnotify/fsnotify v1.9.0
 )
 
