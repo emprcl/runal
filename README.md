@@ -124,7 +124,7 @@ import (
 )
 
 func main() {
-	runal.Run(context.Background(), setup, draw, nil)
+	runal.Run(context.Background(), setup, draw, onKey, onMouse)
 }
 
 func setup(c *runal.Canvas) {}
