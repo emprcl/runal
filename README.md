@@ -53,13 +53,6 @@ Unzip the last [windows release](https://github.com/emprcl/runal/releases) and, 
 .\runal.exe -demo
 ```
 
-### Go install
-
-If your a developer using Go, you can use the `go install` command:
-```
-go install github.com/emprcl/runal@latest
-```
-
 ### Build it yourself
 
 You'll need [go 1.23](https://go.dev/dl/) minimum.
