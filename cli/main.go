@@ -13,7 +13,7 @@ import (
 
 	"github.com/fsnotify/fsnotify"
 
-	"github.com/emprcl/runal/cli/runtime"
+	"runal-cli/runtime"
 )
 
 //go:embed VERSION
