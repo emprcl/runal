@@ -32,7 +32,7 @@ func listenForInputEvents(ctx context.Context, wg *sync.WaitGroup) chan input.Ev
 		if err != nil {
 			log.Fatal(err)
 		}
-		defer term.Restore(os.Stdin.Fd(), state)
+		defer term.Restore(os.Stdin.Fd(), state) // nolint: errcheck
 
 		reader, err := input.NewReader(os.Stdin, os.Getenv("TERM"), input.FlagMouseMode)
 		if err != nil {

@@ -2,7 +2,6 @@ package runal
 
 import (
 	"context"
-	"os"
 	"sync"
 	"time"
 
@@ -14,15 +13,11 @@ const (
 )
 
 func Run(ctx context.Context, setup, draw func(c *Canvas), onKey func(c *Canvas, e KeyEvent), onMouse func(c *Canvas, e MouseEvent)) {
-	ctx, cancel := context.WithCancel(ctx)
-	done := make(chan os.Signal, 1)
-	wg := Start(ctx, done, setup, draw, onKey, onMouse)
-	<-done
-	cancel()
-	wg.Wait()
+	Start(ctx, nil, setup, draw, onKey, onMouse).Wait()
 }
 
-func Start(ctx context.Context, done chan os.Signal, setup, draw func(c *Canvas), onKey func(c *Canvas, e KeyEvent), onMouse func(c *Canvas, e MouseEvent)) *sync.WaitGroup {
+func Start(ctx context.Context, done chan struct{}, setup, draw func(c *Canvas), onKey func(c *Canvas, e KeyEvent), onMouse func(c *Canvas, e MouseEvent)) *sync.WaitGroup {
+	ctx, cancel := context.WithCancel(ctx)
 	w, h := termSize()
 	c := newCanvas(w, h)
 	wg := sync.WaitGroup{}
@@ -98,8 +93,9 @@ func Start(ctx context.Context, done chan os.Signal, setup, draw func(c *Canvas)
 					switch e.String() {
 					case "ctrl+c":
 						if done != nil {
-							done <- os.Interrupt
+							done <- struct{}{}
 						}
+						cancel()
 						return
 					default:
 						if onKey != nil {

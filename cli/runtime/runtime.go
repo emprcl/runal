@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"io"
 	"os"
-	"os/signal"
 	"path/filepath"
 	"strings"
 	"sync"
@@ -45,8 +44,7 @@ func New(filename string, watcher *fsnotify.Watcher, logger io.Writer) runtime {
 }
 
 func (s runtime) Run() {
-	done := make(chan os.Signal, 1)
-	signal.Notify(done, os.Interrupt)
+	done := make(chan struct{}, 1)
 	ctx, cancel := context.WithCancel(context.Background())
 	content, err := os.ReadFile(s.filename)
 	vm, setup, draw, cb, err := parseJS(string(content))
@@ -105,20 +103,15 @@ func (s runtime) Run() {
 }
 
 func (s runtime) RunDemo(demo string) {
-	done := make(chan os.Signal, 1)
 	vm, setup, draw, callbacks, err := parseJS(demo)
 	if err != nil {
 		log.Error(err)
 		return
 	}
-	ctx, cancel := context.WithCancel(context.Background())
-	wg := s.runSketch(ctx, done, vm, setup, draw, callbacks)
-	<-done
-	cancel()
-	wg.Wait()
+	s.runSketch(context.Background(), nil, vm, setup, draw, callbacks).Wait()
 }
 
-func (s runtime) runSketch(ctx context.Context, done chan os.Signal, vm *goja.Runtime, setup, draw goja.Callable, cb callbacks) *sync.WaitGroup {
+func (s runtime) runSketch(ctx context.Context, done chan struct{}, vm *goja.Runtime, setup, draw goja.Callable, cb callbacks) *sync.WaitGroup {
 	panicRecover := func(c *runal.Canvas) {
 		if r := recover(); r != nil {
 			log.Errorf("%v", r)
