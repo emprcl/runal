@@ -130,6 +130,9 @@ func main() {
 func setup(c *runal.Canvas) {}
 
 func draw(c *runal.Canvas) {}
+
+func onKey(c *runal.Canvas, e runal.KeyEvent) {}
+func onMouse(c *runal.Canvas, e runal.MouseEvent) {}
 ```
 
 Then, simply build it:
