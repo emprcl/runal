@@ -1,4 +1,4 @@
-module runal-cli
+module github.com/emprcl/runal/cli
 
 go 1.23.0
 
