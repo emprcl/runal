@@ -1,4 +1,4 @@
-let duration = 3;
+let duration = 5;
 let radius = 4;
 let seed1 = Date.now();
 let seed2 = seed1 + 1000;
@@ -17,8 +17,8 @@ function draw(c) {
   let noise2 = c.noiseLoop(theta, 1);
   let x = c.map(noise, 0, 1, radius, c.width - radius);
   let y = c.map(noise2, 0, 1, radius, c.height - radius);
-  let color = c.map(noise, 0, 1, 0, 255);
-  let colorBg = c.map(noise2, 0, 1, 0, 255);
+  let color = c.map(noise, 0, 1, 0, 10);
+  let colorBg = c.map(noise2, 0, 1, 200, 210);
 
   c.background("#", colorBg, colorBg);
   c.stroke(" ", color, color);
@@ -31,7 +31,7 @@ function onKey(c, e) {
     seed1 = Date.now();
     seed2 = seed1 + 1000;
   }
-  if (e.Key == "c") {
+  if (e.key == "c") {
     c.saveCanvasToMP4("flash.mp4", duration);
   }
 }
