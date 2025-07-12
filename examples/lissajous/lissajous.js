@@ -47,9 +47,3 @@ class Point {
     }
   }
 }
-
-function onKey(c, e) {
-  if (e.key == "space") {
-    c.noiseSeed(Date.now());
-  }
-}
