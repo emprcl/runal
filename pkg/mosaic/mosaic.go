@@ -1,4 +1,7 @@
 // Package mosaic provides a unicode image renderer.
+// Copied from https://github.com/charmbracelet/x/tree/main/mosaic
+// and adapted for Runal usage. RenderCells method has been added
+// to retrieve blocks instead of rendering them directly.
 package mosaic
 
 import (
