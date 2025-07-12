@@ -203,6 +203,10 @@ func (c *Canvas) resize(width, height int) {
 
 func (c *Canvas) char(char rune, x, y int) {
 	formattedChar := c.formatCell(char)
+	c.write(formattedChar, x, y, 1)
+}
+
+func (c *Canvas) write(str string, x, y int, minBlockSize int) {
 	scaledX := float64(x) * c.scale
 	scaledY := float64(y) * c.scale
 
@@ -212,7 +216,7 @@ func (c *Canvas) char(char rune, x, y int) {
 	destX := int(math.Round(rotatedX)) + c.originX
 	destY := int(math.Round(rotatedY)) + c.originY
 
-	blockSize := max(int(math.Round(c.scale)), 1)
+	blockSize := max(int(math.Round(c.scale)), minBlockSize)
 
 	for dy := range blockSize {
 		for dx := range blockSize {
@@ -221,12 +225,12 @@ func (c *Canvas) char(char rune, x, y int) {
 			if c.outOfBounds(sx, sy) {
 				continue
 			}
-			c.buffer[sy][sx] = formattedChar
+			c.buffer[sy][sx] = str
 
 			if c.isFilling {
 				// NOTE: hack to fill blank spots
 				// due to rotation approx.
-				c.forceFill(sx, sy, formattedChar)
+				c.forceFill(sx, sy, str)
 			}
 		}
 	}
@@ -268,6 +272,18 @@ func (c *Canvas) formatCell(char rune) string {
 		return c.style(string([]rune{char, char}))
 	default:
 		return c.style(string(char))
+
+	}
+}
+
+func (c *Canvas) formatStringCell(cell string) string {
+	switch c.cellPadding {
+	case cellPaddingCustom:
+		return c.style(fmt.Sprintf("%s%s", cell, string(c.cellPaddingRune)))
+	case cellPaddingDouble:
+		return c.style(fmt.Sprintf("%s%s", cell, cell))
+	default:
+		return c.style(cell)
 
 	}
 }

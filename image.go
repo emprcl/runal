@@ -17,7 +17,7 @@ type Image struct {
 	file image.Image
 }
 
-func (c *Canvas) loadImage(path string) *Image {
+func (c *Canvas) LoadImage(path string) *Image {
 	f, err := os.Open(path)
 	defer f.Close()
 	if err != nil {
@@ -27,17 +27,18 @@ func (c *Canvas) loadImage(path string) *Image {
 	}
 	var img image.Image
 	switch filepath.Ext(path) {
-	case "jpg":
+	case ".jpg":
 		img, err = jpeg.Decode(f)
-	case "png":
+	case ".png":
 		img, err = png.Decode(f)
-	case "webp":
+	case ".webp":
 		img, err = webp.Decode(f)
 	}
 
 	if err != nil {
 		log.Errorf("can't load image: %v", err)
 		c.DisableRendering()
+		return nil
 	}
 
 	return &Image{
@@ -45,16 +46,25 @@ func (c *Canvas) loadImage(path string) *Image {
 	}
 }
 
-func (c *Canvas) Image(img Image, x, y int) {
-	m := mosaic.New().Width(80).Height(40)
+func (c *Canvas) Image(img *Image, x, y, w, h int) {
+	if img == nil {
+		log.Errorf("can't load empty image")
+		c.DisableRendering()
+		return
+	}
+	m := mosaic.New().Width(w).Height(h).Symbol(mosaic.Quarter)
 	imageBuffer := m.RenderCells(img.file)
 
+	c.toggleFill()
+
 	for iy := range imageBuffer {
-		for ix := range imageBuffer[x] {
+		for ix := range imageBuffer[iy] {
 			if c.outOfBounds(x+ix, y+iy) {
 				continue
 			}
-			c.buffer[y+iy][x+ix] = imageBuffer[y][x]
+			c.write(c.formatStringCell(imageBuffer[iy][ix]), x+ix, y+iy, 2+int(c.scale))
 		}
 	}
+
+	c.toggleFill()
 }

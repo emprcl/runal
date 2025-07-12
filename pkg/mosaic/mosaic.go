@@ -331,7 +331,11 @@ func (m *Mosaic) RenderCells(img image.Image) [][]string {
 			m.findBestRepresentation(block, blocks)
 
 			// Append to output.
-			output[y][x] = ansi.Style{}.ForegroundColor(block.BestFgColor).BackgroundColor(block.BestBgColor).Styled(string(block.BestSymbol))
+			for dy := 0; dy < 2; dy++ {
+				for dx := 0; dx < 2; dx++ {
+					output[y+dy][x+dx] = ansi.Style{}.ForegroundColor(block.BestFgColor).BackgroundColor(block.BestBgColor).Styled(string(block.BestSymbol))
+				}
+			}
 		}
 	}
 
