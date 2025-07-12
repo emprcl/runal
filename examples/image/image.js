@@ -1,9 +1,7 @@
 let img;
 
 function setup(c) {
-  img = c.loadImage(
-    "/home/xavier/workspace/emprcl/runal/examples/image/wish.png",
-  );
+  img = c.loadImage("wish.png");
 }
 
 function draw(c) {
