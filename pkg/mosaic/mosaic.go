@@ -51,6 +51,13 @@ type block struct {
 	CoverageMap string  // Visual representation of coverage for debugging.
 }
 
+// Cell represents a single terminal cell.
+type Cell struct {
+	Char       rune
+	Foreground color.Color
+	Background color.Color
+}
+
 // Symbol represents the symbol type to use when rendering the image.
 type Symbol uint8
 
@@ -262,8 +269,8 @@ func (m *Mosaic) Render(img image.Image) string {
 	return output.String()
 }
 
-// RenderCells renders the image to [][]string.
-func (m *Mosaic) RenderCells(img image.Image) [][]string {
+// RenderCells renders the image to [][]Cell.
+func (m *Mosaic) RenderCells(img image.Image) [][]Cell {
 	// Calculate dimensions.
 	bounds := img.Bounds()
 	srcWidth := bounds.Max.X - bounds.Min.X
@@ -320,9 +327,9 @@ func (m *Mosaic) RenderCells(img image.Image) [][]string {
 	}
 
 	// Generate terminal output.
-	output := make([][]string, imageBounds.Max.Y)
+	output := make([][]Cell, imageBounds.Max.Y)
 	for i := range output {
-		output[i] = make([]string, imageBounds.Max.X)
+		output[i] = make([]Cell, imageBounds.Max.X)
 	}
 
 	for y := 0; y < imageBounds.Max.Y; y += 2 {
@@ -336,7 +343,12 @@ func (m *Mosaic) RenderCells(img image.Image) [][]string {
 			// Append to output.
 			for dy := 0; dy < 2; dy++ {
 				for dx := 0; dx < 2; dx++ {
-					output[y+dy][x+dx] = ansi.Style{}.ForegroundColor(block.BestFgColor).BackgroundColor(block.BestBgColor).Styled(string(block.BestSymbol))
+					//output[y+dy][x+dx] = ansi.Style{}.ForegroundColor(block.BestFgColor).BackgroundColor(block.BestBgColor).Styled(string(block.BestSymbol))
+					output[y+dy][x+dx] = Cell{
+						Char:       block.BestSymbol,
+						Background: block.BestBgColor,
+						Foreground: block.BestFgColor,
+					}
 				}
 			}
 		}
