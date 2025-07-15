@@ -343,7 +343,6 @@ func (m *Mosaic) RenderCells(img image.Image) [][]Cell {
 			// Append to output.
 			for dy := 0; dy < 2; dy++ {
 				for dx := 0; dx < 2; dx++ {
-					//output[y+dy][x+dx] = ansi.Style{}.ForegroundColor(block.BestFgColor).BackgroundColor(block.BestBgColor).Styled(string(block.BestSymbol))
 					output[y+dy][x+dx] = Cell{
 						Char:       block.BestSymbol,
 						Background: block.BestBgColor,

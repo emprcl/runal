@@ -134,7 +134,7 @@ func (c *Canvas) render() {
 		lineLen := 0
 		for x := range c.buffer[y] {
 			var add string
-			if c.buffer[y][x].char == 0 {
+			if c.buffer[y][x].Char == 0 {
 				add = bgCell
 				lineLen += bgCellSize
 			} else {
@@ -145,7 +145,7 @@ func (c *Canvas) render() {
 				line.WriteString(add)
 			}
 			if c.clear {
-				c.buffer[y][x] = cell{}
+				c.buffer[y][x] = Cell{}
 			}
 		}
 		forcePadding(&line, lineLen, c.termWidth, ' ')
@@ -202,14 +202,14 @@ func (c *Canvas) resize(width, height int) {
 }
 
 func (c *Canvas) char(char rune, x, y int) {
-	c.write(cell{
-		char:       char,
-		foreground: c.strokeFg,
-		background: c.strokeBg,
+	c.write(Cell{
+		Char:       char,
+		Foreground: c.strokeFg,
+		Background: c.strokeBg,
 	}, x, y, 1)
 }
 
-func (c *Canvas) write(cell cell, x, y int, minBlockSize int) {
+func (c *Canvas) write(cell Cell, x, y int, minBlockSize int) {
 	scaledX := float64(x) * c.scale
 	scaledY := float64(y) * c.scale
 
@@ -239,7 +239,7 @@ func (c *Canvas) write(cell cell, x, y int, minBlockSize int) {
 	}
 }
 
-func (c *Canvas) forceFill(sx, sy int, cell cell) {
+func (c *Canvas) forceFill(sx, sy int, cell Cell) {
 	for dy := -1; dy <= 1; dy++ {
 		for dx := -1; dx <= 1; dx++ {
 			px := sx + dx
@@ -247,8 +247,8 @@ func (c *Canvas) forceFill(sx, sy int, cell cell) {
 			if c.outOfBounds(px, py) || (dx == 0 && dy == 0) {
 				continue
 			}
-			if c.buffer[py][px].char == 0 {
-				if c.inBoundsAndMatch(px+dx, py+dy, cell.char) && c.inBoundsAndMatch(px-dx, py-dy, cell.char) {
+			if c.buffer[py][px].Char == 0 {
+				if c.inBoundsAndMatch(px+dx, py+dy, cell.Char) && c.inBoundsAndMatch(px-dx, py-dy, cell.Char) {
 					c.buffer[py][px] = cell
 				}
 			}
@@ -257,21 +257,21 @@ func (c *Canvas) forceFill(sx, sy int, cell cell) {
 }
 
 func (c *Canvas) inBoundsAndMatch(x, y int, char rune) bool {
-	return !c.outOfBounds(x, y) && c.buffer[y][x].char == char
+	return !c.outOfBounds(x, y) && c.buffer[y][x].Char == char
 }
 
-func (c *Canvas) renderCell(cell cell) string {
+func (c *Canvas) renderCell(cell Cell) string {
 	style := lipgloss.NewStyle().
-		Background(cell.background).
-		Foreground(cell.foreground)
+		Background(cell.Background).
+		Foreground(cell.Foreground)
 
 	switch c.cellPadding {
 	case cellPaddingCustom:
-		return style.Render(string([]rune{cell.char, c.cellPaddingRune}))
+		return style.Render(string([]rune{cell.Char, c.cellPaddingRune}))
 	case cellPaddingDouble:
-		return style.Render(string([]rune{cell.char, cell.char}))
+		return style.Render(string([]rune{cell.Char, cell.Char}))
 	default:
-		return style.Render(string(cell.char))
+		return style.Render(string(cell.Char))
 	}
 }
 

@@ -62,10 +62,10 @@ func (c *Canvas) Image(img *Image, x, y, w, h int) {
 			if c.outOfBounds(x+ix, y+iy) {
 				continue
 			}
-			c.write(cell{
-				char:       imageBuffer[iy][ix].Char,
-				background: colorFromImage(imageBuffer[iy][ix].Background),
-				foreground: colorFromImage(imageBuffer[iy][ix].Foreground),
+			c.write(Cell{
+				Char:       imageBuffer[iy][ix].Char,
+				Background: colorFromImage(imageBuffer[iy][ix].Background),
+				Foreground: colorFromImage(imageBuffer[iy][ix].Foreground),
 			}, x+ix, y+iy, 2)
 		}
 	}

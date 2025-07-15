@@ -2,18 +2,18 @@ package runal
 
 import "github.com/charmbracelet/lipgloss"
 
-type cell struct {
-	char       rune
-	foreground lipgloss.Color
-	background lipgloss.Color
+type Cell struct {
+	Char       rune
+	Foreground lipgloss.Color
+	Background lipgloss.Color
 }
 
-type buffer [][]cell
+type buffer [][]Cell
 
 func newBuffer(width, height int) buffer {
-	buff := make([][]cell, height)
+	buff := make([][]Cell, height)
 	for i := range buff {
-		buff[i] = make([]cell, width)
+		buff[i] = make([]Cell, width)
 	}
 	return buff
 }
