@@ -45,7 +45,7 @@ const (
 // Canvas represents a drawable area where shapes, text, and effects
 // can be rendered.
 type Canvas struct {
-	buffer  buffer
+	buffer  Frame
 	output  io.Writer
 	capture *ansitoimage.Converter
 	frames  []image.Image
@@ -96,7 +96,7 @@ func newCanvas(width, height int) *Canvas {
 		termHeight:      height,
 		cellPaddingRune: defaultPaddingRune,
 		cellPadding:     cellPaddingDisabled,
-		buffer:          newBuffer(width, height),
+		buffer:          newFrame(width, height),
 		output:          os.Stdout,
 		capture:         newCapture(width, height),
 		noise:           newNoise(),
@@ -177,7 +177,7 @@ func (c *Canvas) reset() {
 func (c *Canvas) resize(width, height int) {
 	newWidth := c.widthWithPadding(width)
 	newHeight := height
-	newBuffer := newBuffer(newWidth, newHeight)
+	newBuffer := newFrame(newWidth, newHeight)
 
 	minWidth := c.Width
 	if newWidth < c.Width {

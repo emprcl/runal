@@ -13,11 +13,50 @@ import (
 	"github.com/emprcl/runal/pkg/mosaic"
 )
 
-type Image struct {
+type Image interface {
+	write(c *Canvas, x, y, w, h int)
+}
+
+type imageFile struct {
 	file image.Image
 }
 
-func (c *Canvas) LoadImage(path string) *Image {
+func (i *imageFile) write(c *Canvas, x, y, w, h int) {
+	m := mosaic.New().Width(w).Height(h).Symbol(mosaic.Quarter)
+	imageBuffer := m.RenderCells(i.file)
+	c.toggleFill()
+	for iy := range imageBuffer {
+		for ix := range imageBuffer[iy] {
+			if c.outOfBounds(x+ix, y+iy) {
+				continue
+			}
+			c.write(Cell{
+				Char:       imageBuffer[iy][ix].Char,
+				Background: colorFromImage(imageBuffer[iy][ix].Background),
+				Foreground: colorFromImage(imageBuffer[iy][ix].Foreground),
+			}, x+ix, y+iy, 2)
+		}
+	}
+	c.toggleFill()
+}
+
+type imageFrame struct {
+	frame Frame
+}
+
+func (i *imageFrame) write(c *Canvas, x, y, w, h int) {
+	for iy := range i.frame {
+		for ix := range i.frame[iy] {
+			if c.outOfBounds(x+ix, y+iy) ||
+				x+ix >= x+w || y+iy >= y+h {
+				continue
+			}
+			c.write(i.frame[iy][ix], x+ix, y+iy, 1)
+		}
+	}
+}
+
+func (c *Canvas) LoadImage(path string) *imageFile {
 	f, err := os.Open(path)
 	if err != nil {
 		log.Errorf("can't load image: %v", err)
@@ -41,34 +80,16 @@ func (c *Canvas) LoadImage(path string) *Image {
 		return nil
 	}
 
-	return &Image{
+	return &imageFile{
 		file: img,
 	}
 }
 
-func (c *Canvas) Image(img *Image, x, y, w, h int) {
+func (c *Canvas) Image(img Image, x, y, w, h int) {
 	if img == nil {
 		log.Errorf("can't load empty image")
 		c.DisableRendering()
 		return
 	}
-	m := mosaic.New().Width(w).Height(h).Symbol(mosaic.Quarter)
-	imageBuffer := m.RenderCells(img.file)
-
-	c.toggleFill()
-
-	for iy := range imageBuffer {
-		for ix := range imageBuffer[iy] {
-			if c.outOfBounds(x+ix, y+iy) {
-				continue
-			}
-			c.write(Cell{
-				Char:       imageBuffer[iy][ix].Char,
-				Background: colorFromImage(imageBuffer[iy][ix].Background),
-				Foreground: colorFromImage(imageBuffer[iy][ix].Foreground),
-			}, x+ix, y+iy, 2)
-		}
-	}
-
-	c.toggleFill()
+	img.write(c, x, y, w, h)
 }
