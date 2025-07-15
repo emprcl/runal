@@ -66,7 +66,7 @@ func (c *Canvas) Image(img *Image, x, y, w, h int) {
 				char:       imageBuffer[iy][ix].Char,
 				background: colorFromImage(imageBuffer[iy][ix].Background),
 				foreground: colorFromImage(imageBuffer[iy][ix].Foreground),
-			}, x+ix, y+iy)
+			}, x+ix, y+iy, 2)
 		}
 	}
 

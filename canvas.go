@@ -206,10 +206,10 @@ func (c *Canvas) char(char rune, x, y int) {
 		char:       char,
 		foreground: c.strokeFg,
 		background: c.strokeBg,
-	}, x, y)
+	}, x, y, 1)
 }
 
-func (c *Canvas) write(cell cell, x, y int) {
+func (c *Canvas) write(cell cell, x, y int, minBlockSize int) {
 	scaledX := float64(x) * c.scale
 	scaledY := float64(y) * c.scale
 
@@ -219,7 +219,7 @@ func (c *Canvas) write(cell cell, x, y int) {
 	destX := int(math.Round(rotatedX)) + c.originX
 	destY := int(math.Round(rotatedY)) + c.originY
 
-	blockSize := max(int(math.Round(c.scale)), 2)
+	blockSize := max(int(math.Round(c.scale)), minBlockSize)
 
 	for dy := range blockSize {
 		for dx := range blockSize {
