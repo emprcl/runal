@@ -1,7 +1,6 @@
 package runal
 
 import (
-	"fmt"
 	"image"
 	"image/jpeg"
 	"image/png"
@@ -63,12 +62,10 @@ func (c *Canvas) Image(img *Image, x, y, w, h int) {
 			if c.outOfBounds(x+ix, y+iy) {
 				continue
 			}
-			bgR, bgG, bgB, _ := imageBuffer[iy][ix].Background.RGBA()
-			fgR, fgG, fgB, _ := imageBuffer[iy][ix].Foreground.RGBA()
 			c.write(cell{
 				char:       imageBuffer[iy][ix].Char,
-				background: color(fmt.Sprintf("#%02x%02x%02x", bgR, bgG, bgB)),
-				foreground: color(fmt.Sprintf("#%02x%02x%02x", fgR, fgG, fgB)),
+				background: colorFromImage(imageBuffer[iy][ix].Background),
+				foreground: colorFromImage(imageBuffer[iy][ix].Foreground),
 			}, x+ix, y+iy)
 		}
 	}
