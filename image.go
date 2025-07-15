@@ -56,7 +56,7 @@ func (i *imageFrame) write(c *Canvas, x, y, w, h int) {
 	}
 }
 
-func (c *Canvas) LoadImage(path string) *imageFile {
+func (c *Canvas) LoadImage(path string) Image {
 	f, err := os.Open(path)
 	if err != nil {
 		log.Errorf("can't load image: %v", err)
