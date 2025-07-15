@@ -19,12 +19,12 @@ type Image struct {
 
 func (c *Canvas) LoadImage(path string) *Image {
 	f, err := os.Open(path)
-	defer f.Close()
 	if err != nil {
 		log.Errorf("can't load image: %v", err)
 		c.DisableRendering()
 		return nil
 	}
+	defer f.Close()
 	var img image.Image
 	switch filepath.Ext(path) {
 	case ".jpg":
