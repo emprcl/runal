@@ -55,6 +55,8 @@ func main() {
 		return
 	}
 
+	log.SetOutput(os.Stdout)
+
 	if _, err := os.Stat(*file); errors.Is(err, os.ErrNotExist) {
 		log.Fatalf("sketch file %s does not exist", *file)
 	}
