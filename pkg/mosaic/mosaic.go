@@ -343,6 +343,9 @@ func (m *Mosaic) RenderCells(img image.Image) [][]Cell {
 			// Append to output.
 			for dy := 0; dy < 2; dy++ {
 				for dx := 0; dx < 2; dx++ {
+					if y+dy >= imageBounds.Max.Y || x+dx >= imageBounds.Max.X {
+						continue
+					}
 					output[y+dy][x+dx] = Cell{
 						Char:       block.BestSymbol,
 						Background: block.BestBgColor,
