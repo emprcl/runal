@@ -16,7 +16,7 @@ type cell struct {
 	background lipgloss.Color
 }
 
-func (c cell) Public() Cell {
+func (c cell) public() Cell {
 	return Cell{
 		Char:       string(c.char),
 		Foreground: string(c.foreground),
@@ -25,6 +25,19 @@ func (c cell) Public() Cell {
 }
 
 type frame [][]cell
+
+func (f frame) public() [][]Cell {
+	cells := make([][]Cell, len(f))
+	for i := range cells {
+		cells[i] = make([]Cell, len(f[0]))
+	}
+	for y := range f {
+		for x := range f[y] {
+			cells[y][x] = f[y][x].public()
+		}
+	}
+	return cells
+}
 
 func (f frame) size() (int, int) {
 	return len(f[0]), len(f)
