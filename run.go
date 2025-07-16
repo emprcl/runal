@@ -5,6 +5,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/charmbracelet/log"
 	"github.com/charmbracelet/x/input"
 )
 
@@ -17,6 +18,12 @@ func Run(ctx context.Context, setup, draw func(c *Canvas), onKey func(c *Canvas,
 }
 
 func Start(ctx context.Context, done chan struct{}, setup, draw func(c *Canvas), onKey func(c *Canvas, e KeyEvent), onMouse func(c *Canvas, e MouseEvent)) *sync.WaitGroup {
+	if setup == nil {
+		log.Fatal("setup method is required")
+	}
+	if draw == nil {
+		log.Fatal("draw method is required")
+	}
 	ctx, cancel := context.WithCancel(ctx)
 	w, h := termSize()
 	c := newCanvas(w, h)
