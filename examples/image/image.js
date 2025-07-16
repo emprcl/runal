@@ -1,9 +1,8 @@
 let img;
 
 function setup(c) {
-  img = c.loadImage("wish.png");
+  img = c.loadImage("the-great-wave-kanagawa.jpg");
   c.noLoop();
-  c.cellPaddingDouble();
 }
 
 function draw(c) {

@@ -13,11 +13,11 @@ func main() {
 var img runal.Image
 
 func setup(c *runal.Canvas) {
-	img = c.LoadImage("wish.png")
+	img = c.LoadImage("the-great-wave-kanagawa.jpg")
+	c.NoLoop()
 }
 
 func draw(c *runal.Canvas) {
-	c.Clear()
 	c.Image(img, 0, 0, c.Width, c.Height)
 
 	fullCanvas := c.Get(0, 0, c.Width, c.Height)

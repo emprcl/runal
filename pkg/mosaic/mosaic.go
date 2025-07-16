@@ -332,8 +332,8 @@ func (m *Mosaic) RenderCells(img image.Image) [][]Cell {
 		output[i] = make([]Cell, imageBounds.Max.X)
 	}
 
-	for y := 0; y < imageBounds.Max.Y; y += 2 {
-		for x := 0; x < imageBounds.Max.X; x += 2 {
+	for y := 0; y < imageBounds.Max.Y; y += 1 {
+		for x := 0; x < imageBounds.Max.X; x += 1 {
 			// Create and analyze the 2x2 pixel block.
 			block := m.createPixelBlock(scaledImg, x, y)
 
@@ -341,17 +341,10 @@ func (m *Mosaic) RenderCells(img image.Image) [][]Cell {
 			m.findBestRepresentation(block, blocks)
 
 			// Append to output.
-			for dy := 0; dy < 2; dy++ {
-				for dx := 0; dx < 2; dx++ {
-					if y+dy >= imageBounds.Max.Y || x+dx >= imageBounds.Max.X {
-						continue
-					}
-					output[y+dy][x+dx] = Cell{
-						Char:       block.BestSymbol,
-						Background: block.BestBgColor,
-						Foreground: block.BestFgColor,
-					}
-				}
+			output[y][x] = Cell{
+				Char:       block.BestSymbol,
+				Background: block.BestBgColor,
+				Foreground: block.BestFgColor,
 			}
 		}
 	}
