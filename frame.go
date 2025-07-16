@@ -12,6 +12,10 @@ type Cell struct {
 
 type Frame [][]Cell
 
+func (f Frame) Size() (int, int) {
+	return len(f[0]), len(f)
+}
+
 func newFrame(width, height int) Frame {
 	buff := make([][]Cell, height)
 	for i := range buff {
@@ -33,4 +37,8 @@ func (c *Canvas) Get(x, y, w, h int) Image {
 	return &imageFrame{
 		frame: frame,
 	}
+}
+
+func (c *Canvas) Set(x, y int, img Image) {
+	img.write(c, x, y, 0, 0)
 }

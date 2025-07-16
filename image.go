@@ -22,7 +22,15 @@ type imageFile struct {
 }
 
 func (i *imageFile) write(c *Canvas, x, y, w, h int) {
-	m := mosaic.New().Width(w).Height(h).Symbol(mosaic.Quarter)
+	m := mosaic.New()
+	if w > 0 {
+		m = m.Width(w)
+	}
+
+	if h > 0 {
+		m = m.Height(h)
+	}
+	m = m.Symbol(mosaic.Quarter)
 	imageBuffer := m.RenderCells(i.file)
 	c.toggleFill()
 	for iy := range imageBuffer {
@@ -45,6 +53,12 @@ type imageFrame struct {
 }
 
 func (i *imageFrame) write(c *Canvas, x, y, w, h int) {
+	if h == 0 {
+		_, h = i.frame.Size()
+	}
+	if w == 0 {
+		w, _ = i.frame.Size()
+	}
 	for iy := range i.frame {
 		for ix := range i.frame[iy] {
 			if c.outOfBounds(x+ix, y+iy) ||
