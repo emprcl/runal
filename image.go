@@ -14,7 +14,7 @@ import (
 )
 
 type Image interface {
-	Get(x, y int) Cell
+	Cell(x, y int) Cell
 	write(c *Canvas, x, y, w, h int)
 }
 
@@ -23,7 +23,7 @@ type imageFile struct {
 	frame frame
 }
 
-func (i *imageFile) Get(x, y int) Cell {
+func (i *imageFile) Cell(x, y int) Cell {
 	if i.frame.outOfBounds(x, y) {
 		return Cell{}
 	}
@@ -63,7 +63,7 @@ type imageFrame struct {
 	frame frame
 }
 
-func (i *imageFrame) Get(x, y int) Cell {
+func (i *imageFrame) Cell(x, y int) Cell {
 	if i.frame.outOfBounds(x, y) {
 		return Cell{}
 	}
