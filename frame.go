@@ -5,21 +5,40 @@ import (
 )
 
 type Cell struct {
-	Char       rune
-	Foreground lipgloss.Color
-	Background lipgloss.Color
+	Char       string
+	Foreground string
+	Background string
 }
 
-type Frame [][]Cell
+type cell struct {
+	char       rune
+	foreground lipgloss.Color
+	background lipgloss.Color
+}
 
-func (f Frame) Size() (int, int) {
+func (c cell) Public() Cell {
+	return Cell{
+		Char:       string(c.char),
+		Foreground: string(c.foreground),
+		Background: string(c.background),
+	}
+}
+
+type frame [][]cell
+
+func (f frame) size() (int, int) {
 	return len(f[0]), len(f)
 }
 
-func newFrame(width, height int) Frame {
-	buff := make([][]Cell, height)
+func (f frame) outOfBounds(x, y int) bool {
+	w, h := f.size()
+	return x < 0 || y < 0 || x >= w || y >= h
+}
+
+func newFrame(width, height int) frame {
+	buff := make([][]cell, height)
 	for i := range buff {
-		buff[i] = make([]Cell, width)
+		buff[i] = make([]cell, width)
 	}
 	return buff
 }

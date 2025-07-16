@@ -14,11 +14,20 @@ import (
 )
 
 type Image interface {
+	Get(x, y int) Cell
 	write(c *Canvas, x, y, w, h int)
 }
 
 type imageFile struct {
-	file image.Image
+	file  image.Image
+	frame frame
+}
+
+func (i *imageFile) Get(x, y int) Cell {
+	if i.frame.outOfBounds(x, y) {
+		return Cell{}
+	}
+	return i.frame[y][x].Public()
 }
 
 func (i *imageFile) write(c *Canvas, x, y, w, h int) {
@@ -31,32 +40,42 @@ func (i *imageFile) write(c *Canvas, x, y, w, h int) {
 		m = m.Height(h)
 	}
 	imageBuffer := m.RenderCells(i.file)
+	i.frame = newFrame(w, h)
 	c.toggleFill()
 	for iy := range imageBuffer {
 		for ix := range imageBuffer[iy] {
 			if c.outOfBounds(x+ix, y+iy) {
 				continue
 			}
-			c.write(Cell{
-				Char:       imageBuffer[iy][ix].Char,
-				Background: colorFromImage(imageBuffer[iy][ix].Background),
-				Foreground: colorFromImage(imageBuffer[iy][ix].Foreground),
-			}, x+ix, y+iy, 2)
+			cell := cell{
+				char:       imageBuffer[iy][ix].Char,
+				background: colorFromImage(imageBuffer[iy][ix].Background),
+				foreground: colorFromImage(imageBuffer[iy][ix].Foreground),
+			}
+			c.write(cell, x+ix, y+iy, 2)
+			i.frame[iy][ix] = cell
 		}
 	}
 	c.toggleFill()
 }
 
 type imageFrame struct {
-	frame Frame
+	frame frame
+}
+
+func (i *imageFrame) Get(x, y int) Cell {
+	if i.frame.outOfBounds(x, y) {
+		return Cell{}
+	}
+	return i.frame[y][x].Public()
 }
 
 func (i *imageFrame) write(c *Canvas, x, y, w, h int) {
 	if h == 0 {
-		_, h = i.frame.Size()
+		_, h = i.frame.size()
 	}
 	if w == 0 {
-		w, _ = i.frame.Size()
+		w, _ = i.frame.size()
 	}
 	for iy := range i.frame {
 		for ix := range i.frame[iy] {
