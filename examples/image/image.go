@@ -18,7 +18,9 @@ func setup(c *runal.Canvas) {
 
 func draw(c *runal.Canvas) {
 	c.Clear()
-	c.Translate(c.Width/2, c.Height/2)
-	c.Rotate(float64(c.Framecount) * 0.08)
-	c.Image(img, 0, 0, 40, 40)
+	c.Image(img, 0, 0, c.Width, c.Height)
+
+	fullCanvas := c.Get(0, 0, c.Width, c.Height)
+
+	c.Image(fullCanvas, c.Width/2, 0, c.Width/2, c.Height)
 }
