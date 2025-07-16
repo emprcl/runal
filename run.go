@@ -22,6 +22,23 @@ func Start(ctx context.Context, done chan struct{}, setup, draw func(c *Canvas),
 	c := newCanvas(w, h)
 	wg := sync.WaitGroup{}
 
+	ticker := time.NewTicker(newFramerate(defaultFPS))
+
+	exit := func() {
+		ticker.Stop()
+		resetCursorPosition()
+		clearScreen()
+		showCursor()
+		disableMouse()
+	}
+
+	defer func() {
+		if r := recover(); r != nil {
+			exit()
+			panic(r)
+		}
+	}()
+
 	resize := listenForResize()
 	inputEvents := listenForInputEvents(ctx, &wg)
 
@@ -35,16 +52,6 @@ func Start(ctx context.Context, done chan struct{}, setup, draw func(c *Canvas),
 		c.render()
 	}
 	render()
-
-	ticker := time.NewTicker(newFramerate(defaultFPS))
-
-	exit := func() {
-		ticker.Stop()
-		resetCursorPosition()
-		clearScreen()
-		showCursor()
-		disableMouse()
-	}
 
 	wg.Add(1)
 	go func() {
