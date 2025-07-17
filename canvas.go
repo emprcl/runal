@@ -112,6 +112,7 @@ func newCanvas(width, height int) *Canvas {
 		strokeText:      defaultStrokeText,
 		fillText:        defaultFillText,
 		backgroundText:  defaultBackgroundText,
+		stroke:          true,
 		autoResize:      true,
 		IsLooping:       true,
 	}
