@@ -89,6 +89,12 @@ func Start(ctx context.Context, done chan struct{}, setup, draw func(c *Canvas),
 					ticker.Reset(newFramerate(defaultFPS))
 				case "render":
 					render()
+				case "exit":
+					if done != nil {
+						done <- struct{}{}
+					}
+					cancel()
+					return
 				}
 			case event := <-inputEvents:
 				switch e := event.(type) {
