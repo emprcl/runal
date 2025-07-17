@@ -77,6 +77,7 @@ type Canvas struct {
 
 	cellPaddingRune rune
 	cellPadding     cellPaddingMode
+	stroke          bool
 	fill            bool
 	isFilling       bool
 	IsLooping       bool

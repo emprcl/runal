@@ -68,10 +68,12 @@ func (c *Canvas) Rect(x, y, w, h int) {
 		}
 		c.toggleFill()
 	}
-	c.Line(x, y, x+w, y)
-	c.Line(x+w, y, x+w, y+h)
-	c.Line(x+w, y+h, x, y+h)
-	c.Line(x, y+h, x, y)
+	if c.stroke {
+		c.Line(x, y, x+w, y)
+		c.Line(x+w, y, x+w, y+h)
+		c.Line(x+w, y+h, x, y+h)
+		c.Line(x, y+h, x, y)
+	}
 }
 
 // Quad draws a quadrilateral defined by four points.
@@ -120,10 +122,12 @@ func (c *Canvas) Quad(x1, y1, x2, y2, x3, y3, x4, y4 int) {
 	}
 
 	// Draw outline lines
-	c.Line(x1, y1, x2, y2)
-	c.Line(x2, y2, x3, y3)
-	c.Line(x3, y3, x4, y4)
-	c.Line(x4, y4, x1, y1)
+	if c.stroke {
+		c.Line(x1, y1, x2, y2)
+		c.Line(x2, y2, x3, y3)
+		c.Line(x3, y3, x4, y4)
+		c.Line(x4, y4, x1, y1)
+	}
 }
 
 // Ellipse draws an ellipse centered at (x, y) with radiuses rx and ry.
@@ -159,8 +163,10 @@ func (c *Canvas) Ellipse(xCenter, yCenter, rx, ry int) {
 		c.toggleFill()
 	}
 
-	for _, p := range points {
-		c.Point(p[0], p[1])
+	if c.stroke {
+		for _, p := range points {
+			c.Point(p[0], p[1])
+		}
 	}
 }
 
@@ -184,14 +190,16 @@ func (c *Canvas) Circle(xCenter, yCenter, r int) {
 			c.toggleFill()
 		}
 
-		c.char(strIndex(c.strokeText, char), xCenter+x, yCenter+y)
-		c.char(strIndex(c.strokeText, char+1), xCenter-x, yCenter+y)
-		c.char(strIndex(c.strokeText, char+2), xCenter+x, yCenter-y)
-		c.char(strIndex(c.strokeText, char+3), xCenter-x, yCenter-y)
-		c.char(strIndex(c.strokeText, char+4), xCenter+y, yCenter+x)
-		c.char(strIndex(c.strokeText, char+5), xCenter-y, yCenter+x)
-		c.char(strIndex(c.strokeText, char+6), xCenter+y, yCenter-x)
-		c.char(strIndex(c.strokeText, char+7), xCenter-y, yCenter-x)
+		if c.stroke {
+			c.char(strIndex(c.strokeText, char), xCenter+x, yCenter+y)
+			c.char(strIndex(c.strokeText, char+1), xCenter-x, yCenter+y)
+			c.char(strIndex(c.strokeText, char+2), xCenter+x, yCenter-y)
+			c.char(strIndex(c.strokeText, char+3), xCenter-x, yCenter-y)
+			c.char(strIndex(c.strokeText, char+4), xCenter+y, yCenter+x)
+			c.char(strIndex(c.strokeText, char+5), xCenter-y, yCenter+x)
+			c.char(strIndex(c.strokeText, char+6), xCenter+y, yCenter-x)
+			c.char(strIndex(c.strokeText, char+7), xCenter-y, yCenter-x)
+		}
 
 		x++
 		if d < 0 {
@@ -210,9 +218,12 @@ func (c *Canvas) Triangle(x1, y1, x2, y2, x3, y3 int) {
 		c.fillTriangle(x1, y1, x2, y2, x3, y3)
 		c.toggleFill()
 	}
-	c.Line(x1, y1, x2, y2)
-	c.Line(x2, y2, x3, y3)
-	c.Line(x3, y3, x1, y1)
+
+	if c.stroke {
+		c.Line(x1, y1, x2, y2)
+		c.Line(x2, y2, x3, y3)
+		c.Line(x3, y3, x1, y1)
+	}
 }
 
 func (c *Canvas) fillTriangle(x1, y1, x2, y2, x3, y3 int) {
