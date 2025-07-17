@@ -65,6 +65,7 @@ func (c *Canvas) Stroke(text, fg, bg string) {
 
 // StrokeText sets the character used for strokes.
 func (c *Canvas) StrokeText(text string) {
+	c.stroke = true
 	c.strokeIndex = 0
 	if len(text) == 0 {
 		c.strokeText = defaultStrokeText
@@ -74,12 +75,19 @@ func (c *Canvas) StrokeText(text string) {
 
 // StrokeFg sets the foreground color for strokes.
 func (c *Canvas) StrokeFg(fg string) {
+	c.stroke = true
 	c.strokeFg = color(fg)
 }
 
 // StrokeBg sets the background color for strokes.
 func (c *Canvas) StrokeBg(bg string) {
+	c.stroke = true
 	c.strokeBg = color(bg)
+}
+
+// NoStroke disables stroke for subsequent shapes.
+func (c *Canvas) NoStroke() {
+	c.stroke = false
 }
 
 // NoFill disables fill for subsequent shapes.
