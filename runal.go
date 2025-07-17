@@ -68,3 +68,8 @@ func (c *Canvas) Fps(fps int) {
 	c.fps = fps
 	c.bus <- newFPSEvent(fps)
 }
+
+// Exit ends the program execution.
+func (c *Canvas) Exit() {
+	c.bus <- newExitEvent()
+}
