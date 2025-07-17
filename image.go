@@ -15,6 +15,10 @@ import (
 
 type Image interface {
 	Cell(x, y int) Cell
+	writable
+}
+
+type writable interface {
 	write(c *Canvas, x, y, w, h int)
 }
 
@@ -27,7 +31,7 @@ func (i *imageFile) Cell(x, y int) Cell {
 	if i.frame.outOfBounds(x, y) {
 		return Cell{}
 	}
-	return i.frame[y][x].Public()
+	return i.frame[y][x].public()
 }
 
 func (i *imageFile) write(c *Canvas, x, y, w, h int) {
@@ -67,7 +71,7 @@ func (i *imageFrame) Cell(x, y int) Cell {
 	if i.frame.outOfBounds(x, y) {
 		return Cell{}
 	}
-	return i.frame[y][x].Public()
+	return i.frame[y][x].public()
 }
 
 func (i *imageFrame) write(c *Canvas, x, y, w, h int) {

@@ -1,29 +1,5 @@
 package runal
 
-import (
-	"github.com/charmbracelet/lipgloss"
-)
-
-type Cell struct {
-	Char       string
-	Foreground string
-	Background string
-}
-
-type cell struct {
-	char       rune
-	foreground lipgloss.Color
-	background lipgloss.Color
-}
-
-func (c cell) Public() Cell {
-	return Cell{
-		Char:       string(c.char),
-		Foreground: string(c.foreground),
-		Background: string(c.background),
-	}
-}
-
 type frame [][]cell
 
 func (f frame) size() (int, int) {
@@ -58,6 +34,6 @@ func (c *Canvas) Get(x, y, w, h int) Image {
 	}
 }
 
-func (c *Canvas) Set(x, y int, img Image) {
-	img.write(c, x, y, 0, 0)
+func (c *Canvas) Set(x, y int, cells writable) {
+	cells.write(c, x, y, 0, 0)
 }
