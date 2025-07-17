@@ -29,3 +29,9 @@ func newRenderEvent() event {
 		name: "render",
 	}
 }
+
+func newExitEvent() event {
+	return event{
+		name: "exit",
+	}
+}

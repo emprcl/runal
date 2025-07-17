@@ -10,7 +10,7 @@ type Cell struct {
 	Background string
 }
 
-func (cll Cell) write(c *Canvas, x, y, w, h int) {
+func (cll Cell) write(c *Canvas, x, y, _, _ int) {
 	if c.outOfBounds(x, y) {
 		return
 	}
