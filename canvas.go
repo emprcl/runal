@@ -77,6 +77,7 @@ type Canvas struct {
 
 	cellPaddingRune rune
 	cellPadding     cellPaddingMode
+	stroke          bool
 	fill            bool
 	isFilling       bool
 	IsLooping       bool
@@ -202,6 +203,9 @@ func (c *Canvas) resize(width, height int) {
 }
 
 func (c *Canvas) char(char rune, x, y int) {
+	if !c.stroke && !c.isFilling {
+		return
+	}
 	c.write(cell{
 		char:       char,
 		foreground: c.strokeFg,

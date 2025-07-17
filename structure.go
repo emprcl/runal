@@ -12,7 +12,8 @@ type state struct {
 	rotationAngle    float64
 	scale            float64
 
-	fill bool
+	fill   bool
+	stroke bool
 }
 
 // Push saves the current transformation state.
@@ -32,6 +33,7 @@ func (c *Canvas) Push() {
 		rotationAngle:  c.rotationAngle,
 		scale:          c.scale,
 		fill:           c.fill,
+		stroke:         c.stroke,
 	}
 }
 
@@ -55,6 +57,7 @@ func (c *Canvas) Pop() {
 	c.rotationAngle = c.state.rotationAngle
 	c.scale = c.state.scale
 	c.fill = c.state.fill
+	c.stroke = c.state.stroke
 
 	c.state = nil
 }
