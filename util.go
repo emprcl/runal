@@ -10,7 +10,7 @@ import (
 )
 
 func termSize() (int, int) {
-	w, h, err := term.GetSize(0)
+	w, h, err := term.GetSize(int(os.Stdout.Fd()))
 	if err != nil {
 		log.Fatal("can't read terminal size")
 	}

@@ -1,24 +1,38 @@
 package runal
 
-import "fmt"
+import (
+	"fmt"
+
+	"github.com/charmbracelet/x/ansi"
+)
 
 func clearScreen() {
-	fmt.Print("\x1b[2J")
+	fmt.Print(ansi.ResetAltScreenMode)
 }
 
 func hideCursor() {
-	fmt.Print("\x1b[25l")
+	fmt.Print(ansi.HideCursor)
 }
 
 func showCursor() {
-	fmt.Print("\x1b[25h")
+	fmt.Print(ansi.ShowCursor)
 }
 
 func resetCursorPosition() {
-	fmt.Print("\x1b[H")
+	fmt.Print(ansi.CursorHomePosition)
 }
 
 func enterAltScreen() {
-	clearScreen()
+	fmt.Print(ansi.SetAltScreenMode)
 	hideCursor()
+}
+
+func enableMouse() {
+	fmt.Print(ansi.SetAnyEventMouseMode)
+	fmt.Print(ansi.SetSgrExtMouseMode)
+}
+
+func disableMouse() {
+	fmt.Print(ansi.ResetAnyEventMouseMode)
+	fmt.Print(ansi.ResetSgrExtMouseMode)
 }

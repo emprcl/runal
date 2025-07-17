@@ -45,7 +45,7 @@ const (
 // Canvas represents a drawable area where shapes, text, and effects
 // can be rendered.
 type Canvas struct {
-	buffer  buffer
+	buffer  frame
 	output  io.Writer
 	capture *ansitoimage.Converter
 	frames  []image.Image
@@ -64,9 +64,10 @@ type Canvas struct {
 
 	bus chan event
 
-	Width, Height int
-	Framecount    int
-	fps           int
+	Width, Height  int
+	MouseX, MouseY int
+	Framecount     int
+	fps            int
 
 	strokeIndex, backgroundIndex int
 	termWidth, termHeight        int
@@ -76,6 +77,7 @@ type Canvas struct {
 
 	cellPaddingRune rune
 	cellPadding     cellPaddingMode
+	stroke          bool
 	fill            bool
 	isFilling       bool
 	IsLooping       bool
@@ -95,7 +97,7 @@ func newCanvas(width, height int) *Canvas {
 		termHeight:      height,
 		cellPaddingRune: defaultPaddingRune,
 		cellPadding:     cellPaddingDisabled,
-		buffer:          newBuffer(width, height),
+		buffer:          newFrame(width, height),
 		output:          os.Stdout,
 		capture:         newCapture(width, height),
 		noise:           newNoise(),
@@ -110,6 +112,7 @@ func newCanvas(width, height int) *Canvas {
 		strokeText:      defaultStrokeText,
 		fillText:        defaultFillText,
 		backgroundText:  defaultBackgroundText,
+		stroke:          true,
 		autoResize:      true,
 		IsLooping:       true,
 	}
@@ -133,18 +136,18 @@ func (c *Canvas) render() {
 		lineLen := 0
 		for x := range c.buffer[y] {
 			var add string
-			if c.buffer[y][x] == "" {
+			if c.buffer[y][x].char == 0 {
 				add = bgCell
 				lineLen += bgCellSize
 			} else {
-				add = c.buffer[y][x]
+				add = c.renderCell(c.buffer[y][x])
 				lineLen += ansi.StringWidth(add)
 			}
 			if lineLen < c.termWidth {
 				line.WriteString(add)
 			}
 			if c.clear {
-				c.buffer[y][x] = ""
+				c.buffer[y][x] = cell{}
 			}
 		}
 		forcePadding(&line, lineLen, c.termWidth, ' ')
@@ -176,7 +179,7 @@ func (c *Canvas) reset() {
 func (c *Canvas) resize(width, height int) {
 	newWidth := c.widthWithPadding(width)
 	newHeight := height
-	newBuffer := newBuffer(newWidth, newHeight)
+	newBuffer := newFrame(newWidth, newHeight)
 
 	minWidth := c.Width
 	if newWidth < c.Width {
@@ -201,7 +204,17 @@ func (c *Canvas) resize(width, height int) {
 }
 
 func (c *Canvas) char(char rune, x, y int) {
-	formattedChar := c.formatCell(char)
+	if !c.stroke && !c.isFilling {
+		return
+	}
+	c.write(cell{
+		char:       char,
+		foreground: c.strokeFg,
+		background: c.strokeBg,
+	}, x, y, 1)
+}
+
+func (c *Canvas) write(cll cell, x, y int, minBlockSize int) {
 	scaledX := float64(x) * c.scale
 	scaledY := float64(y) * c.scale
 
@@ -211,7 +224,7 @@ func (c *Canvas) char(char rune, x, y int) {
 	destX := int(math.Round(rotatedX)) + c.originX
 	destY := int(math.Round(rotatedY)) + c.originY
 
-	blockSize := max(int(math.Round(c.scale)), 1)
+	blockSize := max(int(math.Round(c.scale)), minBlockSize)
 
 	for dy := range blockSize {
 		for dx := range blockSize {
@@ -220,18 +233,18 @@ func (c *Canvas) char(char rune, x, y int) {
 			if c.outOfBounds(sx, sy) {
 				continue
 			}
-			c.buffer[sy][sx] = formattedChar
+			c.buffer[sy][sx] = cll
 
 			if c.isFilling {
 				// NOTE: hack to fill blank spots
 				// due to rotation approx.
-				c.forceFill(sx, sy, formattedChar)
+				c.forceFill(sx, sy, c.buffer[sy][sx])
 			}
 		}
 	}
 }
 
-func (c *Canvas) forceFill(sx, sy int, char string) {
+func (c *Canvas) forceFill(sx, sy int, cll cell) {
 	for dy := -1; dy <= 1; dy++ {
 		for dx := -1; dx <= 1; dx++ {
 			px := sx + dx
@@ -239,35 +252,31 @@ func (c *Canvas) forceFill(sx, sy int, char string) {
 			if c.outOfBounds(px, py) || (dx == 0 && dy == 0) {
 				continue
 			}
-			if c.buffer[py][px] == "" {
-				if c.inBoundsAndMatch(px+dx, py+dy, char) && c.inBoundsAndMatch(px-dx, py-dy, char) {
-					c.buffer[py][px] = char
+			if c.buffer[py][px].char == 0 {
+				if c.inBoundsAndMatch(px+dx, py+dy, cll.char) && c.inBoundsAndMatch(px-dx, py-dy, cll.char) {
+					c.buffer[py][px] = cll
 				}
 			}
 		}
 	}
 }
 
-func (c *Canvas) inBoundsAndMatch(x, y int, char string) bool {
-	return !c.outOfBounds(x, y) && c.buffer[y][x] == char
+func (c *Canvas) inBoundsAndMatch(x, y int, char rune) bool {
+	return !c.outOfBounds(x, y) && c.buffer[y][x].char == char
 }
 
-func (c *Canvas) style(str string) string {
-	return lipgloss.NewStyle().
-		Background(c.strokeBg).
-		Foreground(c.strokeFg).
-		Render(str)
-}
+func (c *Canvas) renderCell(cll cell) string {
+	style := lipgloss.NewStyle().
+		Background(cll.background).
+		Foreground(cll.foreground)
 
-func (c *Canvas) formatCell(char rune) string {
 	switch c.cellPadding {
 	case cellPaddingCustom:
-		return c.style(string([]rune{char, c.cellPaddingRune}))
+		return style.Render(string([]rune{cll.char, c.cellPaddingRune}))
 	case cellPaddingDouble:
-		return c.style(string([]rune{char, char}))
+		return style.Render(string([]rune{cll.char, cll.char}))
 	default:
-		return c.style(string(char))
-
+		return style.Render(string(cll.char))
 	}
 }
 

@@ -28,7 +28,7 @@ function draw(c) {
       let af = 2;
       threshold = Math.sin(d / df + af * angle);
 
-      c.stroke("0", colorGradient(c.width, d), background);
+      c.stroke("⬤", colorGradient(c.width, d), background);
 
       if (spiralPath > threshold) {
         c.point(x, y);

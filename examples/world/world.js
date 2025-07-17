@@ -33,11 +33,11 @@ function draw(c) {
   }
 }
 
-function onKey(c, key) {
-  if (key == "c") {
+function onKey(c, e) {
+  if (e.key == "c") {
     c.saveCanvasToPNG(`canvas_${Date.now()}.png`);
   }
-  if (key == " ") {
+  if (e.key == "space") {
     c.noiseSeed(Date.now());
     c.redraw();
   }

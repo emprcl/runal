@@ -7,18 +7,8 @@ import (
 
 // Text renders a string at the given canvas coordinates.
 func (c *Canvas) Text(text string, x, y int) {
-	destX := c.originX + x
-	destY := c.originY + y
-
-	if c.outOfBounds(destX, destY) {
-		return
-	}
 	for i, r := range text {
-		if x+i < len(c.buffer[destY])-1 {
-			c.buffer[destY][destX+i] = c.formatCell(r)
-		} else if x+i == len(c.buffer[destY])-1 {
-			c.buffer[destY][destX+i] = c.style(string(r))
-		}
+		c.char(r, x+i, y)
 	}
 }
 

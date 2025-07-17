@@ -2,30 +2,55 @@ package runal
 
 import (
 	"context"
-	"os"
-	"os/signal"
 	"sync"
 	"time"
 
-	"github.com/eiannone/keyboard"
+	"github.com/charmbracelet/log"
+	"github.com/charmbracelet/x/input"
 )
 
 const (
 	defaultFPS = 30
 )
 
-func Run(ctx context.Context, setup, draw func(c *Canvas), onKey func(c *Canvas, key string)) {
-	ctx, _ = signal.NotifyContext(ctx, os.Interrupt)
-	Start(ctx, nil, setup, draw, onKey).Wait()
+func Run(ctx context.Context, setup, draw func(c *Canvas), onKey func(c *Canvas, e KeyEvent), onMouse func(c *Canvas, e MouseEvent)) {
+	Start(ctx, nil, setup, draw, onKey, onMouse).Wait()
 }
 
-func Start(ctx context.Context, done chan os.Signal, setup, draw func(c *Canvas), onKey func(c *Canvas, key string)) *sync.WaitGroup {
+func Start(ctx context.Context, done chan struct{}, setup, draw func(c *Canvas), onKey func(c *Canvas, e KeyEvent), onMouse func(c *Canvas, e MouseEvent)) *sync.WaitGroup {
+	if setup == nil {
+		log.Fatal("setup method is required")
+	}
+	if draw == nil {
+		log.Fatal("draw method is required")
+	}
+	ctx, cancel := context.WithCancel(ctx)
 	w, h := termSize()
 	c := newCanvas(w, h)
+	wg := sync.WaitGroup{}
+
+	ticker := time.NewTicker(newFramerate(defaultFPS))
+
+	exit := func() {
+		ticker.Stop()
+		resetCursorPosition()
+		clearScreen()
+		showCursor()
+		disableMouse()
+	}
+
+	defer func() {
+		if r := recover(); r != nil {
+			exit()
+			panic(r)
+		}
+	}()
 
 	resize := listenForResize()
+	inputEvents := listenForInputEvents(ctx, &wg)
 
 	enterAltScreen()
+	enableMouse()
 
 	setup(c)
 	render := func() {
@@ -35,27 +60,15 @@ func Start(ctx context.Context, done chan os.Signal, setup, draw func(c *Canvas)
 	}
 	render()
 
-	ticker := time.NewTicker(newFramerate(defaultFPS))
-
-	exit := func() {
-		ticker.Stop()
-		clearScreen()
-		resetCursorPosition()
-		showCursor()
-	}
-
-	wg := sync.WaitGroup{}
 	wg.Add(1)
 	go func() {
 		defer func() {
+			exit()
 			wg.Done()
-			_ = keyboard.Close()
 		}()
-		keyEvent, _ := keyboard.GetKeys(1)
 		for {
 			select {
 			case <-ctx.Done():
-				exit()
 				return
 			case <-resize:
 				clearScreen()
@@ -76,23 +89,42 @@ func Start(ctx context.Context, done chan os.Signal, setup, draw func(c *Canvas)
 					ticker.Reset(newFramerate(defaultFPS))
 				case "render":
 					render()
-				}
-			case event := <-keyEvent:
-				// ctrl+c
-				if event.Key == keyboard.KeyCtrlC {
-					exit()
+				case "exit":
 					if done != nil {
-						done <- os.Interrupt
+						done <- struct{}{}
 					}
+					cancel()
 					return
 				}
-				// NOTE: keyboard package has a small bug on
-				// space key not filling the Rune attribute.
-				if event.Key == keyboard.KeySpace {
-					event.Rune = ' '
-				}
-				if onKey != nil {
-					onKey(c, string(event.Rune))
+			case event := <-inputEvents:
+				switch e := event.(type) {
+				case input.MouseMotionEvent:
+					c.MouseX = e.X
+					c.MouseY = e.Y
+				case input.MouseClickEvent:
+					if onMouse != nil {
+						onMouse(c, MouseEvent{
+							X:      e.X,
+							Y:      e.Y,
+							Button: e.Button.String(),
+						})
+					}
+				case input.KeyEvent:
+					switch e.String() {
+					case "ctrl+c":
+						if done != nil {
+							done <- struct{}{}
+						}
+						cancel()
+						return
+					default:
+						if onKey != nil {
+							onKey(c, KeyEvent{
+								Key:  e.Key().String(),
+								Code: int(e.Key().Code),
+							})
+						}
+					}
 				}
 			case <-ticker.C:
 				render()

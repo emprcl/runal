@@ -88,13 +88,6 @@ Unzip the last [windows release](https://github.com/emprcl/runal/releases) and, 
 .\runal.exe -demo
 ```
 
-### Go install
-
-If your a developer using Go, you can use the `go install` command:
-```
-go install github.com/emprcl/runal/cli@latest
-```
-
 ### Build it yourself
 
 You'll need [go 1.23](https://go.dev/dl/) minimum.
@@ -128,9 +121,10 @@ function setup(c) {}
 function draw(c) {}
 ```
 
-You can add an extra method `onKey` to catch keyboard events:
+You can add extra methods `onKey` and `onMouse` to catch keyboard and mouse events:
 ```js
-function onKey(c, key) {}
+function onKey(c, e) {}
+function onMouse(c, e) {}
 ````
 
 And you can then execute the file with:
@@ -158,12 +152,15 @@ import (
 )
 
 func main() {
-	runal.Run(context.Background(), setup, draw, nil)
+	runal.Run(context.Background(), setup, draw, onKey, onMouse)
 }
 
 func setup(c *runal.Canvas) {}
 
 func draw(c *runal.Canvas) {}
+
+func onKey(c *runal.Canvas, e runal.KeyEvent) {}
+func onMouse(c *runal.Canvas, e runal.MouseEvent) {}
 ```
 
 Then, simply build it:
