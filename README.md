@@ -144,6 +144,18 @@ go run sketch.go
 Check the [API reference](https://empr.cl/runal/#reference).
 You can also check some examples in the [examples directory](https://github.com/emprcl/runal/tree/main/examples).
 
+## Contributing
+
+Contributions are very welcome, even if you're a beginner! Whether it's code, documentation, bug reports, examples, or just ideas, you're encouraged to join in.
+
+Just be kind, inclusive, and patient. We're all here to learn and build something cool together.
+
+How to contribute:
+  1) Start with a [discussion](https://github.com/emprcl/runal/discussions) or [open an issue](https://github.com/emprcl/runal/issues) to report a bug or suggest an enhancement. **Please check if one already exists on the same topic first.**
+  2) Open a [Pull Request](https://github.com/emprcl/runal/pulls). Please keep it small and focused.
+
+You can also contribute by sharing what you’ve made with Runal on GitHub, social media, or anywhere else. We'd love to see it!
+
 ## Acknowledgments
 
 Runal uses a few awesome packages:
