@@ -21,6 +21,12 @@ On **linux** or **macOS**, you can run this quick-install bash script:
 curl -sSL empr.cl/get/runal | bash
 ```
 
+### Packages
+
+#### AUR
+
+https://aur.archlinux.org/packages/runal
+
 ### Manual installation
 
 #### Linux & macOS
