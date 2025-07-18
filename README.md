@@ -154,7 +154,7 @@ How to contribute:
   1) Start with a [discussion](https://github.com/emprcl/runal/discussions) or [open an issue](https://github.com/emprcl/runal/issues) to report a bug or suggest an enhancement. **Please check if one already exists on the same topic first.**
   2) Open a [Pull Request](https://github.com/emprcl/runal/pulls). Please keep it small and focused.
 
-You can also contribute by sharing what you’ve made with Runal on GitHub, social media, or anywhere else. We'd love to see it!
+You can also contribute by sharing what you've made with Runal on GitHub, social media, or anywhere else. We'd love to see it!
 
 ## Acknowledgments
 
