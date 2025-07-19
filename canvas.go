@@ -150,7 +150,7 @@ func (c *Canvas) render() {
 				c.buffer[y][x] = cell{}
 			}
 		}
-		forcePadding(&line, lineLen, c.termWidth, ' ')
+		forcePadding(&line, lineLen, c.termWidth, ' ') // TODO: wrong width
 		if y < len(c.buffer)-1 {
 			line.WriteString("\r\n")
 		}
@@ -269,6 +269,12 @@ func (c *Canvas) renderCell(cll cell) string {
 	style := lipgloss.NewStyle().
 		Background(cll.background).
 		Foreground(cll.foreground)
+
+	// Text rendering when cell padding mode
+	// is enabled.
+	if cll.padChar != 0 {
+		return style.Render(string([]rune{cll.char, cll.padChar}))
+	}
 
 	switch c.cellPadding {
 	case cellPaddingCustom:

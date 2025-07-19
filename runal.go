@@ -63,6 +63,18 @@ func (c *Canvas) CellPaddingDouble() {
 	}
 }
 
+// NoCellPadding disables cell padding.
+func (c *Canvas) NoCellPadding() {
+	prev := c.cellPadding
+	c.cellPadding = cellPaddingDisabled
+	c.cellPaddingRune = 0
+	if prev.enabled() {
+		c.resize(c.Width*2, c.Height)
+	} else {
+		c.resize(c.Width, c.Height)
+	}
+}
+
 // Fps sets the rendering framerate in frames per second.
 func (c *Canvas) Fps(fps int) {
 	c.fps = fps

@@ -7,8 +7,28 @@ import (
 
 // Text renders a string at the given canvas coordinates.
 func (c *Canvas) Text(text string, x, y int) {
-	for i, r := range text {
-		c.char(r, x+i, y)
+	if !c.cellPadding.enabled() {
+		for i, r := range text {
+			c.char(r, x+i, y)
+		}
+		return
+	}
+
+	runes := []rune(text)
+	padChar := ' '
+	ix := 0
+	for i := 0; i < len(runes); i += 2 {
+		if i+1 < len(runes) {
+			padChar = runes[i+1]
+		}
+		c.write(cell{
+			char:       runes[i],
+			padChar:    padChar,
+			background: c.strokeBg,
+			foreground: c.strokeFg,
+		}, x+ix, y, 1)
+		ix += 1
+		padChar = ' '
 	}
 }
 

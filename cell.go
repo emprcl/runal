@@ -27,6 +27,7 @@ func (cll Cell) private() cell {
 
 type cell struct {
 	char       rune
+	padChar    rune
 	foreground lipgloss.Color
 	background lipgloss.Color
 }
