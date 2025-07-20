@@ -2,7 +2,6 @@ package main
 
 import (
 	_ "embed"
-	"encoding/base64"
 	"errors"
 	"flag"
 	"fmt"
@@ -40,25 +39,15 @@ const (
 	defaultLogFile = "console.log"
 )
 
-// base64 encoded delimiter that should appear at the top
-// of a javascript sketch appended to the runal binary
-const embedDelimiter = "Ly9ydW5hbDplbWJlZAo="
-
 func main() {
-	file := flag.String("f", "", "sketch file (.js)")
-
+	infile := flag.String("f", "", "sketch file (.js)")
+	outfile := flag.String("o", "", "output executable file")
 	demo := flag.Bool("demo", false, "demo mode")
 	flag.Parse()
 
-	if *demo {
-		r := runtime.New("", nil, nil)
-		r.RunInternal(Demo)
-		return
-	}
-
 	embedded, err := readEmbeddedSketch()
 	if err != nil {
-		log.Fatalf("%v reading runal executable", err)
+		log.Fatalf("%v reading embedded sketch", err)
 		return
 	}
 	if embedded != "" {
@@ -67,15 +56,29 @@ func main() {
 		return
 	}
 
-	if *file == "" {
+	if *demo {
+		r := runtime.New("", nil, nil)
+		r.RunInternal(Demo)
+		return
+	}
+
+	if *infile == "" {
 		displayHelp()
+		return
+	}
+
+	if *outfile != "" {
+		err := createEmbeddedExecutable(*outfile, *infile)
+		if err != nil {
+			log.Fatalf("%v creating the embedded executable", err)
+		}
 		return
 	}
 
 	log.SetOutput(os.Stdout)
 
-	if _, err := os.Stat(*file); errors.Is(err, os.ErrNotExist) {
-		log.Fatalf("sketch file %s does not exist", *file)
+	if _, err := os.Stat(*infile); errors.Is(err, os.ErrNotExist) {
+		log.Fatalf("sketch file %s does not exist", *infile)
 	}
 
 	watcher, err := fsnotify.NewWatcher()
@@ -96,32 +99,8 @@ func main() {
 		}
 	}()
 
-	r := runtime.New(*file, watcher, consoleLogFile)
+	r := runtime.New(*infile, watcher, consoleLogFile)
 	r.Run()
-}
-
-func readEmbeddedSketch() (string, error) {
-	executable, err := os.Executable()
-	if err != nil {
-		return "", err
-	}
-
-	content, err := os.ReadFile(executable)
-	if err != nil {
-		return "", err
-	}
-
-	delimiter, err := base64.StdEncoding.DecodeString(embedDelimiter)
-	if err != nil {
-		return "", err
-	}
-
-	parts := strings.Split(string(content), string(delimiter))
-	if len(parts) < 2 {
-		return "", nil
-	}
-
-	return parts[len(parts)-1], nil
 }
 
 func displayHelp() {
@@ -147,6 +126,11 @@ func displayHelp() {
 								lipgloss.NewStyle().Width(15).Render("-demo"),
 								lipgloss.NewStyle().Foreground(lipgloss.Color("244")).Render("demo sketch (press space to reseed, c to capture png)"),
 							),
+							lipgloss.JoinHorizontal(
+								lipgloss.Left,
+								lipgloss.NewStyle().Width(15).Render("-o [FILE]"),
+								lipgloss.NewStyle().Foreground(lipgloss.Color("244")).Render("creates a standalone executable from the -f [FILE]"),
+							),
 						),
 					),
 					lipgloss.NewStyle().MarginTop(2).Bold(true).Foreground(lipgloss.Color("81")).Render("EXAMPLE"),
@@ -155,6 +139,7 @@ func displayHelp() {
 							lipgloss.Left,
 							"runal -f my_sketch.js",
 							"runal -demo",
+							"runal -f my_sketch.js -o my_executable",
 						),
 					),
 					lipgloss.NewStyle().MarginTop(2).Bold(true).Foreground(lipgloss.Color("81")).Render("LOGS"),
