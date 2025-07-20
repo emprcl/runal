@@ -2,6 +2,7 @@ package main
 
 import (
 	_ "embed"
+	"encoding/base64"
 	"errors"
 	"flag"
 	"fmt"
@@ -39,14 +40,30 @@ const (
 	defaultLogFile = "console.log"
 )
 
+// base64 encoded delimiter that should appear at the top
+// of a javascript sketch appended to the runal binary
+const embedDelimiter = "Ly9ydW5hbDplbWJlZAo="
+
 func main() {
 	file := flag.String("f", "", "sketch file (.js)")
+
 	demo := flag.Bool("demo", false, "demo mode")
 	flag.Parse()
 
 	if *demo {
 		r := runtime.New("", nil, nil)
-		r.RunDemo(Demo)
+		r.RunInternal(Demo)
+		return
+	}
+
+	embedded, err := readEmbeddedSketch()
+	if err != nil {
+		log.Fatalf("%v reading runal executable", err)
+		return
+	}
+	if embedded != "" {
+		r := runtime.New("", nil, nil)
+		r.RunInternal(embedded)
 		return
 	}
 
@@ -81,6 +98,30 @@ func main() {
 
 	r := runtime.New(*file, watcher, consoleLogFile)
 	r.Run()
+}
+
+func readEmbeddedSketch() (string, error) {
+	executable, err := os.Executable()
+	if err != nil {
+		return "", err
+	}
+
+	content, err := os.ReadFile(executable)
+	if err != nil {
+		return "", err
+	}
+
+	delimiter, err := base64.StdEncoding.DecodeString(embedDelimiter)
+	if err != nil {
+		return "", err
+	}
+
+	parts := strings.Split(string(content), string(delimiter))
+	if len(parts) < 2 {
+		return "", nil
+	}
+
+	return parts[len(parts)-1], nil
 }
 
 func displayHelp() {
