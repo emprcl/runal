@@ -102,8 +102,8 @@ func (s runtime) Run() {
 	wg.Wait()
 }
 
-func (s runtime) RunDemo(demo string) {
-	vm, setup, draw, callbacks, err := parseJS(demo)
+func (s runtime) RunInternal(sketch string) {
+	vm, setup, draw, callbacks, err := parseJS(sketch)
 	if err != nil {
 		log.Error(err)
 		return
