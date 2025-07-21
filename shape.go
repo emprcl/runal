@@ -171,8 +171,10 @@ func (c *Canvas) Ellipse(xCenter, yCenter, rx, ry int) {
 	p = ry2 - (rx2 * ry) + (rx2 / 4)
 	for px < py {
 		points := [][2]int{
-			{xCenter + x, yCenter + y}, {xCenter - x, yCenter + y},
-			{xCenter + x, yCenter - y}, {xCenter - x, yCenter - y},
+			{xCenter + x, yCenter + y},
+			{xCenter - x, yCenter + y},
+			{xCenter + x, yCenter - y},
+			{xCenter - x, yCenter - y},
 		}
 		for _, pt := range points {
 			if !outlinePointSet[pt] {
@@ -198,8 +200,10 @@ func (c *Canvas) Ellipse(xCenter, yCenter, rx, ry int) {
 	p = ry2*(x*x+x) + rx2*(y-1)*(y-1) - rx2*ry2
 	for y >= 0 {
 		points := [][2]int{
-			{xCenter + x, yCenter + y}, {xCenter - x, yCenter + y},
-			{xCenter + x, yCenter - y}, {xCenter - x, yCenter - y},
+			{xCenter + x, yCenter + y},
+			{xCenter - x, yCenter + y},
+			{xCenter + x, yCenter - y},
+			{xCenter - x, yCenter - y},
 		}
 		for _, pt := range points {
 			if !outlinePointSet[pt] {
