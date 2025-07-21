@@ -1,7 +1,7 @@
 BIN                    := bin
 BIN_NAME               := runal
 CLI_DIR                := cli
-CLI_ENTRYPOINT         := main.go
+CLI_ENTRYPOINT         := .
 GOLANG_BIN             := go
 CGO_ENABLED            := 0
 GOLANG_OS              := linux
