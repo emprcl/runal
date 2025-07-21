@@ -150,7 +150,7 @@ func (c *Canvas) render() {
 				c.buffer[y][x] = cell{}
 			}
 		}
-		forcePadding(&line, lineLen, c.termWidth, ' ') // TODO: wrong width
+		forcePadding(&line, lineLen, c.termWidth, ' ')
 		if y < len(c.buffer)-1 {
 			line.WriteString("\r\n")
 		}
@@ -174,6 +174,8 @@ func (c *Canvas) reset() {
 	c.originY = 0
 	c.rotationAngle = 0
 	c.scale = 1
+	c.strokeIndex = 0
+	c.backgroundIndex = 0
 }
 
 func (c *Canvas) resize(width, height int) {

@@ -83,8 +83,10 @@ func (c *Canvas) Square(x, y, size int) {
 func (c *Canvas) Rect(x, y, w, h int) {
 	if c.fill {
 		c.toggleFill()
-		for dy := range h {
-			c.Line(x, y+dy, x+w, y+dy)
+		for dy := 1; dy < h; dy++ {
+			if w > 2 {
+				c.Line(x+1, y+dy, x+w-1, y+dy)
+			}
 		}
 		c.toggleFill()
 	}
@@ -98,25 +100,27 @@ func (c *Canvas) Rect(x, y, w, h int) {
 func (c *Canvas) Quad(x1, y1, x2, y2, x3, y3, x4, y4 int) {
 	if c.fill {
 		vertices := [][2]int{{x1, y1}, {x2, y2}, {x3, y3}, {x4, y4}}
+
+		minY := min(y1, min(y2, min(y3, y4)))
+		maxY := max(y1, max(y2, max(y3, y4)))
+
 		scanlineIntersections := map[int][]int{}
+
 		for i := 0; i < 4; i++ {
 			xStart, yStart := vertices[i][0], vertices[i][1]
 			xEnd, yEnd := vertices[(i+1)%4][0], vertices[(i+1)%4][1]
 
 			if yStart == yEnd {
-				y := yStart
-				xmin := xStart
-				xmax := xEnd
-				if xmin > xmax {
-					xmin, xmax = xmax, xmin
-				}
-				scanlineIntersections[y] = append(scanlineIntersections[y], xmin, xmax)
-			} else {
-				if yStart > yEnd {
-					yStart, yEnd = yEnd, yStart
-					xStart, xEnd = xEnd, xStart
-				}
-				for y := yStart; y <= yEnd; y++ {
+				continue
+			}
+
+			if yStart > yEnd {
+				yStart, yEnd = yEnd, yStart
+				xStart, xEnd = xEnd, xStart
+			}
+
+			for y := max(yStart, minY+1); y < min(yEnd, maxY); y++ {
+				if yEnd != yStart {
 					t := float64(y-yStart) / float64(yEnd-yStart)
 					x := int(math.Round(float64(xStart) + t*float64(xEnd-xStart)))
 					scanlineIntersections[y] = append(scanlineIntersections[y], x)
@@ -130,9 +134,11 @@ func (c *Canvas) Quad(x1, y1, x2, y2, x3, y3, x4, y4 int) {
 				continue
 			}
 			sort.Ints(xs)
-			for i := 0; i < len(xs); i += 2 {
-				if i+1 < len(xs) {
-					c.Line(xs[i], y, xs[i+1], y)
+			for i := 0; i < len(xs)-1; i += 2 {
+				startX := xs[i]
+				endX := xs[i+1]
+				if startX < endX-1 {
+					c.Line(startX+1, y, endX-1, y)
 				}
 			}
 		}
@@ -148,44 +154,104 @@ func (c *Canvas) Quad(x1, y1, x2, y2, x3, y3, x4, y4 int) {
 
 // Ellipse draws an ellipse centered at (x, y) with radiuses rx and ry.
 func (c *Canvas) Ellipse(xCenter, yCenter, rx, ry int) {
-	steps := 360
-	points := make([][2]int, 0, steps)
+	x := 0
+	y := ry
+	rx2 := rx * rx
+	ry2 := ry * ry
+	tworx2 := 2 * rx2
+	twory2 := 2 * ry2
+	p := 0
+	px := 0
+	py := tworx2 * y
 
-	for i := range steps {
-		theta := 2 * math.Pi * float64(i) / float64(steps)
-		x := int(math.Round(float64(rx) * math.Cos(theta)))
-		y := int(math.Round(float64(ry) * math.Sin(theta)))
-		points = append(points, [2]int{xCenter + x, yCenter + y})
+	outlinePoints := make([][2]int, 0)
+	outlinePointSet := make(map[[2]int]bool)
+	fillRows := make(map[int][]int)
+
+	p = ry2 - (rx2 * ry) + (rx2 / 4)
+	for px < py {
+		points := [][2]int{
+			{xCenter + x, yCenter + y}, {xCenter - x, yCenter + y},
+			{xCenter + x, yCenter - y}, {xCenter - x, yCenter - y},
+		}
+		for _, pt := range points {
+			if !outlinePointSet[pt] {
+				outlinePoints = append(outlinePoints, pt)
+				outlinePointSet[pt] = true
+				fillRows[pt[1]] = append(fillRows[pt[1]], pt[0])
+			}
+		}
+
+		if p < 0 {
+			x++
+			px += twory2
+			p += ry2 + px
+		} else {
+			x++
+			y--
+			px += twory2
+			py -= tworx2
+			p += ry2 + px - py
+		}
+	}
+
+	p = ry2*(x*x+x) + rx2*(y-1)*(y-1) - rx2*ry2
+	for y >= 0 {
+		points := [][2]int{
+			{xCenter + x, yCenter + y}, {xCenter - x, yCenter + y},
+			{xCenter + x, yCenter - y}, {xCenter - x, yCenter - y},
+		}
+		for _, pt := range points {
+			if !outlinePointSet[pt] {
+				outlinePoints = append(outlinePoints, pt)
+				outlinePointSet[pt] = true
+				fillRows[pt[1]] = append(fillRows[pt[1]], pt[0])
+			}
+		}
+
+		if p > 0 {
+			y--
+			py -= tworx2
+			p += rx2 - py
+		} else {
+			y--
+			x++
+			px += twory2
+			py -= tworx2
+			p += rx2 - py + px
+		}
 	}
 
 	if c.fill {
 		c.toggleFill()
-
-		rows := map[int][]int{}
-		for _, p := range points {
-			y := p[1]
-			x := p[0]
-			rows[y] = append(rows[y], x)
-		}
-
-		for y, xs := range rows {
+		minY, maxY := yCenter-ry, yCenter+ry
+		for y, xs := range fillRows {
+			if y <= minY || y >= maxY {
+				continue
+			}
 			if len(xs) < 2 {
 				continue
 			}
 			sort.Ints(xs)
-			c.Line(xs[0], y, xs[len(xs)-1], y)
+			leftX := xs[0]
+			rightX := xs[len(xs)-1]
+			if rightX-leftX > 2 {
+				c.Line(leftX+1, y, rightX-1, y)
+			}
 		}
-
 		c.toggleFill()
 	}
 
-	for _, p := range points {
-		c.Point(p[0], p[1])
+	for _, pt := range outlinePoints {
+		c.Point(pt[0], pt[1])
 	}
 }
 
 // Circle draws a circle centered at (x, y) with the given radius.
 func (c *Canvas) Circle(xCenter, yCenter, r int) {
+	// TODO: check if this is more efficient
+	// than using ellipse() directly.
+
 	x := 0
 	y := r
 	d := 1 - r
@@ -196,11 +262,15 @@ func (c *Canvas) Circle(xCenter, yCenter, r int) {
 		if c.fill {
 			c.toggleFill()
 			if y <= r-1 {
-				c.Line(xCenter-x, yCenter+y, xCenter+x, yCenter+y)
-				c.Line(xCenter-x, yCenter-y, xCenter+x, yCenter-y)
+				if x > 0 {
+					c.Line(xCenter-x+1, yCenter+y, xCenter+x-1, yCenter+y)
+					c.Line(xCenter-x+1, yCenter-y, xCenter+x-1, yCenter-y)
+				}
 			}
-			c.Line(xCenter-y, yCenter+x, xCenter+y, yCenter+x)
-			c.Line(xCenter-y, yCenter-x, xCenter+y, yCenter-x)
+			if y > 0 {
+				c.Line(xCenter-y+1, yCenter+x, xCenter+y-1, yCenter+x)
+				c.Line(xCenter-y+1, yCenter-x, xCenter+y-1, yCenter-x)
+			}
 			c.toggleFill()
 		}
 
@@ -274,5 +344,7 @@ func pointInTriangle(px, py, x1, y1, x2, y2, x3, y3 int) bool {
 	u := (d11*d02 - d01*d12) * invDenom
 	v := (d00*d12 - d01*d02) * invDenom
 
-	return u >= 0 && v >= 0 && u+v <= 1
+	// Return true only for strictly interior points (exclude boundary)
+	epsilon := 1e-10
+	return u > epsilon && v > epsilon && u+v < 1-epsilon
 }
