@@ -44,6 +44,11 @@ func listenForInputEvents(ctx context.Context, wg *sync.WaitGroup) chan input.Ev
 		readerErrors := make(chan error, 8)
 		go func() {
 			for {
+				select {
+				case <-ctx.Done():
+					return
+				default:
+				}
 				events, err := reader.ReadEvents()
 				if err != nil {
 					readerErrors <- err
