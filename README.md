@@ -105,6 +105,15 @@ And you can then execute the file with:
 
 The js file will be automatically reloaded when modified, no need to restart the command.
 
+#### Standalone executable
+
+You can create a standalone executable from the JavaScript file specified with **-f** using **-o [FILE]**:
+```sh
+./runal -f sketch.js -o sketch
+
+# Run the standalone executable
+./sketch
+```
 
 ### Go package
 
