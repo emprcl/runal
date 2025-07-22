@@ -6,7 +6,7 @@
 
 Runal is a text-based creative coding environment for the terminal. It works similarly as [processing](https://processing.org/) or [p5js](https://p5js.org/) but it does all the rendering as text. It can either be programmed with [JavaScript](https://developer.mozilla.org/en-US/docs/Web/JavaScript), or used as a [Go](https://go.dev/) package.
 
-**_Runal is a work-in-progress. It has only been tested on Linux and macOS and the API should not be considered as stable until it reaches 1.0._**
+**_Runal is a work-in-progress. The API should not be considered as stable until it reaches 1.0._**
 
 _Feel free to [open an issue](https://github.com/emprcl/runal/issues/new)._
 
