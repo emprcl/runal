@@ -100,11 +100,18 @@ func Start(ctx context.Context, done chan struct{}, setup, draw func(c *Canvas),
 				switch e := event.(type) {
 				case input.MouseMotionEvent:
 					c.MouseX = e.X
+					if c.cellPadding.enabled() {
+						c.MouseX = e.X / 2
+					}
 					c.MouseY = e.Y
 				case input.MouseClickEvent:
 					if onMouse != nil {
+						mx := e.X
+						if c.cellPadding.enabled() {
+							mx = e.X / 2
+						}
 						onMouse(c, MouseEvent{
-							X:      e.X,
+							X:      mx,
 							Y:      e.Y,
 							Button: e.Button.String(),
 						})
