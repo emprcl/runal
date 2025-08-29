@@ -34,7 +34,19 @@ func (c *Canvas) Text(text string, x, y int) {
 
 // Point draws a single point at the given position.
 func (c *Canvas) Point(x, y int) {
-	c.char(c.nextStrokeRune(), x, y)
+	// but don't double it if CellPaddingDouble() is in effect
+	if !c.cellPadding.enabled() {
+		c.char(c.nextStrokeRune(), x, y)
+		return
+	}
+
+	padChar := ' '
+	c.write(cell{
+		char:       c.nextStrokeRune(),
+		padChar:    padChar,
+		background: c.strokeBg,
+		foreground: c.strokeFg,
+	}, x, y, 1)
 }
 
 // Line draws a straight line between two points.
