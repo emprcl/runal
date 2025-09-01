@@ -81,7 +81,6 @@ type Canvas struct {
 	fill            bool
 	isFilling       bool
 	IsLooping       bool
-	clear           bool
 	save            bool
 	autoResize      bool
 	disabled        bool
@@ -146,9 +145,6 @@ func (c *Canvas) render() {
 			if lineLen < c.termWidth {
 				line.WriteString(add)
 			}
-			if c.clear {
-				c.buffer[y][x] = cell{}
-			}
 		}
 		forcePadding(&line, lineLen, c.termWidth, ' ')
 		if y < len(c.buffer)-1 {
@@ -169,7 +165,6 @@ func (c *Canvas) render() {
 }
 
 func (c *Canvas) reset() {
-	c.clear = false
 	c.originX = 0
 	c.originY = 0
 	c.rotationAngle = 0

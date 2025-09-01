@@ -12,7 +12,7 @@ func (c *Canvas) Size(w, h int) {
 
 // Clear clears the canvas contents.
 func (c *Canvas) Clear() {
-	c.clear = true
+	c.buffer = newFrame(c.Width, c.Height)
 }
 
 // Loop enables continuous redrawing of the canvas.

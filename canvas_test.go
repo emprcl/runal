@@ -20,6 +20,8 @@ func BenchmarkCanvasRender(b *testing.B) {
 	for _, v := range benchmarks {
 		b.Run(fmt.Sprintf("canvas_size_%dx%d", v.size, v.size), func(b *testing.B) {
 			canvas := mockCanvas(v.size, v.size)
+			canvas.Rect(5, 5, 5, 5)
+			canvas.Clear()
 			for i := 0; i < b.N; i++ {
 				canvas.render()
 			}
