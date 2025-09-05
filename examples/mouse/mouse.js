@@ -12,5 +12,7 @@ function onKey(c, event) {
 }
 
 function onMouse(c, event) {
-  c.backgroundBg(c.random(0, 255));
+  if (event.type == "click") {
+    c.backgroundBg(c.random(0, 255));
+  }
 }

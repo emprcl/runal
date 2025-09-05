@@ -27,6 +27,9 @@ func draw(c *runal.Canvas) {
 }
 
 func onMouse(c *runal.Canvas, e runal.MouseEvent) {
+	if e.Type != "click" {
+		return
+	}
 	// set stroke color to one of the ansi colors, but not black (1)
 	c.StrokeFg(strconv.Itoa(int(math.Ceil(c.Random(1, 255)))))
 	x1 = x2

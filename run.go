@@ -99,21 +99,35 @@ func Start(ctx context.Context, done chan struct{}, setup, draw func(c *Canvas),
 			case event := <-inputEvents:
 				switch e := event.(type) {
 				case input.MouseMotionEvent:
-					c.MouseX = e.X
-					if c.cellPadding.enabled() {
-						c.MouseX = e.X / 2
-					}
-					c.MouseY = e.Y
+					c.setMousePostion(e.X, e.Y)
 				case input.MouseClickEvent:
 					if onMouse != nil {
-						mx := e.X
-						if c.cellPadding.enabled() {
-							mx = e.X / 2
-						}
+						c.setMousePostion(e.X, e.Y)
 						onMouse(c, MouseEvent{
-							X:      mx,
-							Y:      e.Y,
+							X:      c.MouseX,
+							Y:      c.MouseY,
 							Button: e.Button.String(),
+							Type:   "click",
+						})
+					}
+				case input.MouseReleaseEvent:
+					if onMouse != nil {
+						c.setMousePostion(e.X, e.Y)
+						onMouse(c, MouseEvent{
+							X:      c.MouseX,
+							Y:      c.MouseY,
+							Button: e.Button.String(),
+							Type:   "release",
+						})
+					}
+				case input.MouseWheelEvent:
+					if onMouse != nil {
+						c.setMousePostion(e.X, e.Y)
+						onMouse(c, MouseEvent{
+							X:      c.MouseX,
+							Y:      c.MouseY,
+							Button: e.Button.String(),
+							Type:   "wheel",
 						})
 					}
 				case input.KeyEvent:

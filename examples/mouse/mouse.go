@@ -27,7 +27,7 @@ func onKey(c *runal.Canvas, e runal.KeyEvent) {
 }
 
 func onMouse(c *runal.Canvas, e runal.MouseEvent) {
-	if e.Button == "left" {
+	if e.Type == "click" && e.Button == "left" {
 		color := c.Random(0, 255)
 		colorStr := strconv.FormatFloat(color, 'f', -1, 64)
 		c.BackgroundBg(colorStr)
