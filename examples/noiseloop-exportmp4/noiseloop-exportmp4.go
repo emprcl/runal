@@ -18,7 +18,7 @@ var seed1, seed2 int64
 func main() {
 	seed1 = time.Now().Unix()
 	seed2 = seed1 + 1000
-	runal.Run(context.Background(), setup, draw, onKey, nil)
+	runal.Run(context.Background(), setup, draw, runal.WithOnKey(onKey))
 }
 
 func setup(c *runal.Canvas) {

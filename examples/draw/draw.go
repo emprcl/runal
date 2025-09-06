@@ -11,7 +11,7 @@ import (
 var x1, y1, x2, y2 int
 
 func main() {
-	runal.Run(context.Background(), setup, draw, nil, onMouse)
+	runal.Run(context.Background(), setup, draw, runal.WithOnMouse(onMouse))
 }
 
 func setup(c *runal.Canvas) {

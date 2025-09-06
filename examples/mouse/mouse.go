@@ -8,7 +8,7 @@ import (
 )
 
 func main() {
-	runal.Run(context.Background(), setup, draw, onKey, nil)
+	runal.Run(context.Background(), setup, draw, runal.WithOnKey(onKey), runal.WithOnMouse(onMouse))
 }
 
 func setup(c *runal.Canvas) {}

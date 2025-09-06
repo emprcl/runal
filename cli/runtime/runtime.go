@@ -164,7 +164,7 @@ func (s runtime) runSketch(ctx context.Context, done chan struct{}, vm *goja.Run
 				c.DisableRendering()
 			}
 		},
-		onKeyCallback,
-		onMouseCallback,
+		runal.WithOnKey(onKeyCallback),
+		runal.WithOnMouse(onMouseCallback),
 	)
 }

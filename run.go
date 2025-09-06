@@ -13,11 +13,30 @@ const (
 	defaultFPS = 30
 )
 
-func Run(ctx context.Context, setup, draw func(c *Canvas), onKey func(c *Canvas, e KeyEvent), onMouse func(c *Canvas, e MouseEvent)) {
-	Start(ctx, nil, setup, draw, onKey, onMouse).Wait()
+type callbacks struct {
+	onKey   func(c *Canvas, e KeyEvent)
+	onMouse func(c *Canvas, e MouseEvent)
 }
 
-func Start(ctx context.Context, done chan struct{}, setup, draw func(c *Canvas), onKey func(c *Canvas, e KeyEvent), onMouse func(c *Canvas, e MouseEvent)) *sync.WaitGroup {
+type callbackOption func(*callbacks)
+
+func WithOnKey(onKey func(c *Canvas, e KeyEvent)) callbackOption {
+	return func(c *callbacks) {
+		c.onKey = onKey
+	}
+}
+
+func WithOnMouse(onMouse func(c *Canvas, e MouseEvent)) callbackOption {
+	return func(c *callbacks) {
+		c.onMouse = onMouse
+	}
+}
+
+func Run(ctx context.Context, setup, draw func(c *Canvas), opts ...callbackOption) {
+	Start(ctx, nil, setup, draw, opts...).Wait()
+}
+
+func Start(ctx context.Context, done chan struct{}, setup, draw func(c *Canvas), opts ...callbackOption) *sync.WaitGroup {
 	if setup == nil {
 		log.Fatal("setup method is required")
 	}
@@ -28,6 +47,11 @@ func Start(ctx context.Context, done chan struct{}, setup, draw func(c *Canvas),
 	w, h := termSize()
 	c := newCanvas(w, h)
 	wg := sync.WaitGroup{}
+
+	eventCallbacks := callbacks{}
+	for _, opt := range opts {
+		opt(&eventCallbacks)
+	}
 
 	ticker := time.NewTicker(newFramerate(defaultFPS))
 
@@ -101,9 +125,9 @@ func Start(ctx context.Context, done chan struct{}, setup, draw func(c *Canvas),
 				case input.MouseMotionEvent:
 					c.setMousePostion(e.X, e.Y)
 				case input.MouseClickEvent:
-					if onMouse != nil {
+					if eventCallbacks.onMouse != nil {
 						c.setMousePostion(e.X, e.Y)
-						onMouse(c, MouseEvent{
+						eventCallbacks.onMouse(c, MouseEvent{
 							X:      c.MouseX,
 							Y:      c.MouseY,
 							Button: e.Button.String(),
@@ -111,9 +135,9 @@ func Start(ctx context.Context, done chan struct{}, setup, draw func(c *Canvas),
 						})
 					}
 				case input.MouseReleaseEvent:
-					if onMouse != nil {
+					if eventCallbacks.onMouse != nil {
 						c.setMousePostion(e.X, e.Y)
-						onMouse(c, MouseEvent{
+						eventCallbacks.onMouse(c, MouseEvent{
 							X:      c.MouseX,
 							Y:      c.MouseY,
 							Button: e.Button.String(),
@@ -121,9 +145,9 @@ func Start(ctx context.Context, done chan struct{}, setup, draw func(c *Canvas),
 						})
 					}
 				case input.MouseWheelEvent:
-					if onMouse != nil {
+					if eventCallbacks.onMouse != nil {
 						c.setMousePostion(e.X, e.Y)
-						onMouse(c, MouseEvent{
+						eventCallbacks.onMouse(c, MouseEvent{
 							X:      c.MouseX,
 							Y:      c.MouseY,
 							Button: e.Button.String(),
@@ -139,8 +163,8 @@ func Start(ctx context.Context, done chan struct{}, setup, draw func(c *Canvas),
 						cancel()
 						return
 					default:
-						if onKey != nil {
-							onKey(c, KeyEvent{
+						if eventCallbacks.onKey != nil {
+							eventCallbacks.onKey(c, KeyEvent{
 								Key:  e.Key().String(),
 								Code: int(e.Key().Code),
 							})
