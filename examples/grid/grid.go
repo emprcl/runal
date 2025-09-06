@@ -8,7 +8,7 @@ import (
 )
 
 func main() {
-	runal.Run(context.Background(), setup, draw, onKey, onMouse)
+	runal.Run(context.Background(), setup, draw, runal.WithOnKey(onKey), runal.WithOnMouse(onMouse))
 }
 
 func setup(c *runal.Canvas) {
@@ -33,7 +33,7 @@ func onKey(c *runal.Canvas, e runal.KeyEvent) {
 }
 
 func onMouse(c *runal.Canvas, e runal.MouseEvent) {
-	if e.Button == "left" {
+	if e.Type == "click" && e.Button == "left" {
 		c.Redraw()
 	}
 }

@@ -10,7 +10,7 @@ import (
 )
 
 func main() {
-	runal.Run(context.Background(), setup, draw, onKey, nil)
+	runal.Run(context.Background(), setup, draw, runal.WithOnKey(onKey))
 }
 
 func setup(c *runal.Canvas) {
@@ -50,6 +50,8 @@ func onKey(c *runal.Canvas, e runal.KeyEvent) {
 }
 
 func onMouse(c *runal.Canvas, e runal.MouseEvent) {
-	c.NoiseSeed(time.Now().Unix())
-	c.Redraw()
+	if e.Type == "click" {
+		c.NoiseSeed(time.Now().Unix())
+		c.Redraw()
+	}
 }

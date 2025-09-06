@@ -33,6 +33,8 @@ function onKey(c, e) {
 }
 
 function onMouse(c, e) {
-  c.noiseSeed(Date.now());
-  c.redraw();
+  if (e.type == "click") {
+    c.noiseSeed(Date.now());
+    c.redraw();
+  }
 }

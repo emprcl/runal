@@ -333,3 +333,11 @@ func (c *Canvas) nextStrokeRune() rune {
 func (c *Canvas) outOfBounds(x, y int) bool {
 	return x < 0 || y < 0 || x > c.Width-1 || y > c.Height-1
 }
+
+func (c *Canvas) setMousePostion(x, y int) {
+	c.MouseX = x
+	if c.cellPadding.enabled() {
+		c.MouseX = x / 2
+	}
+	c.MouseY = y
+}
