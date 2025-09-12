@@ -171,7 +171,7 @@ func (s runtime) runSketch(ctx context.Context, done chan struct{}, vm *goja.Run
 	if cb.onMouseMove != nil {
 		onMouseMoveCallback = func(c *runal.Canvas, e runal.MouseEvent) {
 			defer panicRecover(c)
-			_, err := cb.onMouseWheel(goja.Undefined(), vm.ToValue(c), vm.ToValue(e))
+			_, err := cb.onMouseMove(goja.Undefined(), vm.ToValue(c), vm.ToValue(e))
 			if err != nil {
 				log.Error(err)
 				c.DisableRendering()
