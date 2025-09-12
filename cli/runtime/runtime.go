@@ -167,6 +167,18 @@ func (s runtime) runSketch(ctx context.Context, done chan struct{}, vm *goja.Run
 		}
 	}
 
+	var onMouseMoveCallback func(c *runal.Canvas, e runal.MouseEvent)
+	if cb.onMouseMove != nil {
+		onMouseMoveCallback = func(c *runal.Canvas, e runal.MouseEvent) {
+			defer panicRecover(c)
+			_, err := cb.onMouseWheel(goja.Undefined(), vm.ToValue(c), vm.ToValue(e))
+			if err != nil {
+				log.Error(err)
+				c.DisableRendering()
+			}
+		}
+	}
+
 	return runal.Start(
 		ctx,
 		done,
@@ -189,6 +201,7 @@ func (s runtime) runSketch(ctx context.Context, done chan struct{}, vm *goja.Run
 			}
 		},
 		runal.WithOnKey(onKeyCallback),
+		runal.WithOnMouseMove(onMouseMoveCallback),
 		runal.WithOnMouseClick(onMouseClickCallback),
 		runal.WithOnMouseRelease(onMouseReleaseCallback),
 		runal.WithOnMouseWheel(onMouseWheelCallback),

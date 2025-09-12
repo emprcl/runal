@@ -15,6 +15,7 @@ const (
 
 type callbacks struct {
 	onKey          func(c *Canvas, e KeyEvent)
+	onMouseMove    func(c *Canvas, e MouseEvent)
 	onMouseClick   func(c *Canvas, e MouseEvent)
 	onMouseRelease func(c *Canvas, e MouseEvent)
 	onMouseWheel   func(c *Canvas, e MouseEvent)
@@ -25,6 +26,12 @@ type callbackOption func(*callbacks)
 func WithOnKey(onKey func(c *Canvas, e KeyEvent)) callbackOption {
 	return func(c *callbacks) {
 		c.onKey = onKey
+	}
+}
+
+func WithOnMouseMove(onMouseMove func(c *Canvas, e MouseEvent)) callbackOption {
+	return func(c *callbacks) {
+		c.onMouseMove = onMouseMove
 	}
 }
 
@@ -138,6 +145,12 @@ func Start(ctx context.Context, done chan struct{}, setup, draw func(c *Canvas),
 				switch e := event.(type) {
 				case input.MouseMotionEvent:
 					c.setMousePostion(e.X, e.Y)
+					if eventCallbacks.onMouseMove != nil {
+						eventCallbacks.onMouseMove(c, MouseEvent{
+							X: c.MouseX,
+							Y: c.MouseY,
+						})
+					}
 				case input.MouseClickEvent:
 					if eventCallbacks.onMouseClick != nil {
 						c.setMousePostion(e.X, e.Y)

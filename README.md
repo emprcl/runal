@@ -92,9 +92,10 @@ function setup(c) {}
 function draw(c) {}
 ```
 
-You can add extra methods `onKey`, `onMouseClick`, `onMouseRelease` and `onMouseWheel` to catch keyboard and mouse events:
+You can add extra methods `onKey`, `onMouseMove`, `onMouseClick`, `onMouseRelease` and `onMouseWheel` to catch keyboard and mouse events:
 ```js
 function onKey(c, e) {}
+function onMouseMove(c, e) {}
 function onMouseClick(c, e) {}
 function onMouseRelease(c, e) {}
 function onMouseWheel(c, e) {}
