@@ -49,9 +49,7 @@ func onKey(c *runal.Canvas, e runal.KeyEvent) {
 	}
 }
 
-func onMouse(c *runal.Canvas, e runal.MouseEvent) {
-	if e.Type == "click" {
-		c.NoiseSeed(time.Now().Unix())
-		c.Redraw()
-	}
+func onMouseClick(c *runal.Canvas, e runal.MouseEvent) {
+	c.NoiseSeed(time.Now().Unix())
+	c.Redraw()
 }

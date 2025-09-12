@@ -8,7 +8,7 @@ import (
 )
 
 func main() {
-	runal.Run(context.Background(), setup, draw, runal.WithOnKey(onKey), runal.WithOnMouse(onMouse))
+	runal.Run(context.Background(), setup, draw, runal.WithOnKey(onKey), runal.WithOnMouseClick(onMouseClick))
 }
 
 func setup(c *runal.Canvas) {}
@@ -26,10 +26,8 @@ func onKey(c *runal.Canvas, e runal.KeyEvent) {
 	}
 }
 
-func onMouse(c *runal.Canvas, e runal.MouseEvent) {
-	if e.Type == "click" && e.Button == "left" {
-		color := c.Random(0, 255)
-		colorStr := strconv.FormatFloat(color, 'f', -1, 64)
-		c.BackgroundBg(colorStr)
-	}
+func onMouseClick(c *runal.Canvas, e runal.MouseEvent) {
+	color := c.Random(0, 255)
+	colorStr := strconv.FormatFloat(color, 'f', -1, 64)
+	c.BackgroundBg(colorStr)
 }

@@ -19,10 +19,7 @@ function draw(c) {
   c.line(x1, y1, x2, y2);
 }
 
-function onMouse(c, event) {
-  if (event.type != "click") {
-    return;
-  }
+function onMouseClick(c, event) {
   // set stroke color to one of the ansi colors, but not black (1)
   c.strokeFg("" + Math.ceil(c.random(1, 255)));
   x1 = x2;

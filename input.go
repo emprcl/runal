@@ -19,7 +19,6 @@ type MouseEvent struct {
 	X      int
 	Y      int
 	Button string
-	Type   string
 }
 
 func listenForInputEvents(ctx context.Context, wg *sync.WaitGroup) chan input.Event {

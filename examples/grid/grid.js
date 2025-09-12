@@ -19,8 +19,6 @@ function onKey(c, e) {
   }
 }
 
-function onMouse(c, e) {
-  if (e.type == "click") {
-    c.redraw();
-  }
+function onMouseClick(c, e) {
+  c.redraw();
 }

@@ -14,8 +14,10 @@ const (
 )
 
 type callbacks struct {
-	onKey   func(c *Canvas, e KeyEvent)
-	onMouse func(c *Canvas, e MouseEvent)
+	onKey          func(c *Canvas, e KeyEvent)
+	onMouseClick   func(c *Canvas, e MouseEvent)
+	onMouseRelease func(c *Canvas, e MouseEvent)
+	onMouseWheel   func(c *Canvas, e MouseEvent)
 }
 
 type callbackOption func(*callbacks)
@@ -26,9 +28,21 @@ func WithOnKey(onKey func(c *Canvas, e KeyEvent)) callbackOption {
 	}
 }
 
-func WithOnMouse(onMouse func(c *Canvas, e MouseEvent)) callbackOption {
+func WithOnMouseClick(onMouseClick func(c *Canvas, e MouseEvent)) callbackOption {
 	return func(c *callbacks) {
-		c.onMouse = onMouse
+		c.onMouseClick = onMouseClick
+	}
+}
+
+func WithOnMouseRelease(onMouseRelease func(c *Canvas, e MouseEvent)) callbackOption {
+	return func(c *callbacks) {
+		c.onMouseRelease = onMouseRelease
+	}
+}
+
+func WithOnMouseWheel(onMouseWheel func(c *Canvas, e MouseEvent)) callbackOption {
+	return func(c *callbacks) {
+		c.onMouseWheel = onMouseWheel
 	}
 }
 
@@ -125,33 +139,30 @@ func Start(ctx context.Context, done chan struct{}, setup, draw func(c *Canvas),
 				case input.MouseMotionEvent:
 					c.setMousePostion(e.X, e.Y)
 				case input.MouseClickEvent:
-					if eventCallbacks.onMouse != nil {
+					if eventCallbacks.onMouseClick != nil {
 						c.setMousePostion(e.X, e.Y)
-						eventCallbacks.onMouse(c, MouseEvent{
+						eventCallbacks.onMouseClick(c, MouseEvent{
 							X:      c.MouseX,
 							Y:      c.MouseY,
 							Button: e.Button.String(),
-							Type:   "click",
 						})
 					}
 				case input.MouseReleaseEvent:
-					if eventCallbacks.onMouse != nil {
+					if eventCallbacks.onMouseRelease != nil {
 						c.setMousePostion(e.X, e.Y)
-						eventCallbacks.onMouse(c, MouseEvent{
+						eventCallbacks.onMouseRelease(c, MouseEvent{
 							X:      c.MouseX,
 							Y:      c.MouseY,
 							Button: e.Button.String(),
-							Type:   "release",
 						})
 					}
 				case input.MouseWheelEvent:
-					if eventCallbacks.onMouse != nil {
+					if eventCallbacks.onMouseWheel != nil {
 						c.setMousePostion(e.X, e.Y)
-						eventCallbacks.onMouse(c, MouseEvent{
+						eventCallbacks.onMouseWheel(c, MouseEvent{
 							X:      c.MouseX,
 							Y:      c.MouseY,
 							Button: e.Button.String(),
-							Type:   "wheel",
 						})
 					}
 				case input.KeyEvent:
