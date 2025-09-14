@@ -11,7 +11,7 @@ import (
 var x1, y1, x2, y2 int
 
 func main() {
-	runal.Run(context.Background(), setup, draw, nil, onMouse)
+	runal.Run(context.Background(), setup, draw, runal.WithOnMouseClick(onMouseClick))
 }
 
 func setup(c *runal.Canvas) {
@@ -26,7 +26,7 @@ func draw(c *runal.Canvas) {
 	c.Line(x1, y1, x2, y2)
 }
 
-func onMouse(c *runal.Canvas, e runal.MouseEvent) {
+func onMouseClick(c *runal.Canvas, e runal.MouseEvent) {
 	// set stroke color to one of the ansi colors, but not black (1)
 	c.StrokeFg(strconv.Itoa(int(math.Ceil(c.Random(1, 255)))))
 	x1 = x2

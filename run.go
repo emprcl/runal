@@ -13,11 +13,51 @@ const (
 	defaultFPS = 30
 )
 
-func Run(ctx context.Context, setup, draw func(c *Canvas), onKey func(c *Canvas, e KeyEvent), onMouse func(c *Canvas, e MouseEvent)) {
-	Start(ctx, nil, setup, draw, onKey, onMouse).Wait()
+type callbacks struct {
+	onKey          func(c *Canvas, e KeyEvent)
+	onMouseMove    func(c *Canvas, e MouseEvent)
+	onMouseClick   func(c *Canvas, e MouseEvent)
+	onMouseRelease func(c *Canvas, e MouseEvent)
+	onMouseWheel   func(c *Canvas, e MouseEvent)
 }
 
-func Start(ctx context.Context, done chan struct{}, setup, draw func(c *Canvas), onKey func(c *Canvas, e KeyEvent), onMouse func(c *Canvas, e MouseEvent)) *sync.WaitGroup {
+type callbackOption func(*callbacks)
+
+func WithOnKey(onKey func(c *Canvas, e KeyEvent)) callbackOption {
+	return func(c *callbacks) {
+		c.onKey = onKey
+	}
+}
+
+func WithOnMouseMove(onMouseMove func(c *Canvas, e MouseEvent)) callbackOption {
+	return func(c *callbacks) {
+		c.onMouseMove = onMouseMove
+	}
+}
+
+func WithOnMouseClick(onMouseClick func(c *Canvas, e MouseEvent)) callbackOption {
+	return func(c *callbacks) {
+		c.onMouseClick = onMouseClick
+	}
+}
+
+func WithOnMouseRelease(onMouseRelease func(c *Canvas, e MouseEvent)) callbackOption {
+	return func(c *callbacks) {
+		c.onMouseRelease = onMouseRelease
+	}
+}
+
+func WithOnMouseWheel(onMouseWheel func(c *Canvas, e MouseEvent)) callbackOption {
+	return func(c *callbacks) {
+		c.onMouseWheel = onMouseWheel
+	}
+}
+
+func Run(ctx context.Context, setup, draw func(c *Canvas), opts ...callbackOption) {
+	Start(ctx, nil, setup, draw, opts...).Wait()
+}
+
+func Start(ctx context.Context, done chan struct{}, setup, draw func(c *Canvas), opts ...callbackOption) *sync.WaitGroup {
 	if setup == nil {
 		log.Fatal("setup method is required")
 	}
@@ -28,6 +68,11 @@ func Start(ctx context.Context, done chan struct{}, setup, draw func(c *Canvas),
 	w, h := termSize()
 	c := newCanvas(w, h)
 	wg := sync.WaitGroup{}
+
+	eventCallbacks := callbacks{}
+	for _, opt := range opts {
+		opt(&eventCallbacks)
+	}
 
 	ticker := time.NewTicker(newFramerate(defaultFPS))
 
@@ -99,20 +144,37 @@ func Start(ctx context.Context, done chan struct{}, setup, draw func(c *Canvas),
 			case event := <-inputEvents:
 				switch e := event.(type) {
 				case input.MouseMotionEvent:
-					c.MouseX = e.X
-					if c.cellPadding.enabled() {
-						c.MouseX = e.X / 2
+					c.setMousePostion(e.X, e.Y)
+					if eventCallbacks.onMouseMove != nil {
+						eventCallbacks.onMouseMove(c, MouseEvent{
+							X: c.MouseX,
+							Y: c.MouseY,
+						})
 					}
-					c.MouseY = e.Y
 				case input.MouseClickEvent:
-					if onMouse != nil {
-						mx := e.X
-						if c.cellPadding.enabled() {
-							mx = e.X / 2
-						}
-						onMouse(c, MouseEvent{
-							X:      mx,
-							Y:      e.Y,
+					if eventCallbacks.onMouseClick != nil {
+						c.setMousePostion(e.X, e.Y)
+						eventCallbacks.onMouseClick(c, MouseEvent{
+							X:      c.MouseX,
+							Y:      c.MouseY,
+							Button: e.Button.String(),
+						})
+					}
+				case input.MouseReleaseEvent:
+					if eventCallbacks.onMouseRelease != nil {
+						c.setMousePostion(e.X, e.Y)
+						eventCallbacks.onMouseRelease(c, MouseEvent{
+							X:      c.MouseX,
+							Y:      c.MouseY,
+							Button: e.Button.String(),
+						})
+					}
+				case input.MouseWheelEvent:
+					if eventCallbacks.onMouseWheel != nil {
+						c.setMousePostion(e.X, e.Y)
+						eventCallbacks.onMouseWheel(c, MouseEvent{
+							X:      c.MouseX,
+							Y:      c.MouseY,
 							Button: e.Button.String(),
 						})
 					}
@@ -125,8 +187,8 @@ func Start(ctx context.Context, done chan struct{}, setup, draw func(c *Canvas),
 						cancel()
 						return
 					default:
-						if onKey != nil {
-							onKey(c, KeyEvent{
+						if eventCallbacks.onKey != nil {
+							eventCallbacks.onKey(c, KeyEvent{
 								Key:  e.Key().String(),
 								Code: int(e.Key().Code),
 							})

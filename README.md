@@ -92,10 +92,13 @@ function setup(c) {}
 function draw(c) {}
 ```
 
-You can add extra methods `onKey` and `onMouse` to catch keyboard and mouse events:
+You can add extra methods `onKey`, `onMouseMove`, `onMouseClick`, `onMouseRelease` and `onMouseWheel` to catch keyboard and mouse events:
 ```js
 function onKey(c, e) {}
-function onMouse(c, e) {}
+function onMouseMove(c, e) {}
+function onMouseClick(c, e) {}
+function onMouseRelease(c, e) {}
+function onMouseWheel(c, e) {}
 ````
 
 And you can then execute the file with:
@@ -132,7 +135,7 @@ import (
 )
 
 func main() {
-	runal.Run(context.Background(), setup, draw, onKey, onMouse)
+	runal.Run(context.Background(),	setup, draw, runal.WithOnKey(onKey), runal.WithOnMouseClick(onMouseClick))
 }
 
 func setup(c *runal.Canvas) {}
@@ -140,7 +143,7 @@ func setup(c *runal.Canvas) {}
 func draw(c *runal.Canvas) {}
 
 func onKey(c *runal.Canvas, e runal.KeyEvent) {}
-func onMouse(c *runal.Canvas, e runal.MouseEvent) {}
+func onMouseClick(c *runal.Canvas, e runal.MouseEvent) {}
 ```
 
 Then, simply build it:

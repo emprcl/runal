@@ -32,7 +32,7 @@ function onKey(c, e) {
   }
 }
 
-function onMouse(c, e) {
+function onMouseClick(c, e) {
   c.noiseSeed(Date.now());
   c.redraw();
 }

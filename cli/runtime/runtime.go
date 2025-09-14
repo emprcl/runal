@@ -131,11 +131,47 @@ func (s runtime) runSketch(ctx context.Context, done chan struct{}, vm *goja.Run
 		}
 	}
 
-	var onMouseCallback func(c *runal.Canvas, e runal.MouseEvent)
-	if cb.onMouse != nil {
-		onMouseCallback = func(c *runal.Canvas, e runal.MouseEvent) {
+	var onMouseClickCallback func(c *runal.Canvas, e runal.MouseEvent)
+	if cb.onMouseClick != nil {
+		onMouseClickCallback = func(c *runal.Canvas, e runal.MouseEvent) {
 			defer panicRecover(c)
-			_, err := cb.onMouse(goja.Undefined(), vm.ToValue(c), vm.ToValue(e))
+			_, err := cb.onMouseClick(goja.Undefined(), vm.ToValue(c), vm.ToValue(e))
+			if err != nil {
+				log.Error(err)
+				c.DisableRendering()
+			}
+		}
+	}
+
+	var onMouseReleaseCallback func(c *runal.Canvas, e runal.MouseEvent)
+	if cb.onMouseRelease != nil {
+		onMouseReleaseCallback = func(c *runal.Canvas, e runal.MouseEvent) {
+			defer panicRecover(c)
+			_, err := cb.onMouseRelease(goja.Undefined(), vm.ToValue(c), vm.ToValue(e))
+			if err != nil {
+				log.Error(err)
+				c.DisableRendering()
+			}
+		}
+	}
+
+	var onMouseWheelCallback func(c *runal.Canvas, e runal.MouseEvent)
+	if cb.onMouseWheel != nil {
+		onMouseWheelCallback = func(c *runal.Canvas, e runal.MouseEvent) {
+			defer panicRecover(c)
+			_, err := cb.onMouseWheel(goja.Undefined(), vm.ToValue(c), vm.ToValue(e))
+			if err != nil {
+				log.Error(err)
+				c.DisableRendering()
+			}
+		}
+	}
+
+	var onMouseMoveCallback func(c *runal.Canvas, e runal.MouseEvent)
+	if cb.onMouseMove != nil {
+		onMouseMoveCallback = func(c *runal.Canvas, e runal.MouseEvent) {
+			defer panicRecover(c)
+			_, err := cb.onMouseMove(goja.Undefined(), vm.ToValue(c), vm.ToValue(e))
 			if err != nil {
 				log.Error(err)
 				c.DisableRendering()
@@ -164,7 +200,10 @@ func (s runtime) runSketch(ctx context.Context, done chan struct{}, vm *goja.Run
 				c.DisableRendering()
 			}
 		},
-		onKeyCallback,
-		onMouseCallback,
+		runal.WithOnKey(onKeyCallback),
+		runal.WithOnMouseMove(onMouseMoveCallback),
+		runal.WithOnMouseClick(onMouseClickCallback),
+		runal.WithOnMouseRelease(onMouseReleaseCallback),
+		runal.WithOnMouseWheel(onMouseWheelCallback),
 	)
 }

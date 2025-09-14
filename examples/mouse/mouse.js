@@ -11,6 +11,6 @@ function onKey(c, event) {
   }
 }
 
-function onMouse(c, event) {
+function onMouseClick(c, event) {
   c.backgroundBg(c.random(0, 255));
 }

@@ -19,6 +19,6 @@ function onKey(c, e) {
   }
 }
 
-function onMouse(c, e) {
+function onMouseClick(c, e) {
   c.redraw();
 }

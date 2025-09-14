@@ -31,7 +31,7 @@ func (p *point) update(c *runal.Canvas) {
 var points = []point{}
 
 func main() {
-	runal.Run(context.Background(), setup, draw, onKey, nil)
+	runal.Run(context.Background(), setup, draw, runal.WithOnKey(onKey))
 }
 
 func setup(c *runal.Canvas) {

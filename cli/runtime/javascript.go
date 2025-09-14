@@ -7,7 +7,11 @@ import (
 )
 
 type callbacks struct {
-	onKey, onMouse goja.Callable
+	onKey          goja.Callable
+	onMouseMove    goja.Callable
+	onMouseClick   goja.Callable
+	onMouseRelease goja.Callable
+	onMouseWheel   goja.Callable
 }
 
 func parseJS(script string) (*goja.Runtime, goja.Callable, goja.Callable, callbacks, error) {
@@ -31,7 +35,10 @@ func parseJS(script string) (*goja.Runtime, goja.Callable, goja.Callable, callba
 	}
 
 	cb.onKey, _ = goja.AssertFunction(vm.Get("onKey"))
-	cb.onMouse, _ = goja.AssertFunction(vm.Get("onMouse"))
+	cb.onMouseMove, _ = goja.AssertFunction(vm.Get("onMouseMove"))
+	cb.onMouseClick, _ = goja.AssertFunction(vm.Get("onMouseClick"))
+	cb.onMouseRelease, _ = goja.AssertFunction(vm.Get("onMouseRelease"))
+	cb.onMouseWheel, _ = goja.AssertFunction(vm.Get("onMouseWheel"))
 
 	return vm, setup, draw, cb, nil
 }
