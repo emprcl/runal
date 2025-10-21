@@ -1,9 +1,5 @@
 package runal
 
-import (
-	"github.com/charmbracelet/lipgloss"
-)
-
 type Cell struct {
 	Char       string
 	Foreground string
@@ -20,16 +16,16 @@ func (cll Cell) write(c *Canvas, x, y, _, _ int) {
 func (cll Cell) private() cell {
 	return cell{
 		char:       []rune(cll.Char)[0],
-		foreground: color(cll.Foreground),
-		background: color(cll.Background),
+		foreground: cll.Foreground,
+		background: cll.Background,
 	}
 }
 
 type cell struct {
 	char       rune
 	padChar    rune
-	foreground lipgloss.Color
-	background lipgloss.Color
+	foreground string
+	background string
 }
 
 func (c cell) public() Cell {

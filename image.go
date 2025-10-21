@@ -53,8 +53,8 @@ func (i *imageFile) write(c *Canvas, x, y, w, h int) {
 			}
 			cell := cell{
 				char:       imageBuffer[iy][ix].Char,
-				background: colorFromImage(imageBuffer[iy][ix].Background),
-				foreground: colorFromImage(imageBuffer[iy][ix].Foreground),
+				background: colorStringFromImage(imageBuffer[iy][ix].Background),
+				foreground: colorStringFromImage(imageBuffer[iy][ix].Foreground),
 			}
 			c.write(cell, x+ix, y+iy, 2)
 			i.frame[iy][ix] = cell
