@@ -173,7 +173,7 @@ func (c *Canvas) render() {
 	}
 	c.Framecount++
 	c.reset()
-	c.term.WriteString(output.String())
+	_, _ = c.term.WriteString(output.String())
 }
 
 func (c *Canvas) reset() {
