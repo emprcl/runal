@@ -31,7 +31,7 @@ type cell struct {
 func (c cell) public() Cell {
 	return Cell{
 		Char:       string(c.char),
-		Foreground: string(c.foreground),
-		Background: string(c.background),
+		Foreground: c.foreground,
+		Background: c.background,
 	}
 }
