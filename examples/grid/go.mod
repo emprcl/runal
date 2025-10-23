@@ -6,8 +6,6 @@ toolchain go1.23.3
 
 replace github.com/emprcl/runal => ../../
 
-replace github.com/muesli/termenv => github.com/rahji/termenv v0.16.1
-
 require github.com/emprcl/runal v0.0.0-00010101000000-000000000000
 
 require (

@@ -4,8 +4,6 @@ go 1.24.0
 
 replace github.com/emprcl/runal => ../../
 
-replace github.com/muesli/termenv => github.com/rahji/termenv v0.16.1
-
 require github.com/emprcl/runal v0.7.1
 
 require (
