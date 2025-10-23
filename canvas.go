@@ -3,7 +3,6 @@ package runal
 import (
 	"bytes"
 	"image"
-	"io"
 	"math"
 	"math/rand"
 	"os"
@@ -41,17 +40,11 @@ const (
 	videoFormatMp4
 )
 
-type Style struct {
-	Foreground string
-	Background string
-}
-
 // Canvas represents a drawable area where shapes, text, and effects
 // can be rendered.
 type Canvas struct {
 	buffer  frame
-	output  io.Writer
-	term    *termenv.Output
+	output  *termenv.Output
 	capture *ansitoimage.Converter
 	frames  []image.Image
 	videoFormat
@@ -63,6 +56,7 @@ type Canvas struct {
 	strokeFg, strokeBg         string
 	fillFg, fillBg             string
 	backgroundFg, backgroundBg string
+	lastStyle                  style
 
 	strokeText, fillText, backgroundText string
 
@@ -93,7 +87,6 @@ type Canvas struct {
 }
 
 func newCanvas(width, height int) *Canvas {
-	o := termenv.NewOutput(os.Stdout)
 	return &Canvas{
 		Width:           width,
 		Height:          height,
@@ -104,8 +97,7 @@ func newCanvas(width, height int) *Canvas {
 		cellPaddingRune: defaultPaddingRune,
 		cellPadding:     cellPaddingDisabled,
 		buffer:          newFrame(width, height),
-		output:          os.Stdout,
-		term:            o,
+		output:          termenv.NewOutput(os.Stdout),
 		capture:         newCapture(width, height),
 		noise:           newNoise(),
 		random:          newRandom(),
@@ -127,7 +119,7 @@ func newCanvas(width, height int) *Canvas {
 
 func mockCanvas(width, height int) *Canvas {
 	c := newCanvas(width, height)
-	c.output = new(bytes.Buffer)
+	c.output = termenv.NewOutput(new(bytes.Buffer))
 	return c
 }
 
@@ -137,20 +129,18 @@ func (c *Canvas) render() {
 	}
 	var output strings.Builder
 
-	var lastStyle Style
-
 	for y := range c.buffer {
 		var line strings.Builder
 		lineLen := 0
 		for x := range c.buffer[y] {
 			var add string
 			if c.buffer[y][x].char == 0 {
-				bgCell := c.backgroundCell(&lastStyle)
+				bgCell := c.backgroundCell()
 				bgCellSize := ansi.StringWidth(bgCell)
 				add = bgCell
 				lineLen += bgCellSize
 			} else {
-				add = c.renderCell(c.buffer[y][x], &lastStyle)
+				add = c.renderCell(c.buffer[y][x])
 				lineLen += ansi.StringWidth(add)
 			}
 			if lineLen < c.termWidth {
@@ -160,7 +150,7 @@ func (c *Canvas) render() {
 		forcePadding(&line, lineLen, c.termWidth, ' ')
 		if y < len(c.buffer)-1 {
 			line.WriteString("\r\n")
-			lastStyle = Style{}
+			c.lastStyle = style{}
 		}
 		output.WriteString(line.String())
 	}
@@ -173,7 +163,7 @@ func (c *Canvas) render() {
 	}
 	c.Framecount++
 	c.reset()
-	_, _ = c.term.WriteString(output.String())
+	_, _ = c.output.WriteString(output.String())
 }
 
 func (c *Canvas) reset() {
@@ -267,8 +257,8 @@ func (c *Canvas) inBoundsAndMatch(x, y int, char rune) bool {
 	return !c.outOfBounds(x, y) && c.buffer[y][x].char == char
 }
 
-func (c *Canvas) renderCell(cll cell, lastStyle *Style) string {
-	currentStyle := Style{Foreground: cll.foreground, Background: cll.background}
+func (c *Canvas) renderCell(cll cell) string {
+	currentStyle := style{foreground: cll.foreground, background: cll.background}
 	var chars string
 
 	// Text rendering when cell padding mode is enabled.
@@ -285,10 +275,9 @@ func (c *Canvas) renderCell(cll cell, lastStyle *Style) string {
 		}
 	}
 
-	if !stylesEqual(*lastStyle, currentStyle) {
-		*lastStyle = currentStyle
-		s := termenv.Style{}.Foreground(c.term.Color(currentStyle.Foreground)).Background(c.term.Color(currentStyle.Background))
-		return s.StyledWithoutReset(chars)
+	if !c.lastStyle.equals(currentStyle) {
+		c.lastStyle = currentStyle
+		return currentStyle.termStyle(c.output).StyledWithoutReset(chars)
 	}
 
 	// if the style hasn't changed since the previous cell, just output
@@ -296,13 +285,9 @@ func (c *Canvas) renderCell(cll cell, lastStyle *Style) string {
 	return chars
 }
 
-func stylesEqual(a, b Style) bool {
-	return a.Background == b.Background && a.Foreground == b.Foreground
-}
-
 // backgroundCell tries to eliminate redundant ANSI codes in the way that renderCell does
-func (c *Canvas) backgroundCell(lastStyle *Style) string {
-	currentStyle := Style{Foreground: c.backgroundFg, Background: c.backgroundBg}
+func (c *Canvas) backgroundCell() string {
+	currentStyle := style{foreground: c.backgroundFg, background: c.backgroundBg}
 	var chars string
 	switch c.cellPadding {
 	case cellPaddingCustom:
@@ -313,11 +298,12 @@ func (c *Canvas) backgroundCell(lastStyle *Style) string {
 	default:
 		chars = string(c.nextBackgroundRune())
 	}
-	if !stylesEqual(*lastStyle, currentStyle) {
-		*lastStyle = currentStyle
-		s := termenv.Style{}.Foreground(c.term.Color(currentStyle.Foreground)).Background(c.term.Color(currentStyle.Background))
-		return s.StyledWithoutReset(chars)
+
+	if !c.lastStyle.equals(currentStyle) {
+		c.lastStyle = currentStyle
+		return currentStyle.termStyle(c.output).StyledWithoutReset(chars)
 	}
+
 	return chars
 }
 

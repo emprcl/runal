@@ -6,8 +6,6 @@ toolchain go1.23.3
 
 replace github.com/emprcl/runal => ../
 
-replace github.com/muesli/termenv => github.com/rahji/termenv v0.16.1
-
 require (
 	github.com/charmbracelet/lipgloss v1.1.0
 	github.com/charmbracelet/log v0.4.2

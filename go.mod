@@ -4,8 +4,6 @@ go 1.23.0
 
 toolchain go1.23.3
 
-replace github.com/muesli/termenv => github.com/rahji/termenv v0.16.1
-
 require (
 	github.com/aquilax/go-perlin v1.1.0
 	github.com/charmbracelet/log v0.4.2
