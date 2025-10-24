@@ -2,6 +2,7 @@ package runal
 
 import (
 	"bytes"
+	"fmt"
 	"image"
 	"math"
 	"math/rand"
@@ -147,6 +148,7 @@ func (c *Canvas) render() {
 				line.WriteString(add)
 			}
 		}
+		line.WriteString(fmt.Sprintf("%s%sm", termenv.CSI, termenv.ResetSeq))
 		forcePadding(&line, lineLen, c.termWidth, ' ')
 		if y < len(c.buffer)-1 {
 			line.WriteString("\r\n")
