@@ -132,26 +132,12 @@ func displayHelp() {
 						),
 					),
 					lipgloss.NewStyle().MarginTop(2).Bold(true).Foreground(lipgloss.Color("81")).Render("EXAMPLE"),
-					lipgloss.NewStyle().MarginLeft(2).Render(
+					lipgloss.NewStyle().MarginLeft(2).MarginBottom(2).Render(
 						lipgloss.JoinVertical(
 							lipgloss.Left,
 							"runal -f my_sketch.js",
 							"runal -demo",
 							"runal -f my_sketch.js -o my_executable",
-						),
-					),
-					lipgloss.NewStyle().MarginTop(2).Bold(true).Foreground(lipgloss.Color("81")).Render("LOGS"),
-					lipgloss.NewStyle().MarginLeft(2).MarginBottom(2).Render(
-						lipgloss.JoinVertical(
-							lipgloss.Left,
-							lipgloss.NewStyle().Foreground(lipgloss.Color("244")).Render(
-								lipgloss.JoinVertical(lipgloss.Left,
-									"console.log() messages are written to a console.log file",
-									"that is deleted upon exit. You can watch these logs with",
-									"tail is another terminal window/pane/tab.",
-								),
-							),
-							"tail -f console.log",
 						),
 					),
 				),
