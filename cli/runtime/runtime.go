@@ -2,8 +2,6 @@ package runtime
 
 import (
 	"context"
-	"fmt"
-	"io"
 	"os"
 	"path/filepath"
 	"strings"
@@ -17,28 +15,25 @@ import (
 )
 
 type console struct {
-	logger io.Writer
+	canvas *runal.Canvas
 }
 
 func (c console) Log(messages ...string) {
-	for _, msg := range messages {
-		fmt.Fprintf(c.logger, "%s ", msg)
+	v := make([]any, len(messages))
+	for i, m := range messages {
+		v[i] = m
 	}
-	fmt.Fprintln(c.logger)
+	c.canvas.Debug(v...)
 }
 
 type runtime struct {
 	watcher  *fsnotify.Watcher
-	console  console
 	filename string
 }
 
-func New(filename string, watcher *fsnotify.Watcher, logger io.Writer) runtime {
+func New(filename string, watcher *fsnotify.Watcher) runtime {
 	return runtime{
-		watcher: watcher,
-		console: console{
-			logger: logger,
-		},
+		watcher:  watcher,
 		filename: filename,
 	}
 }
@@ -184,7 +179,9 @@ func (s runtime) runSketch(ctx context.Context, done chan struct{}, vm *goja.Run
 		done,
 		func(c *runal.Canvas) {
 			defer panicRecover(c)
-			vm.Set("console", s.console)
+			vm.Set("console", console{
+				canvas: c,
+			})
 			_, err := setup(goja.Undefined(), vm.ToValue(c))
 			if err != nil {
 				log.Error(err)

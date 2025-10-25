@@ -48,13 +48,13 @@ func main() {
 		return
 	}
 	if embedded != "" {
-		r := runtime.New("", nil, nil)
+		r := runtime.New("", nil)
 		r.RunInternal(embedded)
 		return
 	}
 
 	if *demo {
-		r := runtime.New("", nil, nil)
+		r := runtime.New("", nil)
 		r.RunInternal(Demo)
 		return
 	}
@@ -84,19 +84,7 @@ func main() {
 	}
 	defer watcher.Close()
 
-	consoleLogFile, err := os.Create(defaultLogFile)
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer func() {
-		consoleLogFile.Close()
-		err := os.Remove(defaultLogFile)
-		if err != nil {
-			log.Fatal(err)
-		}
-	}()
-
-	r := runtime.New(*infile, watcher, consoleLogFile)
+	r := runtime.New(*infile, watcher)
 	r.Run()
 }
 
