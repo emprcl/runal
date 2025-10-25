@@ -104,6 +104,7 @@ func newCanvas(width, height int) *Canvas {
 		capture:        newCapture(width, height),
 		noise:          newNoise(),
 		random:         newRandom(),
+		debugBuffer:    make([]string, 0, maxDebugBufferSize),
 		scale:          1,
 		strokeFg:       "#ffffff",
 		strokeBg:       "#000000",
@@ -178,6 +179,7 @@ func (c *Canvas) reset() {
 	c.scale = 1
 	c.strokeIndex = 0
 	c.backgroundIndex = 0
+	c.lastStyle = style{}
 }
 
 func (c *Canvas) resize(width, height int) {
