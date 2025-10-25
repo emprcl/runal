@@ -1,6 +1,6 @@
 function setup(c) {
   //c.noLoop();
-  c.cellPadding(" ");
+  c.cellModeCustom(" ");
 }
 
 function draw(c) {

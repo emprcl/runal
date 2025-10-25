@@ -21,16 +21,16 @@ const (
 	defaultBackgroundText = " "
 )
 
-type cellPaddingMode uint8
+type cellMode uint8
 
 const (
-	cellPaddingDisabled cellPaddingMode = iota
-	cellPaddingDouble
-	cellPaddingCustom
+	cellModeDisabled cellMode = iota
+	cellModeDouble
+	cellModeCustom
 )
 
-func (c cellPaddingMode) enabled() bool {
-	return c != cellPaddingDisabled
+func (c cellMode) enabled() bool {
+	return c != cellModeDisabled
 }
 
 type videoFormat uint8
@@ -75,45 +75,45 @@ type Canvas struct {
 	rotationAngle                float64
 	scale                        float64
 
-	cellPaddingRune rune
-	cellPadding     cellPaddingMode
-	stroke          bool
-	fill            bool
-	isFilling       bool
-	IsLooping       bool
-	save            bool
-	autoResize      bool
-	disabled        bool
+	cellModeRune rune
+	cellMode     cellMode
+	stroke       bool
+	fill         bool
+	isFilling    bool
+	IsLooping    bool
+	save         bool
+	autoResize   bool
+	disabled     bool
 }
 
 func newCanvas(width, height int) *Canvas {
 	return &Canvas{
-		Width:           width,
-		Height:          height,
-		fps:             defaultFPS,
-		bus:             make(chan event, 16),
-		termWidth:       width,
-		termHeight:      height,
-		cellPaddingRune: defaultPaddingRune,
-		cellPadding:     cellPaddingDisabled,
-		buffer:          newFrame(width, height),
-		output:          termenv.NewOutput(os.Stdout),
-		capture:         newCapture(width, height),
-		noise:           newNoise(),
-		random:          newRandom(),
-		scale:           1,
-		strokeFg:        "#ffffff",
-		strokeBg:        "#000000",
-		fillFg:          "#ffffff",
-		fillBg:          "#000000",
-		backgroundFg:    "#ffffff",
-		backgroundBg:    "#000000",
-		strokeText:      defaultStrokeText,
-		fillText:        defaultFillText,
-		backgroundText:  defaultBackgroundText,
-		stroke:          true,
-		autoResize:      true,
-		IsLooping:       true,
+		Width:          width,
+		Height:         height,
+		fps:            defaultFPS,
+		bus:            make(chan event, 16),
+		termWidth:      width,
+		termHeight:     height,
+		cellModeRune:   defaultPaddingRune,
+		cellMode:       cellModeDisabled,
+		buffer:         newFrame(width, height),
+		output:         termenv.NewOutput(os.Stdout),
+		capture:        newCapture(width, height),
+		noise:          newNoise(),
+		random:         newRandom(),
+		scale:          1,
+		strokeFg:       "#ffffff",
+		strokeBg:       "#000000",
+		fillFg:         "#ffffff",
+		fillBg:         "#000000",
+		backgroundFg:   "#ffffff",
+		backgroundBg:   "#000000",
+		strokeText:     defaultStrokeText,
+		fillText:       defaultFillText,
+		backgroundText: defaultBackgroundText,
+		stroke:         true,
+		autoResize:     true,
+		IsLooping:      true,
 	}
 }
 
@@ -266,10 +266,10 @@ func (c *Canvas) renderCell(cll cell) string {
 	if cll.padChar != 0 {
 		chars = string([]rune{cll.char, cll.padChar})
 	} else {
-		switch c.cellPadding {
-		case cellPaddingCustom:
-			chars = string([]rune{cll.char, c.cellPaddingRune})
-		case cellPaddingDouble:
+		switch c.cellMode {
+		case cellModeCustom:
+			chars = string([]rune{cll.char, c.cellModeRune})
+		case cellModeDouble:
 			chars = string([]rune{cll.char, cll.char})
 		default:
 			chars = string(cll.char)
@@ -290,10 +290,10 @@ func (c *Canvas) renderCell(cll cell) string {
 func (c *Canvas) backgroundCell() string {
 	currentStyle := style{foreground: c.backgroundFg, background: c.backgroundBg}
 	var chars string
-	switch c.cellPadding {
-	case cellPaddingCustom:
-		chars = string([]rune{c.nextBackgroundRune(), c.cellPaddingRune})
-	case cellPaddingDouble:
+	switch c.cellMode {
+	case cellModeCustom:
+		chars = string([]rune{c.nextBackgroundRune(), c.cellModeRune})
+	case cellModeDouble:
 		next := c.nextBackgroundRune()
 		chars = string([]rune{next, next})
 	default:
@@ -309,7 +309,7 @@ func (c *Canvas) backgroundCell() string {
 }
 
 func (c *Canvas) widthWithPadding(w int) int {
-	if c.cellPadding.enabled() {
+	if c.cellMode.enabled() {
 		return w / 2
 	}
 	return w
@@ -346,7 +346,7 @@ func (c *Canvas) outOfBounds(x, y int) bool {
 
 func (c *Canvas) setMousePostion(x, y int) {
 	c.MouseX = x
-	if c.cellPadding.enabled() {
+	if c.cellMode.enabled() {
 		c.MouseX = x / 2
 	}
 	c.MouseY = y

@@ -11,7 +11,7 @@ func main() {
 }
 
 func setup(c *runal.Canvas) {
-	c.CellPadding(" ")
+	c.CellModeCustom(" ")
 }
 
 func draw(c *runal.Canvas) {

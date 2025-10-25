@@ -17,7 +17,7 @@ func setup(c *runal.Canvas) {
 	c.Size(82, 41)
 	c.Background("/", "237", "#000000")
 	c.Stroke("0", "255", "#000000")
-	c.CellPaddingDouble()
+	c.CellModeDouble()
 }
 
 func draw(c *runal.Canvas) {

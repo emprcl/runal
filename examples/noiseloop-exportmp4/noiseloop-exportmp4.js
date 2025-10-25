@@ -4,7 +4,7 @@ let seed1 = Date.now();
 let seed2 = seed1 + 1000;
 
 function setup(c) {
-  c.cellPaddingDouble();
+  c.cellModeDouble();
 }
 
 function draw(c) {

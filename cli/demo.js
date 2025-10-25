@@ -1,6 +1,6 @@
 function setup(c) {
   c.savedCanvasFontSize(24);
-  c.cellPaddingDouble();
+  c.cellModeDouble();
 }
 
 function draw(c) {

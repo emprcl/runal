@@ -3,7 +3,7 @@ package runal
 // Size sets the dimensions of the canvas.
 func (c *Canvas) Size(w, h int) {
 	c.autoResize = false
-	if c.cellPadding.enabled() {
+	if c.cellMode.enabled() {
 		c.resize(w*2, h)
 	} else {
 		c.resize(w, h)
@@ -39,40 +39,55 @@ func (c *Canvas) DisableRendering() {
 	c.NoLoop()
 }
 
-// CellPadding sets a character used for cell spacing between elements.
+// CellModeCustom sets a specific character used for cell spacing between elements.
+func (c *Canvas) CellModeCustom(char string) {
+	prev := c.cellMode
+	c.cellMode = cellModeCustom
+	c.cellModeRune = rune(char[0])
+
+	if prev.enabled() {
+		c.resize(c.Width*2, c.Height)
+	} else {
+		c.resize(c.Width, c.Height)
+	}
+}
+
+// CellModeDouble makes every cell duplicated.
+func (c *Canvas) CellModeDouble() {
+	prev := c.cellMode
+	c.cellMode = cellModeDouble
+	if prev.enabled() {
+		c.resize(c.Width*2, c.Height)
+	} else {
+		c.resize(c.Width, c.Height)
+	}
+}
+
+// CellModeDefault disables cell mode.
+func (c *Canvas) CellModeDefault() {
+	prev := c.cellMode
+	c.cellMode = cellModeDisabled
+	c.cellModeRune = 0
+	if prev.enabled() {
+		c.resize(c.Width*2, c.Height)
+	} else {
+		c.resize(c.Width, c.Height)
+	}
+}
+
+// DEPRECATED: Use CellModeCustom() instead.
 func (c *Canvas) CellPadding(char string) {
-	prev := c.cellPadding
-	c.cellPadding = cellPaddingCustom
-	c.cellPaddingRune = rune(char[0])
-
-	if prev.enabled() {
-		c.resize(c.Width*2, c.Height)
-	} else {
-		c.resize(c.Width, c.Height)
-	}
+	c.CellModeCustom(char)
 }
 
-// CellPaddingDouble makes every cell duplicated.
-func (c *Canvas) CellPaddingDouble() {
-	prev := c.cellPadding
-	c.cellPadding = cellPaddingDouble
-	if prev.enabled() {
-		c.resize(c.Width*2, c.Height)
-	} else {
-		c.resize(c.Width, c.Height)
-	}
+// DEPRECATED: Use CellModeDouble() instead.
+func (c *Canvas) CellPaddingDouble(char string) {
+	c.CellModeDouble()
 }
 
-// NoCellPadding disables cell padding.
+// DEPRECATED: Use CellModeDefault() instead.
 func (c *Canvas) NoCellPadding() {
-	prev := c.cellPadding
-	c.cellPadding = cellPaddingDisabled
-	c.cellPaddingRune = 0
-	if prev.enabled() {
-		c.resize(c.Width*2, c.Height)
-	} else {
-		c.resize(c.Width, c.Height)
-	}
+	c.CellModeDefault()
 }
 
 // Fps sets the rendering framerate in frames per second.

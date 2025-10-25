@@ -15,7 +15,7 @@ func main() {
 
 func setup(c *runal.Canvas) {
 	c.SavedCanvasFontSize(24)
-	c.CellPaddingDouble()
+	c.CellModeDouble()
 }
 
 func draw(c *runal.Canvas) {

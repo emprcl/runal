@@ -7,7 +7,7 @@ import (
 
 // Text renders a string at the given canvas coordinates.
 func (c *Canvas) Text(text string, x, y int) {
-	if !c.cellPadding.enabled() {
+	if !c.cellMode.enabled() {
 		for i, r := range text {
 			c.char(r, x+i, y)
 		}

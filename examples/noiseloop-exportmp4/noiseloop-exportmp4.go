@@ -22,7 +22,7 @@ func main() {
 }
 
 func setup(c *runal.Canvas) {
-	c.CellPaddingDouble()
+	c.CellModeDouble()
 }
 
 func draw(c *runal.Canvas) {

@@ -13,7 +13,7 @@ func main() {
 
 func setup(c *runal.Canvas) {
 	//c.NoLoop();
-	c.CellPadding(" ")
+	c.CellModeCustom(" ")
 }
 
 func draw(c *runal.Canvas) {

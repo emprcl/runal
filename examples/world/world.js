@@ -2,7 +2,7 @@ function setup(c) {
   c.size(82, 41);
   c.background("/", "237", "#000000");
   c.stroke("0", "255", "#000000");
-  c.cellPaddingDouble();
+  c.cellModeDouble();
 }
 
 function draw(c) {

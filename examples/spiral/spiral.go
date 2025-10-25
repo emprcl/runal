@@ -25,7 +25,7 @@ func main() {
 
 func setup(c *runal.Canvas) {
 	c.Background(" ", background, background)
-	c.CellPadding(" ")
+	c.CellModeCustom(" ")
 }
 
 func draw(c *runal.Canvas) {
