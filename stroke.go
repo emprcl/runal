@@ -19,12 +19,12 @@ func (c *Canvas) BackgroundText(text string) {
 
 // BackgroundFg sets the foreground (text) color used by the background fill.
 func (c *Canvas) BackgroundFg(fg string) {
-	c.backgroundFg = fg
+	c.backgroundFg = color(fg)
 }
 
 // BackgroundBg sets the background color used by the background fill.
 func (c *Canvas) BackgroundBg(bg string) {
-	c.backgroundBg = bg
+	c.backgroundBg = color(bg)
 }
 
 // Fill sets the fill character and its foreground and background colors.
@@ -47,13 +47,13 @@ func (c *Canvas) FillText(text string) {
 // FillFg sets the foreground color used for fill operations.
 func (c *Canvas) FillFg(fg string) {
 	c.fill = true
-	c.fillFg = fg
+	c.fillFg = color(fg)
 }
 
 // FillBg sets the background color used for fill operations.
 func (c *Canvas) FillBg(bg string) {
 	c.fill = true
-	c.fillBg = bg
+	c.fillBg = color(bg)
 }
 
 // Stroke sets the stroke (outline) character and colors.
@@ -76,13 +76,13 @@ func (c *Canvas) StrokeText(text string) {
 // StrokeFg sets the foreground color for strokes.
 func (c *Canvas) StrokeFg(fg string) {
 	c.stroke = true
-	c.strokeFg = fg
+	c.strokeFg = color(fg)
 }
 
 // StrokeBg sets the background color for strokes.
 func (c *Canvas) StrokeBg(bg string) {
 	c.stroke = true
-	c.strokeBg = bg
+	c.strokeBg = color(bg)
 }
 
 // NoStroke disables stroke for subsequent shapes.

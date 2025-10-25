@@ -4,12 +4,7 @@ import (
 	"fmt"
 
 	"github.com/charmbracelet/x/ansi"
-	"github.com/rahji/termenv"
 )
-
-func resetStyleSequence() string {
-	return fmt.Sprintf("%s%sm", termenv.CSI, termenv.ResetSeq)
-}
 
 func clearScreen() {
 	fmt.Print(ansi.ResetAltScreenMode)

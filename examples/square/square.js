@@ -4,6 +4,7 @@ function setup(c) {
 
 function draw(c) {
   c.clear();
+  console.log(c.framecount);
   c.stroke("BORDER", "#ffffff", "#555555");
   c.fill("square", "#ffffff", "#000000");
   c.translate(c.width / 2, c.height / 2);

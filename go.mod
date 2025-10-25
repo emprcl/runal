@@ -10,7 +10,6 @@ require (
 	github.com/charmbracelet/x/ansi v0.9.3
 	github.com/charmbracelet/x/input v0.3.7
 	github.com/charmbracelet/x/term v0.2.1
-	github.com/rahji/termenv v0.16.2
 	github.com/xaviergodart/go-ansi-to-image v0.0.0-20250620163834-f2b31334a2bb
 	golang.org/x/image v0.28.0
 	golang.org/x/term v0.32.0
