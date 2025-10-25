@@ -51,6 +51,9 @@ type Canvas struct {
 	noise  *perlin.Perlin
 	random *rand.Rand
 
+	debugBuffer []string
+	debugIndex  int
+
 	state *state
 
 	strokeFg, strokeBg         string
@@ -165,6 +168,7 @@ func (c *Canvas) render() {
 	c.Framecount++
 	c.reset()
 	_, _ = c.output.WriteString(output.String())
+	c.renderDebug()
 }
 
 func (c *Canvas) reset() {
