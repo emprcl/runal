@@ -190,7 +190,6 @@ func (s runtime) runSketch(ctx context.Context, done chan struct{}, vm *goja.Run
 		},
 		func(c *runal.Canvas) {
 			defer panicRecover(c)
-			vm.Set("c", c)
 			_, err := draw(goja.Undefined(), vm.ToValue(c))
 			if err != nil {
 				log.Error(err)
