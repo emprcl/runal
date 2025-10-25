@@ -7,21 +7,36 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/charmbracelet/lipgloss"
+	"github.com/rahji/termenv"
 )
 
-func color(color string) lipgloss.Color {
+type style struct {
+	foreground string
+	background string
+}
+
+func (s style) equals(s2 style) bool {
+	return s.background == s2.background && s.foreground == s2.foreground
+}
+
+func (s style) termStyle(t *termenv.Output) termenv.Style {
+	return termenv.Style{}.
+		Foreground(t.Color(color(s.foreground))).
+		Background(t.Color(color(s.background)))
+}
+
+func color(color string) string {
 	if strings.HasPrefix(color, "#") {
-		return lipgloss.Color(color)
+		return color
 	}
 	c, err := strconv.ParseFloat(strings.TrimSpace(color), 64)
 	if err != nil {
-		return lipgloss.Color(color)
+		return color
 	}
-	return lipgloss.Color(strconv.Itoa(int(math.Round(c))))
+	return strconv.Itoa(int(math.Round(c)))
 }
 
-func colorFromImage(c col.Color) lipgloss.Color {
+func colorFromImage(c col.Color) string {
 	rgba := col.RGBAModel.Convert(c).(col.RGBA)
-	return lipgloss.Color(fmt.Sprintf("#%.2x%.2x%.2x", rgba.R, rgba.G, rgba.B))
+	return fmt.Sprintf("#%.2x%.2x%.2x", rgba.R, rgba.G, rgba.B)
 }

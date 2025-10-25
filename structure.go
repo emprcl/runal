@@ -1,11 +1,9 @@
 package runal
 
-import "github.com/charmbracelet/lipgloss"
-
 type state struct {
-	strokeFg, strokeBg                   lipgloss.Color
-	fillFg, fillBg                       lipgloss.Color
-	backgroundFg, backgroundBg           lipgloss.Color
+	strokeFg, strokeBg                   string
+	fillFg, fillBg                       string
+	backgroundFg, backgroundBg           string
 	strokeText, fillText, backgroundText string
 
 	originX, originY int

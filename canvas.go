@@ -2,17 +2,15 @@ package runal
 
 import (
 	"bytes"
-	"fmt"
 	"image"
-	"io"
 	"math"
 	"math/rand"
 	"os"
 	"strings"
 
 	perlin "github.com/aquilax/go-perlin"
-	"github.com/charmbracelet/lipgloss"
 	"github.com/charmbracelet/x/ansi"
+	"github.com/rahji/termenv"
 	ansitoimage "github.com/xaviergodart/go-ansi-to-image"
 )
 
@@ -46,7 +44,7 @@ const (
 // can be rendered.
 type Canvas struct {
 	buffer  frame
-	output  io.Writer
+	output  *termenv.Output
 	capture *ansitoimage.Converter
 	frames  []image.Image
 	videoFormat
@@ -55,9 +53,11 @@ type Canvas struct {
 
 	state *state
 
-	strokeFg, strokeBg                   lipgloss.Color
-	fillFg, fillBg                       lipgloss.Color
-	backgroundFg, backgroundBg           lipgloss.Color
+	strokeFg, strokeBg         string
+	fillFg, fillBg             string
+	backgroundFg, backgroundBg string
+	lastStyle                  style
+
 	strokeText, fillText, backgroundText string
 
 	saveFilename string
@@ -97,17 +97,17 @@ func newCanvas(width, height int) *Canvas {
 		cellPaddingRune: defaultPaddingRune,
 		cellPadding:     cellPaddingDisabled,
 		buffer:          newFrame(width, height),
-		output:          os.Stdout,
+		output:          termenv.NewOutput(os.Stdout),
 		capture:         newCapture(width, height),
 		noise:           newNoise(),
 		random:          newRandom(),
 		scale:           1,
-		strokeFg:        color("#ffffff"),
-		strokeBg:        color("#000000"),
-		fillFg:          color("#ffffff"),
-		fillBg:          color("#000000"),
-		backgroundFg:    color("#ffffff"),
-		backgroundBg:    color("#000000"),
+		strokeFg:        "#ffffff",
+		strokeBg:        "#000000",
+		fillFg:          "#ffffff",
+		fillBg:          "#000000",
+		backgroundFg:    "#ffffff",
+		backgroundBg:    "#000000",
 		strokeText:      defaultStrokeText,
 		fillText:        defaultFillText,
 		backgroundText:  defaultBackgroundText,
@@ -119,7 +119,7 @@ func newCanvas(width, height int) *Canvas {
 
 func mockCanvas(width, height int) *Canvas {
 	c := newCanvas(width, height)
-	c.output = new(bytes.Buffer)
+	c.output = termenv.NewOutput(new(bytes.Buffer))
 	return c
 }
 
@@ -128,14 +128,15 @@ func (c *Canvas) render() {
 		return
 	}
 	var output strings.Builder
-	bgCell := c.backgroundCell()
-	bgCellSize := ansi.StringWidth(bgCell)
+
 	for y := range c.buffer {
 		var line strings.Builder
 		lineLen := 0
 		for x := range c.buffer[y] {
 			var add string
 			if c.buffer[y][x].char == 0 {
+				bgCell := c.backgroundCell()
+				bgCellSize := ansi.StringWidth(bgCell)
 				add = bgCell
 				lineLen += bgCellSize
 			} else {
@@ -146,9 +147,11 @@ func (c *Canvas) render() {
 				line.WriteString(add)
 			}
 		}
+		line.WriteString(resetStyleSequence())
 		forcePadding(&line, lineLen, c.termWidth, ' ')
 		if y < len(c.buffer)-1 {
 			line.WriteString("\r\n")
+			c.lastStyle = style{}
 		}
 		output.WriteString(line.String())
 	}
@@ -161,7 +164,7 @@ func (c *Canvas) render() {
 	}
 	c.Framecount++
 	c.reset()
-	fmt.Fprint(c.output, output.String())
+	_, _ = c.output.WriteString(output.String())
 }
 
 func (c *Canvas) reset() {
@@ -178,15 +181,8 @@ func (c *Canvas) resize(width, height int) {
 	newHeight := height
 	newBuffer := newFrame(newWidth, newHeight)
 
-	minWidth := c.Width
-	if newWidth < c.Width {
-		minWidth = newWidth
-	}
-
-	minHeight := c.Height
-	if newHeight < c.Height {
-		minHeight = newHeight
-	}
+	minWidth := min(c.Width, newWidth)
+	minHeight := min(c.Height, newHeight)
 
 	for y := range minHeight {
 		for x := range minWidth {
@@ -263,39 +259,53 @@ func (c *Canvas) inBoundsAndMatch(x, y int, char rune) bool {
 }
 
 func (c *Canvas) renderCell(cll cell) string {
-	style := lipgloss.NewStyle().
-		Background(cll.background).
-		Foreground(cll.foreground)
+	currentStyle := style{foreground: cll.foreground, background: cll.background}
+	var chars string
 
-	// Text rendering when cell padding mode
-	// is enabled.
+	// Text rendering when cell padding mode is enabled.
 	if cll.padChar != 0 {
-		return style.Render(string([]rune{cll.char, cll.padChar}))
+		chars = string([]rune{cll.char, cll.padChar})
+	} else {
+		switch c.cellPadding {
+		case cellPaddingCustom:
+			chars = string([]rune{cll.char, c.cellPaddingRune})
+		case cellPaddingDouble:
+			chars = string([]rune{cll.char, cll.char})
+		default:
+			chars = string(cll.char)
+		}
 	}
 
-	switch c.cellPadding {
-	case cellPaddingCustom:
-		return style.Render(string([]rune{cll.char, c.cellPaddingRune}))
-	case cellPaddingDouble:
-		return style.Render(string([]rune{cll.char, cll.char}))
-	default:
-		return style.Render(string(cll.char))
+	if !c.lastStyle.equals(currentStyle) {
+		c.lastStyle = currentStyle
+		return currentStyle.termStyle(c.output).StyledWithoutReset(chars)
 	}
+
+	// if the style hasn't changed since the previous cell, just output
+	// the raw text without ANSI codes
+	return chars
 }
 
+// backgroundCell tries to eliminate redundant ANSI codes in the way that renderCell does
 func (c *Canvas) backgroundCell() string {
-	style := lipgloss.NewStyle().
-		Background(c.backgroundBg).
-		Foreground(c.backgroundFg)
+	currentStyle := style{foreground: c.backgroundFg, background: c.backgroundBg}
+	var chars string
 	switch c.cellPadding {
 	case cellPaddingCustom:
-		return style.Render(string([]rune{c.nextBackgroundRune(), c.cellPaddingRune}))
+		chars = string([]rune{c.nextBackgroundRune(), c.cellPaddingRune})
 	case cellPaddingDouble:
 		next := c.nextBackgroundRune()
-		return style.Render(string([]rune{next, next}))
+		chars = string([]rune{next, next})
 	default:
-		return style.Render(string(c.nextBackgroundRune()))
+		chars = string(c.nextBackgroundRune())
 	}
+
+	if !c.lastStyle.equals(currentStyle) {
+		c.lastStyle = currentStyle
+		return currentStyle.termStyle(c.output).StyledWithoutReset(chars)
+	}
+
+	return chars
 }
 
 func (c *Canvas) widthWithPadding(w int) int {
