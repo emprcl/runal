@@ -52,7 +52,6 @@ type Canvas struct {
 	random *rand.Rand
 
 	debugBuffer []string
-	debugIndex  int
 
 	state *state
 
