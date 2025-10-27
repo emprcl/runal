@@ -27,7 +27,7 @@ func (s style) render(str string) string {
 }
 
 func resetStyle() string {
-	return "\x1b[0"
+	return "\x1b[0m"
 }
 
 func color(color string) ansi.Color {

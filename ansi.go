@@ -36,3 +36,7 @@ func disableMouse() {
 	fmt.Print(ansi.ResetAnyEventMouseMode)
 	fmt.Print(ansi.ResetSgrExtMouseMode)
 }
+
+func clearLineSequence() string {
+	return "\r\n\x1b[2K"
+}

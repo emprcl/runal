@@ -159,6 +159,12 @@ func (c *Canvas) render() {
 		}
 		output.WriteString(line.String())
 	}
+	// Clear garbage outside the canvas
+	if c.Height < c.termHeight {
+		for range c.termHeight - c.Height - 1 {
+			output.WriteString(clearLineSequence())
+		}
+	}
 	if c.save {
 		c.exportCanvasToPNG(output.String())
 		c.save = false
