@@ -1,10 +1,10 @@
-module spiral
+module glitch-example
 
-go 1.24
+go 1.24.4
 
 replace github.com/emprcl/runal => ../../
 
-require github.com/emprcl/runal v0.0.0-00010101000000-000000000000
+require github.com/emprcl/runal v0.8.0
 
 require (
 	github.com/aquilax/go-perlin v1.1.0 // indirect

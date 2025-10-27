@@ -4,12 +4,7 @@ import (
 	"fmt"
 
 	"github.com/charmbracelet/x/ansi"
-	"github.com/rahji/termenv"
 )
-
-func resetStyleSequence() string {
-	return fmt.Sprintf("%s%sm", termenv.CSI, termenv.ResetSeq)
-}
 
 func clearScreen() {
 	fmt.Print(ansi.ResetAltScreenMode)
@@ -40,4 +35,8 @@ func enableMouse() {
 func disableMouse() {
 	fmt.Print(ansi.ResetAnyEventMouseMode)
 	fmt.Print(ansi.ResetSgrExtMouseMode)
+}
+
+func clearLineSequence() string {
+	return "\r\n\x1b[2K"
 }

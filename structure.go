@@ -1,9 +1,11 @@
 package runal
 
+import "github.com/charmbracelet/x/ansi"
+
 type state struct {
-	strokeFg, strokeBg                   string
-	fillFg, fillBg                       string
-	backgroundFg, backgroundBg           string
+	strokeFg, strokeBg                   ansi.Color
+	fillFg, fillBg                       ansi.Color
+	backgroundFg, backgroundBg           ansi.Color
 	strokeText, fillText, backgroundText string
 
 	originX, originY int

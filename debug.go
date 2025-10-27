@@ -7,8 +7,8 @@ import (
 const maxDebugBufferSize = 100
 
 var debugStyle = style{
-	background: "9",
-	foreground: "15",
+	background: color("9"),
+	foreground: color("15"),
 }
 
 func (c *Canvas) Debug(messages ...any) {
@@ -29,10 +29,6 @@ func (c *Canvas) renderDebug() {
 		if y >= c.termHeight-1 {
 			continue
 		}
-		_, _ = c.output.WriteString(
-			debugStyle.termStyle(c.output).Styled(
-				fmt.Sprintf("%s\r\n", msg),
-			),
-		)
+		fmt.Fprint(c.output, debugStyle.render(fmt.Sprintf("%s\r\n", msg)))
 	}
 }

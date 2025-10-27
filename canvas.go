@@ -2,7 +2,9 @@ package runal
 
 import (
 	"bytes"
+	"fmt"
 	"image"
+	"io"
 	"math"
 	"math/rand"
 	"os"
@@ -10,7 +12,6 @@ import (
 
 	perlin "github.com/aquilax/go-perlin"
 	"github.com/charmbracelet/x/ansi"
-	"github.com/rahji/termenv"
 	ansitoimage "github.com/xaviergodart/go-ansi-to-image"
 )
 
@@ -44,7 +45,7 @@ const (
 // can be rendered.
 type Canvas struct {
 	buffer  frame
-	output  *termenv.Output
+	output  io.Writer
 	capture *ansitoimage.Converter
 	frames  []image.Image
 	videoFormat
@@ -55,9 +56,9 @@ type Canvas struct {
 
 	state *state
 
-	strokeFg, strokeBg         string
-	fillFg, fillBg             string
-	backgroundFg, backgroundBg string
+	strokeFg, strokeBg         ansi.Color
+	fillFg, fillBg             ansi.Color
+	backgroundFg, backgroundBg ansi.Color
 	lastStyle                  style
 
 	strokeText, fillText, backgroundText string
@@ -99,18 +100,18 @@ func newCanvas(width, height int) *Canvas {
 		cellModeRune:   defaultPaddingRune,
 		cellMode:       cellModeDisabled,
 		buffer:         newFrame(width, height),
-		output:         termenv.NewOutput(os.Stdout),
+		output:         os.Stdout,
 		capture:        newCapture(width, height),
 		noise:          newNoise(),
 		random:         newRandom(),
 		debugBuffer:    make([]string, 0, maxDebugBufferSize),
 		scale:          1,
-		strokeFg:       "#ffffff",
-		strokeBg:       "#000000",
-		fillFg:         "#ffffff",
-		fillBg:         "#000000",
-		backgroundFg:   "#ffffff",
-		backgroundBg:   "#000000",
+		strokeFg:       color("#ffffff"),
+		strokeBg:       color("#000000"),
+		fillFg:         color("#ffffff"),
+		fillBg:         color("#000000"),
+		backgroundFg:   color("#ffffff"),
+		backgroundBg:   color("#000000"),
 		strokeText:     defaultStrokeText,
 		fillText:       defaultFillText,
 		backgroundText: defaultBackgroundText,
@@ -122,7 +123,7 @@ func newCanvas(width, height int) *Canvas {
 
 func mockCanvas(width, height int) *Canvas {
 	c := newCanvas(width, height)
-	c.output = termenv.NewOutput(new(bytes.Buffer))
+	c.output = new(bytes.Buffer)
 	return c
 }
 
@@ -150,13 +151,19 @@ func (c *Canvas) render() {
 				line.WriteString(add)
 			}
 		}
-		line.WriteString(resetStyleSequence())
+		line.WriteString(resetStyle())
 		forcePadding(&line, lineLen, c.termWidth, ' ')
 		if y < len(c.buffer)-1 {
 			line.WriteString("\r\n")
 			c.lastStyle = style{}
 		}
 		output.WriteString(line.String())
+	}
+	// Clear garbage outside the canvas
+	if c.Height < c.termHeight {
+		for range c.termHeight - c.Height - 1 {
+			output.WriteString(clearLineSequence())
+		}
 	}
 	if c.save {
 		c.exportCanvasToPNG(output.String())
@@ -167,7 +174,7 @@ func (c *Canvas) render() {
 	}
 	c.Framecount++
 	c.reset()
-	_, _ = c.output.WriteString(output.String())
+	fmt.Fprint(c.output, output.String())
 	c.renderDebug()
 }
 
@@ -283,7 +290,7 @@ func (c *Canvas) renderCell(cll cell) string {
 
 	if !c.lastStyle.equals(currentStyle) {
 		c.lastStyle = currentStyle
-		return currentStyle.termStyle(c.output).StyledWithoutReset(chars)
+		return currentStyle.render(chars)
 	}
 
 	// if the style hasn't changed since the previous cell, just output
@@ -307,7 +314,7 @@ func (c *Canvas) backgroundCell() string {
 
 	if !c.lastStyle.equals(currentStyle) {
 		c.lastStyle = currentStyle
-		return currentStyle.termStyle(c.output).StyledWithoutReset(chars)
+		return currentStyle.render(chars)
 	}
 
 	return chars
