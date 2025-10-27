@@ -18,6 +18,8 @@ jobs:
       CGO_ENABLED: 0
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-tags: true
 
       - name: Install Alsa headers
         run: sudo apt-get install libasound2-dev
