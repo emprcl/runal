@@ -18,8 +18,6 @@ jobs:
       CGO_ENABLED: 0
     steps:
       - uses: actions/checkout@v4
-        with:
-          fetch-tags: true
 
       - name: Install Alsa headers
         run: sudo apt-get install libasound2-dev
@@ -31,11 +29,11 @@ jobs:
           go-version: 1.23
 
       - name: Build linux|mac
-        run: go build -C cli -ldflags="-w -s" -o ../bin/runal && chmod +x bin/runal
+        run: go build -C cli -ldflags="-w -s -X main.version=${{ github.ref_name }}" -o ../bin/runal && chmod +x bin/runal
         if: ${{ !startsWith(matrix.os, 'windows') }}
 
       - name: Build windows
-        run: go build -C cli -ldflags="-w -s" -o ../bin/runal.exe
+        run: go build -C cli -ldflags="-w -s -X main.version=${{ github.ref_name }}" -o ../bin/runal.exe
         if: startsWith(matrix.os, 'windows')
 
       - name: Tar.gz linux|mac files

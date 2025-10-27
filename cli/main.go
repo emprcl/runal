@@ -19,6 +19,8 @@ import (
 //go:embed demo.js
 var Demo string
 
+var version string
+
 const (
 	logo = `
       ___           ___           ___           ___           ___
@@ -87,6 +89,10 @@ func main() {
 }
 
 func getVersion() string {
+	if version != "" {
+		return version
+	}
+
 	buildInfo, ok := debug.ReadBuildInfo()
 	if !ok {
 		return "dirty"
