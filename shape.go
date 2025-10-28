@@ -57,11 +57,12 @@ func (c *Canvas) Line(x1, y1, x2, y2 int) {
 
 	char := 0
 	for {
-		c.char(rune(c.strokeText[char]), x1, y1)
+		runes := []rune(c.strokeText)
+		c.char(runes[char], x1, y1)
 		if x1 == x2 && y1 == y2 {
 			break
 		}
-		char = (char + 1) % len(c.strokeText)
+		char = (char + 1) % len(runes)
 		e2 := 2 * d
 		if e2 > -dy {
 			d -= dy
