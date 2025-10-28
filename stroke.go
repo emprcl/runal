@@ -69,6 +69,7 @@ func (c *Canvas) StrokeText(text string) {
 	c.strokeIndex = 0
 	if len(text) == 0 {
 		c.strokeText = defaultStrokeText
+		return
 	}
 	c.strokeText = text
 }
