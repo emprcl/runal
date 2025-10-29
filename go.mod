@@ -1,8 +1,6 @@
 module github.com/emprcl/runal
 
-go 1.23.0
-
-toolchain go1.23.3
+go 1.24.0
 
 require (
 	github.com/aquilax/go-perlin v1.1.0
@@ -11,7 +9,7 @@ require (
 	github.com/charmbracelet/x/input v0.3.7
 	github.com/charmbracelet/x/term v0.2.1
 	github.com/xaviergodart/go-ansi-to-image v0.0.0-20250620163834-f2b31334a2bb
-	golang.org/x/image v0.28.0
+	golang.org/x/image v0.32.0
 	golang.org/x/term v0.32.0
 )
 
