@@ -1,13 +1,11 @@
 module github.com/emprcl/runal
 
-go 1.23.0
-
-toolchain go1.23.3
+go 1.24.0
 
 require (
 	github.com/aquilax/go-perlin v1.1.0
 	github.com/charmbracelet/log v0.4.2
-	github.com/charmbracelet/x/ansi v0.9.3
+	github.com/charmbracelet/x/ansi v0.10.2
 	github.com/charmbracelet/x/input v0.3.7
 	github.com/charmbracelet/x/term v0.2.1
 	github.com/xaviergodart/go-ansi-to-image v0.0.0-20250620163834-f2b31334a2bb
@@ -27,7 +25,7 @@ require (
 	github.com/leaanthony/go-ansi-parser v1.6.1 // indirect
 	github.com/lucasb-eyer/go-colorful v1.3.0 // indirect
 	github.com/mattn/go-isatty v0.0.20 // indirect
-	github.com/mattn/go-runewidth v0.0.16 // indirect
+	github.com/mattn/go-runewidth v0.0.17 // indirect
 	github.com/muesli/cancelreader v0.2.2 // indirect
 	github.com/muesli/termenv v0.16.0 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
