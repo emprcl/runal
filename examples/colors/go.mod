@@ -1,4 +1,4 @@
-module spiral
+module colors
 
 go 1.24.0
 
