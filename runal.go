@@ -43,7 +43,7 @@ func (c *Canvas) DisableRendering() {
 func (c *Canvas) CellModeCustom(char string) {
 	prev := c.cellMode
 	c.cellMode = cellModeCustom
-	c.cellModeRune = rune(char[0])
+	c.cellModeRune = []rune(char)[0]
 
 	if prev.enabled() {
 		c.resize(c.Width*2, c.Height)
