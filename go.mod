@@ -1,11 +1,11 @@
 module github.com/emprcl/runal
 
-go 1.24.0
+go 1.24.2
 
 require (
 	github.com/aquilax/go-perlin v1.1.0
 	github.com/charmbracelet/log v0.4.2
-	github.com/charmbracelet/x/ansi v0.10.2
+	github.com/charmbracelet/x/ansi v0.11.0
 	github.com/charmbracelet/x/input v0.3.7
 	github.com/charmbracelet/x/term v0.2.2
 	github.com/xaviergodart/go-ansi-to-image v0.0.0-20250620163834-f2b31334a2bb
@@ -19,6 +19,7 @@ require (
 	github.com/charmbracelet/lipgloss v1.1.0 // indirect
 	github.com/charmbracelet/x/cellbuf v0.0.13 // indirect
 	github.com/charmbracelet/x/windows v0.2.2 // indirect
+	github.com/clipperhouse/displaywidth v0.4.1 // indirect
 	github.com/clipperhouse/stringish v0.1.1 // indirect
 	github.com/clipperhouse/uax29/v2 v2.3.0 // indirect
 	github.com/fogleman/gg v1.3.0 // indirect
