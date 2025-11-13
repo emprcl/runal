@@ -7,7 +7,7 @@ import (
 )
 
 func clearScreen() {
-	fmt.Print(ansi.ResetAltScreenMode)
+	fmt.Print(ansi.ResetModeAltScreen)
 }
 
 func hideCursor() {
@@ -23,18 +23,18 @@ func resetCursorPosition() {
 }
 
 func enterAltScreen() {
-	fmt.Print(ansi.SetAltScreenMode)
+	fmt.Print(ansi.SetModeAltScreen)
 	hideCursor()
 }
 
 func enableMouse() {
-	fmt.Print(ansi.SetAnyEventMouseMode)
-	fmt.Print(ansi.SetSgrExtMouseMode)
+	fmt.Print(ansi.SetModeMouseAnyEvent)
+	fmt.Print(ansi.SetModeMouseExtSgr)
 }
 
 func disableMouse() {
-	fmt.Print(ansi.ResetAnyEventMouseMode)
-	fmt.Print(ansi.ResetSgrExtMouseMode)
+	fmt.Print(ansi.ResetModeMouseAnyEvent)
+	fmt.Print(ansi.ResetModeMouseExtSgr)
 }
 
 func clearLineSequence() string {
