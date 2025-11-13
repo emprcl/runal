@@ -10,6 +10,28 @@ import (
 	"golang.org/x/exp/constraints"
 )
 
+var (
+	ansi16hex = []string{
+		"#000000",
+		"#800000",
+		"#008000",
+		"#808000",
+		"#000080",
+		"#800080",
+		"#008080",
+		"#c0c0c0",
+		"#808080",
+		"#ff0000",
+		"#00ff00",
+		"#ffff00",
+		"#0000ff",
+		"#ff00ff",
+		"#00ffff",
+		"#ffffff",
+		"#000000",
+	}
+)
+
 func (c *Canvas) ColorRGB(r, g, b int) string {
 	r = clamp(r, 0, 255)
 	g = clamp(g, 0, 255)
@@ -79,13 +101,23 @@ func (c *Canvas) ColorHSV(h, s, v int) string {
 }
 
 func color(color string) ansi.Color {
+	// HEX colors
 	if strings.HasPrefix(color, "#") {
 		return ansi.HexColor(color)
 	}
+
 	c, err := strconv.ParseFloat(strings.TrimSpace(color), 64)
 	if err != nil {
 		return ansi.HexColor(color)
 	}
+
+	// ANSI 16 colors
+	// Force hex values to prevent terminal
+	// color overriding.
+	if c >= 0 && c <= 16 {
+		return ansi.HexColor(ansi16hex[int(c)])
+	}
+
 	return ansi.IndexedColor(uint8(math.Round(c)))
 }
 
