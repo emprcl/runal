@@ -17,14 +17,14 @@ func (c *Canvas) ColorRGB(r, g, b int) string {
 	return fmt.Sprintf("#%02x%02x%02x", r, g, b)
 }
 
-func (c *Canvas) ColorHSL(h, s, l float64) string {
-	h = clamp[float64](h, 0, 360)
-	s = clamp[float64](s, 0., 1.)
-	l = clamp[float64](l, 0., 1.)
+func (c *Canvas) ColorHSL(h, s, l int) string {
+	hf := float64(clamp(h, 0, 360))
+	sf := float64(clamp(s, 0., 1.)) / 100.
+	lf := float64(clamp(l, 0., 1.)) / 100.
 
-	C := (1 - math.Abs((2*l)-1)) * s
-	X := C * (1 - math.Abs(math.Mod(h/60, 2)-1))
-	m := l - (C / 2)
+	C := (1 - math.Abs((2*lf)-1)) * sf
+	X := C * (1 - math.Abs(math.Mod(hf/60, 2)-1))
+	m := lf - (C / 2)
 	var Rnot, Gnot, Bnot float64
 
 	switch {
@@ -48,14 +48,14 @@ func (c *Canvas) ColorHSL(h, s, l float64) string {
 	return c.ColorRGB(r, g, b)
 }
 
-func (c *Canvas) ColorHSV(h, s, v float64) string {
-	h = clamp[float64](h, 0, 360)
-	s = clamp[float64](s, 0., 1.)
-	v = clamp[float64](v, 0., 1.)
+func (c *Canvas) ColorHSV(h, s, v int) string {
+	hf := float64(clamp(h, 0, 360))
+	sf := float64(clamp(s, 0, 100)) / 100.
+	vf := float64(clamp(v, 0, 100)) / 100.
 
-	C := v * s
-	X := C * (1 - math.Abs(math.Mod(h/60, 2)-1))
-	m := v - C
+	C := vf * sf
+	X := C * (1 - math.Abs(math.Mod(hf/60, 2)-1))
+	m := vf - C
 	var Rnot, Gnot, Bnot float64
 	switch {
 	case 0 <= h && h < 60:
