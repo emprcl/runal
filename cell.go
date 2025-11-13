@@ -1,6 +1,8 @@
 package runal
 
 import (
+	"fmt"
+
 	"github.com/charmbracelet/x/ansi"
 )
 
@@ -38,4 +40,9 @@ func (c cell) public() Cell {
 		Foreground: colorToString(c.foreground),
 		Background: colorToString(c.background),
 	}
+}
+
+func colorToString(c ansi.Color) string {
+	r, g, b, _ := c.RGBA()
+	return fmt.Sprintf("#%d%d%d", r, g, b)
 }

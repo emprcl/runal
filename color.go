@@ -2,32 +2,80 @@ package runal
 
 import (
 	"fmt"
-	col "image/color"
 	"math"
 	"strconv"
 	"strings"
 
 	"github.com/charmbracelet/x/ansi"
+	"golang.org/x/exp/constraints"
 )
 
-type style struct {
-	foreground ansi.Color
-	background ansi.Color
+func (c *Canvas) ColorRGB(r, g, b int) string {
+	r = clamp(r, 0, 255)
+	g = clamp(g, 0, 255)
+	b = clamp(b, 0, 255)
+	return fmt.Sprintf("#%02x%02x%02x", r, g, b)
 }
 
-func (s style) equals(s2 style) bool {
-	return s.background == s2.background && s.foreground == s2.foreground
+func (c *Canvas) ColorHSL(h, s, l float64) string {
+	h = clamp[float64](h, 0, 360)
+	s = clamp[float64](s, 0., 1.)
+	l = clamp[float64](l, 0., 1.)
+
+	C := (1 - math.Abs((2*l)-1)) * s
+	X := C * (1 - math.Abs(math.Mod(h/60, 2)-1))
+	m := l - (C / 2)
+	var Rnot, Gnot, Bnot float64
+
+	switch {
+	case 0 <= h && h < 60:
+		Rnot, Gnot, Bnot = C, X, 0
+	case 60 <= h && h < 120:
+		Rnot, Gnot, Bnot = X, C, 0
+	case 120 <= h && h < 180:
+		Rnot, Gnot, Bnot = 0, C, X
+	case 180 <= h && h < 240:
+		Rnot, Gnot, Bnot = 0, X, C
+	case 240 <= h && h < 300:
+		Rnot, Gnot, Bnot = X, 0, C
+	case 300 <= h && h < 360:
+		Rnot, Gnot, Bnot = C, 0, X
+	}
+	r := int(math.Round((Rnot + m) * 255))
+	g := int(math.Round((Gnot + m) * 255))
+	b := int(math.Round((Bnot + m) * 255))
+
+	return c.ColorRGB(r, g, b)
 }
 
-func (s style) render(str string) string {
-	return ansi.NewStyle().
-		BackgroundColor(s.background).
-		ForegroundColor(s.foreground).
-		String() + str
-}
+func (c *Canvas) ColorHSV(h, s, v float64) string {
+	h = clamp[float64](h, 0, 360)
+	s = clamp[float64](s, 0., 1.)
+	v = clamp[float64](v, 0., 1.)
 
-func resetStyle() string {
-	return "\x1b[0m"
+	C := v * s
+	X := C * (1 - math.Abs(math.Mod(h/60, 2)-1))
+	m := v - C
+	var Rnot, Gnot, Bnot float64
+	switch {
+	case 0 <= h && h < 60:
+		Rnot, Gnot, Bnot = C, X, 0
+	case 60 <= h && h < 120:
+		Rnot, Gnot, Bnot = X, C, 0
+	case 120 <= h && h < 180:
+		Rnot, Gnot, Bnot = 0, C, X
+	case 180 <= h && h < 240:
+		Rnot, Gnot, Bnot = 0, X, C
+	case 240 <= h && h < 300:
+		Rnot, Gnot, Bnot = X, 0, C
+	case 300 <= h && h < 360:
+		Rnot, Gnot, Bnot = C, 0, X
+	}
+	r := int(math.Round((Rnot + m) * 255))
+	g := int(math.Round((Gnot + m) * 255))
+	b := int(math.Round((Bnot + m) * 255))
+
+	return c.ColorRGB(r, g, b)
 }
 
 func color(color string) ansi.Color {
@@ -41,16 +89,10 @@ func color(color string) ansi.Color {
 	return ansi.IndexedColor(uint8(math.Round(c)))
 }
 
-func colorFromImage(c col.Color) ansi.Color {
-	rgba := col.RGBAModel.Convert(c).(col.RGBA)
-	return ansi.RGBColor{
-		R: rgba.R,
-		G: rgba.G,
-		B: rgba.B,
-	}
+type Number interface {
+	constraints.Integer | constraints.Float
 }
 
-func colorToString(c ansi.Color) string {
-	r, g, b, _ := c.RGBA()
-	return fmt.Sprintf("#%d%d%d", r, g, b)
+func clamp[T Number](value, minimum, maximum T) T {
+	return max(min(value, maximum), minimum)
 }

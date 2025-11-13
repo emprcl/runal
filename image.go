@@ -2,12 +2,14 @@ package runal
 
 import (
 	"image"
+	col "image/color"
 	"image/jpeg"
 	"image/png"
 	"os"
 	"path/filepath"
 
 	"github.com/charmbracelet/log"
+	"github.com/charmbracelet/x/ansi"
 	"golang.org/x/image/webp"
 
 	"github.com/emprcl/runal/pkg/mosaic"
@@ -128,4 +130,13 @@ func (c *Canvas) Image(img Image, x, y, w, h int) {
 		return
 	}
 	img.write(c, x, y, w, h)
+}
+
+func colorFromImage(c col.Color) ansi.Color {
+	rgba := col.RGBAModel.Convert(c).(col.RGBA)
+	return ansi.RGBColor{
+		R: rgba.R,
+		G: rgba.G,
+		B: rgba.B,
+	}
 }
