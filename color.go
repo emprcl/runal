@@ -258,7 +258,7 @@ func color(color string) ansi.Color {
 	}
 
 	// CSS colors
-	if c, ok := cssColors[color]; ok {
+	if c, ok := cssColors[strings.ToLower(color)]; ok {
 		return ansi.HexColor(c)
 	}
 
