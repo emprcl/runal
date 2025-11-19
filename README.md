@@ -10,7 +10,7 @@ Runal is a text-based creative coding environment for the terminal. It works sim
 
 _Feel free to [open an issue](https://github.com/emprcl/runal/issues/new)._
 
-![signls screenshot](/docs/screenshot.png)
+![runal screenshot](/docs/screenshot.png)
 
 ## Installation
 
@@ -48,7 +48,7 @@ cd runal
 
 #### Windows
 
-> _We recommend using Windows Terminal with a good monospace font like Iosevka to display Signls correctly on Windows._
+> _We recommend using Windows Terminal with a good monospace font like Iosevka to display Runal correctly on Windows._
 
 Unzip the last [windows release](https://github.com/emprcl/runal/releases) and, in the same directory, run:
 ```winbatch
