@@ -29,11 +29,11 @@ jobs:
           go-version: 1.26.4
 
       - name: Build linux|mac
-        run: go build -C cmd/runal -ldflags="-w -s -X main.version=${{ github.ref_name }}" -o ../bin/runal && chmod +x bin/runal
+        run: go build -C cmd/runal -ldflags="-w -s -X main.version=${{ github.ref_name }}" -o ../../bin/runal && chmod +x bin/runal
         if: ${{ !startsWith(matrix.os, 'windows') }}
 
       - name: Build windows
-        run: go build -C cmd/runal -ldflags="-w -s -X main.version=${{ github.ref_name }}" -o ../bin/runal.exe
+        run: go build -C cmd/runal -ldflags="-w -s -X main.version=${{ github.ref_name }}" -o ../../bin/runal.exe
         if: startsWith(matrix.os, 'windows')
 
       - name: Tar.gz linux|mac files
