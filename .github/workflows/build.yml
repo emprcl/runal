@@ -9,79 +9,33 @@ permissions:
   contents: write
 
 jobs:
-  build:
-    strategy:
-      matrix:
-        os: [ubuntu-22.04, macos-13, windows-2022]
-    runs-on: ${{ matrix.os }}
-    env:
-      CGO_ENABLED: 0
+  goreleaser:
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-
-      - name: Install Alsa headers
-        run: sudo apt-get install libasound2-dev
-        if: startsWith(matrix.os, 'ubuntu')
+        with:
+          fetch-depth: 0 # full history & tags for changelog/version
 
       - name: Install Go
         uses: actions/setup-go@v5
         with:
           go-version: 1.26.4
 
-      - name: Build linux|mac
-        run: go build -C cmd/runal -ldflags="-w -s -X main.version=${{ github.ref_name }}" -o ../../bin/runal && chmod +x bin/runal
-        if: ${{ !startsWith(matrix.os, 'windows') }}
+      - name: Run GoReleaser (release on tags, snapshot otherwise)
+        uses: goreleaser/goreleaser-action@v6
+        with:
+          version: "~> v2"
+          args: >-
+            ${{ startsWith(github.ref, 'refs/tags/v')
+              && 'release --clean'
+              || 'release --snapshot --clean' }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Build windows
-        run: go build -C cmd/runal -ldflags="-w -s -X main.version=${{ github.ref_name }}" -o ../../bin/runal.exe
-        if: startsWith(matrix.os, 'windows')
-
-      - name: Tar.gz linux|mac files
-        run: tar -zcvf runal_${{ github.ref_name }}_${{ runner.os}}.tar.gz LICENSE -C bin runal
-        if: ${{ !startsWith(matrix.os, 'windows') }}
-
-      - name: Zip windows files
-        shell: pwsh
-        run: |
-          Compress-Archive bin\runal.exe runal_${{ github.ref_name }}_${{ runner.os}}.zip
-        if: ${{ startsWith(matrix.os, 'windows') }}
-
-      - name: Upload linux|mac artifact
+      - name: Upload snapshot artifacts
+        if: ${{ !startsWith(github.ref, 'refs/tags/v') }}
         uses: actions/upload-artifact@v4
         with:
-          name: runal_${{ github.sha }}_${{ runner.os}}
-          path: runal_${{ github.ref_name }}_${{ runner.os}}.tar.gz
+          name: runal-snapshot-${{ github.sha }}
+          path: dist/*.tar.gz
           if-no-files-found: error
-        if: ${{ !startsWith(matrix.os, 'windows') }}
-
-      - name: Upload windows artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: runal_${{ github.sha }}_${{ runner.os}}
-          path: runal_${{ github.ref_name }}_${{ runner.os}}.zip
-          if-no-files-found: error
-        if: ${{ startsWith(matrix.os, 'windows') }}
-
-  release:
-    needs: build
-    if: startsWith(github.ref, 'refs/tags/v')
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/download-artifact@v4.1.7
-        with:
-          name: runal_${{ github.sha }}_macOS
-
-      - uses: actions/download-artifact@v4.1.7
-        with:
-          name: runal_${{ github.sha }}_Linux
-
-      - uses: actions/download-artifact@v4.1.7
-        with:
-          name: runal_${{ github.sha }}_Windows
-
-      - name: Create release
-        uses: softprops/action-gh-release@v1
-        with:
-          files: |
-            runal_*.tar.gz
-            runal_*.zip
