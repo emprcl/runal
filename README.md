@@ -61,7 +61,7 @@ Unzip the last [windows release](https://github.com/emprcl/runal/releases) and, 
 
 ### Build it yourself
 
-You'll need [go 1.23](https://go.dev/dl/) minimum.
+You'll need [go 1.26](https://go.dev/dl/) minimum.
 Although you should be able to build it for either **linux**, **macOS** or **Windows**, it has only been tested on **linux**.
 
 ```sh

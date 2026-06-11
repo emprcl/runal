@@ -1,0 +1,31 @@
+go 1.26.4
+
+use (
+	.
+	./cmd/runal
+	./examples/bezier
+	./examples/circle
+	./examples/colors
+	./examples/draw
+	./examples/ellipse-rotation
+	./examples/gif-export
+	./examples/glitch
+	./examples/grid
+	./examples/image
+	./examples/line
+	./examples/lissajous
+	./examples/mouse
+	./examples/noise
+	./examples/noiseloop-exportmp4
+	./examples/noiseloop1d
+	./examples/noiseloop2d
+	./examples/quad
+	./examples/scale
+	./examples/spiral
+	./examples/square
+	./examples/strokefill
+	./examples/translate
+	./examples/triangle
+	./examples/world
+	./x/js
+)
