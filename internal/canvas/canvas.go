@@ -61,7 +61,7 @@ type Canvas struct {
 	backgroundFg, backgroundBg ansi.Color
 	lastStyle                  style
 
-	strokeText, fillText, backgroundText string
+	strokeText, fillText, backgroundText    string
 	strokeRunes, fillRunes, backgroundRunes []rune
 
 	saveFilename string
@@ -92,36 +92,36 @@ type Canvas struct {
 
 func newCanvas(width, height int) *Canvas {
 	return &Canvas{
-		Width:          width,
-		Height:         height,
-		fps:            defaultFPS,
-		bus:            make(chan event, 16),
-		termWidth:      width,
-		termHeight:     height,
-		cellModeRune:   defaultPaddingRune,
-		cellMode:       cellModeDisabled,
-		buffer:         newFrame(width, height),
-		output:         os.Stdout,
-		capture:        newCapture(width, height),
-		noise:          newNoise(),
-		random:         newRandom(),
-		debugBuffer:    make([]string, 0, maxDebugBufferSize),
-		scale:          1,
-		strokeFg:       color("#ffffff"),
-		strokeBg:       color("#000000"),
-		fillFg:         color("#ffffff"),
-		fillBg:         color("#000000"),
-		backgroundFg:   color("#ffffff"),
-		backgroundBg:   color("#000000"),
-		strokeText:     defaultStrokeText,
-		strokeRunes:    []rune(defaultStrokeText),
-		fillText:       defaultFillText,
-		fillRunes:      []rune(defaultFillText),
-		backgroundText: defaultBackgroundText,
+		Width:           width,
+		Height:          height,
+		fps:             defaultFPS,
+		bus:             make(chan event, 16),
+		termWidth:       width,
+		termHeight:      height,
+		cellModeRune:    defaultPaddingRune,
+		cellMode:        cellModeDisabled,
+		buffer:          newFrame(width, height),
+		output:          os.Stdout,
+		capture:         newCapture(width, height),
+		noise:           newNoise(),
+		random:          newRandom(),
+		debugBuffer:     make([]string, 0, maxDebugBufferSize),
+		scale:           1,
+		strokeFg:        color("#ffffff"),
+		strokeBg:        color("#000000"),
+		fillFg:          color("#ffffff"),
+		fillBg:          color("#000000"),
+		backgroundFg:    color("#ffffff"),
+		backgroundBg:    color("#000000"),
+		strokeText:      defaultStrokeText,
+		strokeRunes:     []rune(defaultStrokeText),
+		fillText:        defaultFillText,
+		fillRunes:       []rune(defaultFillText),
+		backgroundText:  defaultBackgroundText,
 		backgroundRunes: []rune(defaultBackgroundText),
-		stroke:         true,
-		autoResize:     true,
-		IsLooping:      true,
+		stroke:          true,
+		autoResize:      true,
+		IsLooping:       true,
 	}
 }
 
