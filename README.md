@@ -14,6 +14,18 @@ _Feel free to [open an issue](https://github.com/emprcl/runal/issues/new)._
 
 ## Installation
 
+### Supported platforms
+
+Prebuilt binaries are available for the following platforms:
+
+| OS      | Architectures                              |
+| ------- | ------------------------------------------ |
+| Linux   | x86-64 (amd64), arm64, armv7, armv6        |
+| macOS   | Intel (amd64), Apple Silicon (arm64)       |
+| Windows | x86-64 (amd64)                             |
+
+> _The Linux arm builds cover the Raspberry Pi: use **arm64** for the 64-bit Raspberry Pi OS, and **armv7** / **armv6** for the 32-bit Raspberry Pi OS (armv6 targets the Pi 1 / Zero)._
+
 ### Quick-install
 
 On **linux** or **macOS**, you can run this quick-install bash script:
