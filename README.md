@@ -35,6 +35,13 @@ curl -sSL empr.cl/get/runal | bash
 
 ### Packages
 
+#### Homebrew (macOS & Linux)
+
+```sh
+brew tap emprcl/tap
+brew install runal
+```
+
 #### AUR
 
 https://aur.archlinux.org/packages/runal

@@ -72,6 +72,20 @@ changelog:
       - "Merge pull request"
       - "Merge branch"
 
+brews:
+  - name: runal
+    repository:
+      owner: emprcl
+      name: homebrew-tap
+      token: "{{ .Env.HOMEBREW_TAP_GITHUB_TOKEN }}"
+    homepage: "https://empr.cl/runal/"
+    description: "Text-based creative coding environment for the terminal"
+    license: "MIT"
+    install: |
+      bin.install "runal"
+    test: |
+      system "#{bin}/runal"
+
 release:
   github:
     owner: emprcl
