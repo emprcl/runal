@@ -10,7 +10,7 @@ require (
 	github.com/charmbracelet/x/term v0.2.2
 	github.com/xaviergodart/go-ansi-to-image v0.0.0-20250620163834-f2b31334a2bb
 	golang.org/x/exp v0.0.0-20260603202125-055de637280b
-	golang.org/x/image v0.42.0
+	golang.org/x/image v0.43.0
 	golang.org/x/term v0.44.0
 )
 
