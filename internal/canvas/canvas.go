@@ -79,6 +79,16 @@ type Canvas struct {
 	rotationAngle                float64
 	scale                        float64
 
+	depth        depthBuffer
+	cam          camera
+	model3D      mat4
+	model3DStack []mat4
+	lightDir     vec3
+	ambient      float64
+	charAspect   float64
+	shadeRunes   []rune
+	cull         bool
+
 	cellModeRune rune
 	cellMode     cellMode
 	stroke       bool
@@ -122,6 +132,14 @@ func newCanvas(width, height int) *Canvas {
 		stroke:          true,
 		autoResize:      true,
 		IsLooping:       true,
+		depth:           newDepthBuffer(width, height),
+		cam:             defaultCamera(),
+		model3D:         mat4Identity(),
+		lightDir:        vec3{-0.5, 0.8, 1}.normalize(),
+		ambient:         0.2,
+		charAspect:      defaultCharAspect,
+		shadeRunes:      []rune(" .:-=+*#%@"),
+		cull:            true,
 	}
 }
 
@@ -184,6 +202,7 @@ func (c *Canvas) reset() {
 	c.strokeIndex = 0
 	c.backgroundIndex = 0
 	c.lastStyle = style{}
+	c.reset3D()
 }
 
 func (c *Canvas) resize(width, height int) {
@@ -203,6 +222,7 @@ func (c *Canvas) resize(width, height int) {
 	c.Width = newWidth
 	c.Height = newHeight
 	c.buffer = newBuffer
+	c.depth = newDepthBuffer(newWidth, newHeight)
 	c.captureResize(width, height)
 }
 
@@ -217,23 +237,26 @@ func (c *Canvas) char(char rune, x, y int) {
 	}, x, y, 1)
 }
 
-func (c *Canvas) write(cll cell, x, y int, minBlockSize int) {
-	var destX, destY, blockSize int
-
+// applyTransform2D maps a point through the current 2D transform
+// (scale, rotation and origin translation).
+func (c *Canvas) applyTransform2D(x, y int) (int, int) {
 	if c.rotationAngle == 0 && c.scale == 1 {
-		destX = x + c.originX
-		destY = y + c.originY
-		blockSize = minBlockSize
-	} else {
-		scaledX := float64(x) * c.scale
-		scaledY := float64(y) * c.scale
+		return x + c.originX, y + c.originY
+	}
+	scaledX := float64(x) * c.scale
+	scaledY := float64(y) * c.scale
 
-		sinA, cosA := math.Sincos(c.rotationAngle)
-		rotatedX := scaledX*cosA - scaledY*sinA
-		rotatedY := scaledX*sinA + scaledY*cosA
+	sinA, cosA := math.Sincos(c.rotationAngle)
+	rotatedX := scaledX*cosA - scaledY*sinA
+	rotatedY := scaledX*sinA + scaledY*cosA
 
-		destX = int(math.Round(rotatedX)) + c.originX
-		destY = int(math.Round(rotatedY)) + c.originY
+	return int(math.Round(rotatedX)) + c.originX, int(math.Round(rotatedY)) + c.originY
+}
+
+func (c *Canvas) write(cll cell, x, y int, minBlockSize int) {
+	destX, destY := c.applyTransform2D(x, y)
+	blockSize := minBlockSize
+	if c.rotationAngle != 0 || c.scale != 1 {
 		blockSize = max(int(math.Round(c.scale)), minBlockSize)
 	}
 

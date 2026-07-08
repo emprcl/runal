@@ -4,6 +4,7 @@ use (
 	.
 	./cmd/runal
 	./examples/bezier
+	./examples/box
 	./examples/circle
 	./examples/colors
 	./examples/draw
