@@ -1,3 +1,5 @@
+//go:build !js
+
 package canvas
 
 import (
@@ -13,6 +15,11 @@ import (
 
 	ansitoimage "github.com/xaviergodart/go-ansi-to-image"
 )
+
+// capturer is the image-export backend. On non-js builds it is the
+// ansitoimage converter; the js build replaces it with a no-op (capture_js.go)
+// so the font/image rasterization stack is not linked into the wasm binary.
+type capturer = *ansitoimage.Converter
 
 // SaveCanvasToPNG exports the canvas to a png image file.
 func (c *Canvas) SaveCanvasToPNG(filename string) {
@@ -147,6 +154,14 @@ func (c *Canvas) exportFramesToMP4() error {
 	}
 
 	return framesToMP4Videos(c.fps, fmt.Sprintf("%s/frame_%%d.png", dir), c.saveFilename)
+}
+
+func randomDir() string {
+	tmp, err := os.MkdirTemp(os.TempDir(), "runal")
+	if err != nil {
+		log.Fatalf("error creating temporary directory: %v", err)
+	}
+	return tmp
 }
 
 func (c *Canvas) recordFrame(output string) {

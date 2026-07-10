@@ -28,6 +28,10 @@ run:
 build-wasm:
 	GOOS=js GOARCH=wasm $(GOLANG_BIN) build $(GOLANG_LDFFLAGS) -o web/runal.wasm ./cmd/runal-wasm
 	cp "$$($(GOLANG_BIN) env GOROOT)/lib/wasm/wasm_exec.js" web/wasm_exec.js
+	@command -v wasm-opt >/dev/null 2>&1 \
+		&& { echo "wasm-opt: optimizing (-Oz)..."; wasm-opt -all -Oz web/runal.wasm -o web/runal.wasm; } \
+		|| echo "wasm-opt not found (optional: 'brew install binaryen' to shrink further) — skipping"
+	@ls -la web/runal.wasm | awk '{printf "web/runal.wasm: %d bytes (%dMB)\n", $$5, $$5/1048576}'
 
 checks: $(GOLANG_LINT)
 	$(GOLANG_LINT) run ./...

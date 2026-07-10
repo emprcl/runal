@@ -10,7 +10,6 @@ import (
 
 	perlin "github.com/aquilax/go-perlin"
 	"github.com/charmbracelet/x/ansi"
-	ansitoimage "github.com/xaviergodart/go-ansi-to-image"
 )
 
 const (
@@ -44,7 +43,7 @@ const (
 type Canvas struct {
 	buffer  frame
 	output  io.Writer
-	capture *ansitoimage.Converter
+	capture capturer
 	frames  []image.Image
 	videoFormat
 	noise  *perlin.Perlin

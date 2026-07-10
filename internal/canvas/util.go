@@ -1,10 +1,7 @@
 package canvas
 
 import (
-	"os"
 	"strings"
-
-	"github.com/charmbracelet/log"
 )
 
 func writePadding(s *strings.Builder, sLength, tLength int, padChar rune) {
@@ -22,12 +19,4 @@ func absInt(a int) int {
 
 func strIndex(str string, index int) rune {
 	return rune(str[index%len(str)])
-}
-
-func randomDir() string {
-	tmp, err := os.MkdirTemp(os.TempDir(), "runal")
-	if err != nil {
-		log.Fatalf("error creating temporary directory: %v", err)
-	}
-	return tmp
 }
