@@ -33,6 +33,12 @@ build-wasm:
 		|| echo "wasm-opt not found (optional: 'brew install binaryen' to shrink further) — skipping"
 	@ls -la web/runal.wasm | awk '{printf "web/runal.wasm: %d bytes (%dMB)\n", $$5, $$5/1048576}'
 
+WEB_PORT ?= 8080
+# Build the wasm editor and serve web/ locally.
+web: build-wasm
+	@echo "Serving the runal editor at http://localhost:$(WEB_PORT) (Ctrl-C to stop)"
+	@cd web && python3 -m http.server $(WEB_PORT)
+
 checks: $(GOLANG_LINT)
 	$(GOLANG_LINT) run ./...
 

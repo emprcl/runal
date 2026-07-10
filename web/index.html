@@ -119,37 +119,35 @@ function onMouseMove(c, e) {
 
       const FONT_SIZE = 16;
       let ready = false;
+      let running = null;
+
+      function showError(msg) {
+        errBox.textContent = msg;
+        errBox.style.display = "block";
+      }
 
       function run() {
         if (!ready) return;
         errBox.style.display = "none";
-        const msg = window.runalStart($("src").value, canvas, FONT_SIZE);
-        if (msg) {
-          errBox.textContent = msg;
-          errBox.style.display = "block";
-        }
+        const msg = Runal.start($("src").value, canvas, { fontSize: FONT_SIZE, onError: showError });
+        if (msg) showError(msg);
       }
 
       $("run").onclick = run;
-      $("stop").onclick = () => window.runalStop && window.runalStop();
-      $("png").onclick = () => window.__runal.savePNG(canvas, "runal.png");
-      $("gif").onclick = () => window.__runal.recordGIF(canvas, "runal.gif", 3, 20);
-      $("webm").onclick = () => window.__runal.recordVideo(canvas, "runal.mp4", 3);
+      $("stop").onclick = () => Runal.stop();
+      $("png").onclick = () => Runal.savePNG("runal.png");
+      $("gif").onclick = () => Runal.recordGIF("runal.gif", 3, 20);
+      $("webm").onclick = () => Runal.recordVideo("runal.mp4", 3);
 
-      const go = new Go();
-      fetch("runal.wasm")
-        .then((r) => r.arrayBuffer())
-        .then((buf) => WebAssembly.instantiate(buf, go.importObject))
-        .then((result) => {
-          go.run(result.instance);
+      Runal.boot("runal.wasm")
+        .then(() => {
           ready = true;
           status.textContent = "ready";
           if (!new URLSearchParams(location.search).has("norun")) run();
         })
         .catch((e) => {
           status.textContent = "failed to load";
-          errBox.textContent = String(e);
-          errBox.style.display = "block";
+          showError(String(e));
         });
     </script>
   </body>

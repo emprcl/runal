@@ -4,12 +4,7 @@ go 1.26.4
 
 replace github.com/emprcl/runal => ../../
 
-replace github.com/emprcl/runal/x/js => ../../x/js
-
-require (
-	github.com/emprcl/runal v0.0.0-00010101000000-000000000000
-	github.com/emprcl/runal/x/js v0.0.0-00010101000000-000000000000
-)
+require github.com/emprcl/runal v0.0.0-00010101000000-000000000000
 
 require (
 	github.com/aquilax/go-perlin v1.1.0 // indirect
@@ -24,14 +19,9 @@ require (
 	github.com/charmbracelet/x/windows v0.2.2 // indirect
 	github.com/clipperhouse/displaywidth v0.11.0 // indirect
 	github.com/clipperhouse/uax29/v2 v2.7.0 // indirect
-	github.com/dlclark/regexp2/v2 v2.2.1 // indirect
-	github.com/dop251/goja v0.0.0-20260607120635-348e6bea910d // indirect
 	github.com/fogleman/gg v1.3.0 // indirect
-	github.com/fsnotify/fsnotify v1.10.1 // indirect
 	github.com/go-logfmt/logfmt v0.6.1 // indirect
-	github.com/go-sourcemap/sourcemap v2.1.4+incompatible // indirect
 	github.com/golang/freetype v0.0.0-20170609003504-e2365dfdc4a0 // indirect
-	github.com/google/pprof v0.0.0-20260604005048-7023385849c0 // indirect
 	github.com/leaanthony/go-ansi-parser v1.6.1 // indirect
 	github.com/lucasb-eyer/go-colorful v1.4.0 // indirect
 	github.com/mattn/go-isatty v0.0.22 // indirect
@@ -46,5 +36,4 @@ require (
 	golang.org/x/image v0.42.0 // indirect
 	golang.org/x/sys v0.46.0 // indirect
 	golang.org/x/term v0.44.0 // indirect
-	golang.org/x/text v0.38.0 // indirect
 )
