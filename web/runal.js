@@ -19,8 +19,11 @@
   let proxy = null;
   let rafId = 0, running = false, looping = true;
   let fontSize = 16, autoResize = true, cellModeOn = false;
+  let fontFamily = "monospace", fontSeq = 0;
   let mouseX = 0, mouseY = 0;
   const colorCache = new Map();
+
+  function fontSpec() { return fontSize + "px " + fontFamily; }
 
   // ---------- wasm boot ----------
   async function boot(wasmUrl) {
@@ -70,7 +73,7 @@
   function measure() {
     const dpr = window.devicePixelRatio || 1;
     glCtx = cvs.getContext("2d", { alpha: false });
-    glCtx.font = fontSize + "px monospace";
+    glCtx.font = fontSpec();
     const cellW = Math.max(1, Math.round(glCtx.measureText("M").width));
     const cellH = Math.max(1, Math.round(fontSize * 1.2));
     const cssW = cvs.clientWidth || cvs.width || 640;
@@ -87,6 +90,31 @@
     const pxW = Math.floor(S.cssW * S.dpr), pxH = Math.floor(S.cssH * S.dpr);
     if (cvs.width !== pxW) cvs.width = pxW;
     if (cvs.height !== pxH) cvs.height = pxH;
+  }
+
+  // Re-measure the cell box after a font change and, when auto-resizing, refit
+  // the engine grid to the new cell size so it keeps filling the canvas.
+  function applyFontMetrics() {
+    measure();
+    if (autoResize) {
+      const g = displayGrid();
+      X.rResize(g.cols, g.rows);
+      refreshDims();
+    }
+    sizeBackingStore();
+  }
+
+  // Load a custom font file (URL) via the FontFace API and switch the canvas to
+  // it once ready. Loading is async; the current frame keeps the previous font
+  // until it resolves, then metrics are recomputed.
+  function loadFont(src) {
+    if (!src) return;
+    if (!window.FontFace) { console.error("runal: FontFace API unavailable"); return; }
+    const family = "runal-font-" + ++fontSeq;
+    const face = new FontFace(family, "url(" + JSON.stringify(String(src)) + ")");
+    face.load()
+      .then((f) => { document.fonts.add(f); fontFamily = family; applyFontMetrics(); })
+      .catch((e) => console.error("runal: font load failed:", e));
   }
 
   // ---------- render ----------
@@ -108,7 +136,7 @@
 
     glCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
     glCtx.textBaseline = "top";
-    glCtx.font = fontSize + "px monospace";
+    glCtx.font = fontSpec();
     glCtx.clearRect(0, 0, cssW, cssH);
 
     let last = null;
@@ -219,8 +247,8 @@
       saveCanvasToPNG(name) { savePNG(name); },
       saveCanvasToGIF(name, dur) { recordGIF(name, dur, X.rGetFps()); },
       saveCanvasToMP4(name, dur) { recordVideo(name, dur); },
-      savedCanvasFont() {},
-      savedCanvasFontSize(px) { fontSize = px; measure(); sizeBackingStore(); },
+      savedCanvasFont(src) { loadFont(src); },
+      savedCanvasFontSize(px) { fontSize = px; applyFontMetrics(); },
     };
     return p;
   }
@@ -303,6 +331,7 @@
     fontSize = opts.fontSize || 16;
     cvs = canvasEl;
     autoResize = true; cellModeOn = false; looping = true; lastFrame = -1e12;
+    fontFamily = "monospace"; // reset any custom font from a previous sketch
 
     // parse sketch source in the browser's JS engine
     try {
