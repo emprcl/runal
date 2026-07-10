@@ -79,30 +79,61 @@ func (c *Canvas) render() {
 		return
 	}
 
-	cols, rows := c.Width, c.Height
-	display.ensure(cols * rows * bytesPerCell)
+	// Each logical cell expands to one or two display glyphs depending on the
+	// cell mode, mirroring the terminal renderer (render_term.go): a cell is
+	// drawn as a single glyph by default, or as two adjacent glyphs when a
+	// cell mode is active (the char doubled, followed by the custom spacing
+	// rune, or followed by a per-cell pad char set by Text()).
+	glyphs := 1
+	if c.cellMode.enabled() {
+		glyphs = 2
+	}
+	rows := c.Height
+	dispCols := c.Width * glyphs
+	display.ensure(dispCols * rows * bytesPerCell)
 
 	i := 0
+	putGlyph := func(r rune, fg, bg ansi.Color) {
+		binary.LittleEndian.PutUint32(display.buf[i:], uint32(r))
+		binary.LittleEndian.PutUint32(display.buf[i+4:], packRGB(fg))
+		binary.LittleEndian.PutUint32(display.buf[i+8:], packRGB(bg))
+		i += bytesPerCell
+	}
+
 	for y := range c.buffer {
 		for x := range c.buffer[y] {
-			var r rune
+			cll := c.buffer[y][x]
+			var first, second rune
 			var fg, bg ansi.Color
-			if c.buffer[y][x].char == 0 {
-				r = c.nextBackgroundRune()
+			if cll.char == 0 {
+				first = c.nextBackgroundRune()
 				fg, bg = c.backgroundFg, c.backgroundBg
+				if c.cellMode == cellModeCustom {
+					second = c.cellModeRune
+				} else {
+					second = first
+				}
 			} else {
-				cll := c.buffer[y][x]
-				r, fg, bg = cll.char, cll.foreground, cll.background
+				first = cll.char
+				fg, bg = cll.foreground, cll.background
+				switch {
+				case cll.padChar != 0:
+					second = cll.padChar
+				case c.cellMode == cellModeCustom:
+					second = c.cellModeRune
+				default:
+					second = cll.char
+				}
 			}
-			binary.LittleEndian.PutUint32(display.buf[i:], uint32(r))
-			binary.LittleEndian.PutUint32(display.buf[i+4:], packRGB(fg))
-			binary.LittleEndian.PutUint32(display.buf[i+8:], packRGB(bg))
-			i += bytesPerCell
+			putGlyph(first, fg, bg)
+			if glyphs == 2 {
+				putGlyph(second, fg, bg)
+			}
 		}
 	}
 
 	js.CopyBytesToJS(display.jsArray, display.buf)
-	display.runal.Call("draw", display.el, cols, rows, display.jsArray, display.fontSize)
+	display.runal.Call("draw", display.el, dispCols, rows, display.jsArray, display.fontSize)
 
 	c.Framecount++
 	c.reset()
