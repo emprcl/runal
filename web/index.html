@@ -72,6 +72,9 @@
         <div class="toolbar">
           <button id="run">Run ▶</button>
           <button id="stop" class="secondary">Stop ■</button>
+          <button id="png" class="secondary">PNG</button>
+          <button id="gif" class="secondary">GIF</button>
+          <button id="webm" class="secondary">Video</button>
         </div>
       </div>
       <div class="pane" style="flex:1;">
@@ -83,6 +86,7 @@
     </main>
 
     <script src="wasm_exec.js"></script>
+    <script src="gif.js"></script>
     <script src="runal.js"></script>
     <script>
       const DEFAULT_SKETCH = `function setup(c) {
@@ -128,6 +132,9 @@ function onMouseMove(c, e) {
 
       $("run").onclick = run;
       $("stop").onclick = () => window.runalStop && window.runalStop();
+      $("png").onclick = () => window.__runal.savePNG(canvas, "runal.png");
+      $("gif").onclick = () => window.__runal.recordGIF(canvas, "runal.gif", 3, 20);
+      $("webm").onclick = () => window.__runal.recordVideo(canvas, "runal.mp4", 3);
 
       const go = new Go();
       fetch("runal.wasm")

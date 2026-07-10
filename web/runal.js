@@ -50,6 +50,41 @@
     return state;
   }
 
+  function download(blob, filename) {
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 2000);
+  }
+
+  // Force `name` to end in `.ext` (the actual produced format).
+  function fixExt(name, ext) {
+    if (!name) return "runal." + ext;
+    return /\.[a-z0-9]+$/i.test(name)
+      ? name.replace(/\.[a-z0-9]+$/i, "." + ext)
+      : name + "." + ext;
+  }
+
+  // When a GIF recording is active on `el`, snapshot the just-rendered frame
+  // (downscaled, quantized) and, once enough frames are collected, encode and
+  // download the animated GIF. Called at the end of every draw().
+  function captureGifFrame(el) {
+    const g = el.__runalGif;
+    if (!g) return;
+    g.tmpCtx.drawImage(el, 0, 0, g.capW, g.capH);
+    const img = g.tmpCtx.getImageData(0, 0, g.capW, g.capH);
+    g.frames.push(RunalGIF.quantize(img.data, g.capW * g.capH));
+    if (g.frames.length >= g.need) {
+      el.__runalGif = null;
+      const bytes = RunalGIF.encode(g.frames, g.capW, g.capH, g.delayCentis);
+      download(new Blob([bytes], { type: "image/gif" }), g.filename);
+    }
+  }
+
   window.__runal = {
     metrics(el, fontSize) {
       const s = setup(el, fontSize);
@@ -97,6 +132,62 @@
           ctx.fillText(String.fromCodePoint(rune), x, y);
         }
       }
+
+      captureGifFrame(el);
+    },
+
+    // SaveCanvasToPNG: download the current frame as a PNG.
+    savePNG(el, filename) {
+      el.toBlob((blob) => download(blob, fixExt(filename, "png")), "image/png");
+    },
+
+    // SaveCanvasToGIF: record `duration` seconds of rendered frames at `fps`
+    // and download an animated GIF. Frames are captured in draw().
+    recordGIF(el, filename, duration, fps) {
+      if (el.__runalGif) return; // already recording
+      const s = el.__runalRenderer || setup(el, 16);
+      const scale = Math.min(1, 400 / s.cssW); // cap width for size/memory
+      const capW = Math.max(1, Math.round(s.cssW * scale));
+      const capH = Math.max(1, Math.round(s.cssH * scale));
+      const tmp = document.createElement("canvas");
+      tmp.width = capW;
+      tmp.height = capH;
+      el.__runalGif = {
+        frames: [],
+        need: Math.max(1, Math.round(duration * fps)),
+        delayCentis: Math.max(2, Math.round(100 / fps)),
+        filename: fixExt(filename, "gif"),
+        capW,
+        capH,
+        tmpCtx: tmp.getContext("2d", { willReadFrequently: true }),
+      };
+    },
+
+    // SaveCanvasToMP4: record `duration` seconds of the canvas via
+    // MediaRecorder and download. Emits mp4 if the browser supports it,
+    // otherwise webm (and the filename extension is adjusted to match).
+    recordVideo(el, filename, duration) {
+      if (!el.captureStream || !window.MediaRecorder) {
+        console.error("runal: video capture unsupported in this browser");
+        return;
+      }
+      const types = [
+        "video/mp4;codecs=avc1.42E01E",
+        "video/mp4",
+        "video/webm;codecs=vp9",
+        "video/webm",
+      ];
+      const mime = types.find((t) => MediaRecorder.isTypeSupported(t)) || "";
+      const rec = new MediaRecorder(el.captureStream(30), mime ? { mimeType: mime } : undefined);
+      const chunks = [];
+      rec.ondataavailable = (e) => e.data && e.data.size && chunks.push(e.data);
+      rec.onstop = () => {
+        const type = rec.mimeType || mime || "video/webm";
+        const ext = type.includes("mp4") ? "mp4" : "webm";
+        download(new Blob(chunks, { type }), fixExt(filename, ext));
+      };
+      rec.start();
+      setTimeout(() => rec.state !== "inactive" && rec.stop(), Math.max(100, duration * 1000));
     },
   };
 })();
