@@ -5,17 +5,7 @@ import (
 	"strings"
 
 	"github.com/charmbracelet/log"
-
-	"golang.org/x/term"
 )
-
-func termSize() (int, int) {
-	w, h, err := term.GetSize(int(os.Stdout.Fd()))
-	if err != nil {
-		log.Fatal("can't read terminal size")
-	}
-	return w, h
-}
 
 func writePadding(s *strings.Builder, sLength, tLength int, padChar rune) {
 	for range tLength - sLength {

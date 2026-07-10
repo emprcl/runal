@@ -3,6 +3,7 @@ go 1.26.4
 use (
 	.
 	./cmd/runal
+	./cmd/runal-wasm
 	./examples/bezier
 	./examples/circle
 	./examples/colors

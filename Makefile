@@ -25,6 +25,10 @@ build: $(BIN)
 run:
 	$(GOLANG_BIN) run -C $(CLI_DIR) $(CLI_ENTRYPOINT) $(ARGS)
 
+build-wasm:
+	GOOS=js GOARCH=wasm $(GOLANG_BIN) build $(GOLANG_LDFFLAGS) -o web/runal.wasm ./cmd/runal-wasm
+	cp "$$($(GOLANG_BIN) env GOROOT)/lib/wasm/wasm_exec.js" web/wasm_exec.js
+
 checks: $(GOLANG_LINT)
 	$(GOLANG_LINT) run ./...
 

@@ -106,6 +106,19 @@ func (s runtime) RunInternal(sketch string) {
 	s.runSketch(context.Background(), nil, vm, setup, draw, callbacks).Wait()
 }
 
+// Start parses and starts a sketch without blocking, returning a stop function
+// that cancels the running sketch. It is primarily meant for embedding runal
+// (e.g. the wasm/web backend) where the caller drives the lifecycle.
+func (s runtime) Start(sketch string) (func(), error) {
+	vm, setup, draw, callbacks, err := parseJS(sketch)
+	if err != nil {
+		return nil, err
+	}
+	ctx, cancel := context.WithCancel(context.Background())
+	s.runSketch(ctx, nil, vm, setup, draw, callbacks)
+	return cancel, nil
+}
+
 func (s runtime) runSketch(ctx context.Context, done chan struct{}, vm *goja.Runtime, setup, draw goja.Callable, cb callbacks) *sync.WaitGroup {
 	panicRecover := func(c *runal.Canvas) {
 		if r := recover(); r != nil {

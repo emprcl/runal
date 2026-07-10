@@ -1,2 +1,6 @@
 bin
 dist/
+
+# Generated wasm/web build artifacts (rebuild with `make wasm`)
+web/runal.wasm
+web/wasm_exec.js
