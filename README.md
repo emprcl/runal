@@ -43,6 +43,13 @@ brew trust emprcl/tap
 brew install runal
 ```
 
+#### Scoop (Windows)
+
+```powershell
+scoop bucket add emprcl https://github.com/emprcl/scoop-bucket
+scoop install runal
+```
+
 #### AUR
 
 https://aur.archlinux.org/packages/runal

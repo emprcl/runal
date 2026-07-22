@@ -86,6 +86,16 @@ brews:
     test: |
       system "#{bin}/runal"
 
+scoops:
+  - name: runal
+    repository:
+      owner: emprcl
+      name: scoop-bucket
+      token: "{{ .Env.HOMEBREW_TAP_GITHUB_TOKEN }}"
+    homepage: "https://empr.cl/runal/"
+    description: "Text-based creative coding environment for the terminal"
+    license: "MIT"
+
 release:
   github:
     owner: emprcl
