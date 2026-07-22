@@ -3,6 +3,9 @@ package canvas
 type frame [][]cell
 
 func (f frame) size() (int, int) {
+	if len(f) == 0 {
+		return 0, 0
+	}
 	return len(f[0]), len(f)
 }
 

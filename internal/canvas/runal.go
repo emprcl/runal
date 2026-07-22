@@ -43,7 +43,7 @@ func (c *Canvas) DisableRendering() {
 func (c *Canvas) CellModeCustom(char string) {
 	prev := c.cellMode
 	c.cellMode = cellModeCustom
-	c.cellModeRune = []rune(char)[0]
+	c.cellModeRune = firstRune(char, defaultPaddingRune)
 
 	if prev.enabled() {
 		c.resize(c.Width*2, c.Height)
@@ -91,9 +91,10 @@ func (c *Canvas) NoCellPadding() {
 }
 
 // Fps sets the rendering framerate in frames per second.
+// Values outside [minFPS, maxFPS] are clamped.
 func (c *Canvas) Fps(fps int) {
-	c.fps = fps
-	c.bus <- newFPSEvent(fps)
+	c.fps = clamp(fps, minFPS, maxFPS)
+	c.bus <- newFPSEvent(c.fps)
 }
 
 // Exit ends the program execution.

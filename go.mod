@@ -9,9 +9,9 @@ require (
 	github.com/charmbracelet/x/input v0.3.7
 	github.com/charmbracelet/x/term v0.2.2
 	github.com/xaviergodart/go-ansi-to-image v0.0.0-20250620163834-f2b31334a2bb
-	golang.org/x/exp v0.0.0-20260603202125-055de637280b
-	golang.org/x/image v0.42.0
-	golang.org/x/term v0.44.0
+	golang.org/x/exp v0.0.0-20260718201538-764159d718ef
+	golang.org/x/image v0.44.0
+	golang.org/x/term v0.45.0
 )
 
 require (
@@ -27,12 +27,12 @@ require (
 	github.com/golang/freetype v0.0.0-20170609003504-e2365dfdc4a0 // indirect
 	github.com/leaanthony/go-ansi-parser v1.6.1 // indirect
 	github.com/lucasb-eyer/go-colorful v1.4.0 // indirect
-	github.com/mattn/go-isatty v0.0.22 // indirect
+	github.com/mattn/go-isatty v0.0.23 // indirect
 	github.com/mattn/go-runewidth v0.0.24 // indirect
 	github.com/muesli/cancelreader v0.2.2 // indirect
 	github.com/muesli/termenv v0.16.0 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/rivo/uniseg v0.4.7 // indirect
 	github.com/xo/terminfo v0.0.0-20220910002029-abceb7e1c41e // indirect
-	golang.org/x/sys v0.46.0 // indirect
+	golang.org/x/sys v0.47.0 // indirect
 )

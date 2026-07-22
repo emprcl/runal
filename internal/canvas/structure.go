@@ -17,9 +17,24 @@ type state struct {
 	stroke bool
 }
 
-// Push saves the current transformation state.
+// Push saves the current drawing state onto the stack. Every Push must be
+// matched by a Pop; the stack is cleared at the end of each frame.
 func (c *Canvas) Push() {
-	c.state = &state{
+	c.stateStack = append(c.stateStack, c.currentState())
+}
+
+// Pop restores the most recently pushed drawing state.
+func (c *Canvas) Pop() {
+	if len(c.stateStack) == 0 {
+		return
+	}
+	last := len(c.stateStack) - 1
+	c.restoreState(c.stateStack[last])
+	c.stateStack = c.stateStack[:last]
+}
+
+func (c *Canvas) currentState() state {
+	return state{
 		strokeFg:        c.strokeFg,
 		strokeBg:        c.strokeBg,
 		fillFg:          c.fillFg,
@@ -41,30 +56,23 @@ func (c *Canvas) Push() {
 	}
 }
 
-// Pop restores the previous transformation state.
-func (c *Canvas) Pop() {
-	if c.state == nil {
-		return
-	}
-
-	c.strokeFg = c.state.strokeFg
-	c.strokeBg = c.state.strokeBg
-	c.fillFg = c.state.fillFg
-	c.fillBg = c.state.fillBg
-	c.backgroundFg = c.state.backgroundFg
-	c.backgroundBg = c.state.backgroundBg
-	c.strokeText = c.state.strokeText
-	c.strokeRunes = c.state.strokeRunes
-	c.fillText = c.state.fillText
-	c.fillRunes = c.state.fillRunes
-	c.backgroundText = c.state.backgroundText
-	c.backgroundRunes = c.state.backgroundRunes
-	c.originX = c.state.originX
-	c.originY = c.state.originY
-	c.rotationAngle = c.state.rotationAngle
-	c.scale = c.state.scale
-	c.fill = c.state.fill
-	c.stroke = c.state.stroke
-
-	c.state = nil
+func (c *Canvas) restoreState(s state) {
+	c.strokeFg = s.strokeFg
+	c.strokeBg = s.strokeBg
+	c.fillFg = s.fillFg
+	c.fillBg = s.fillBg
+	c.backgroundFg = s.backgroundFg
+	c.backgroundBg = s.backgroundBg
+	c.strokeText = s.strokeText
+	c.strokeRunes = s.strokeRunes
+	c.fillText = s.fillText
+	c.fillRunes = s.fillRunes
+	c.backgroundText = s.backgroundText
+	c.backgroundRunes = s.backgroundRunes
+	c.originX = s.originX
+	c.originY = s.originY
+	c.rotationAngle = s.rotationAngle
+	c.scale = s.scale
+	c.fill = s.fill
+	c.stroke = s.stroke
 }

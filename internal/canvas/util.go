@@ -9,12 +9,8 @@ import (
 	"golang.org/x/term"
 )
 
-func termSize() (int, int) {
-	w, h, err := term.GetSize(int(os.Stdout.Fd()))
-	if err != nil {
-		log.Fatal("can't read terminal size")
-	}
-	return w, h
+func tryTermSize() (int, int, error) {
+	return term.GetSize(int(os.Stdout.Fd()))
 }
 
 func writePadding(s *strings.Builder, sLength, tLength int, padChar rune) {
@@ -30,8 +26,19 @@ func absInt(a int) int {
 	return a
 }
 
-func strIndex(str string, index int) rune {
-	return rune(str[index%len(str)])
+// runeAt returns the rune at index, wrapping around the slice.
+func runeAt(runes []rune, index int) rune {
+	if len(runes) == 0 {
+		return defaultPaddingRune
+	}
+	return runes[index%len(runes)]
+}
+
+func firstRune(s string, fallback rune) rune {
+	for _, r := range s {
+		return r
+	}
+	return fallback
 }
 
 func randomDir() string {

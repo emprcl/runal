@@ -43,6 +43,7 @@ func Run(ctx context.Context, setup, draw func(c *Canvas), opts ...CallbackOptio
 }
 
 // Start starts the runal event loop in a goroutine and returns a WaitGroup.
-func Start(ctx context.Context, done chan struct{}, setup, draw func(c *Canvas), opts ...CallbackOption) *sync.WaitGroup {
+// It returns an error if the terminal cannot be initialized.
+func Start(ctx context.Context, done chan struct{}, setup, draw func(c *Canvas), opts ...CallbackOption) (*sync.WaitGroup, error) {
 	return canvas.Start(ctx, done, setup, draw, opts...)
 }

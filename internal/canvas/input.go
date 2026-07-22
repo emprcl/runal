@@ -5,7 +5,6 @@ import (
 	"os"
 	"sync"
 
-	"github.com/charmbracelet/log"
 	"github.com/charmbracelet/x/input"
 	"github.com/charmbracelet/x/term"
 )
@@ -21,55 +20,69 @@ type MouseEvent struct {
 	Button string
 }
 
-func listenForInputEvents(ctx context.Context, wg *sync.WaitGroup) chan input.Event {
-	inputEvents := make(chan input.Event, 2048)
+// inputReader owns the raw terminal state and the stdin event reader.
+// It must be closed to restore the terminal and unblock the pump goroutine.
+type inputReader struct {
+	reader    *input.Reader
+	termState *term.State
+	events    chan input.Event
+	done      chan struct{}
+	listening bool
+	closeOnce sync.Once
+}
+
+func newInputReader() (*inputReader, error) {
+	termState, err := term.MakeRaw(os.Stdin.Fd())
+	if err != nil {
+		return nil, err
+	}
+
+	reader, err := input.NewReader(os.Stdin, os.Getenv("TERM"), input.FlagMouseMode)
+	if err != nil {
+		term.Restore(os.Stdin.Fd(), termState) // nolint: errcheck
+		return nil, err
+	}
+
+	return &inputReader{
+		reader:    reader,
+		termState: termState,
+		events:    make(chan input.Event, 2048),
+		done:      make(chan struct{}),
+	}, nil
+}
+
+func (i *inputReader) listen(ctx context.Context, wg *sync.WaitGroup) {
+	i.listening = true
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
-		defer close(inputEvents)
-
-		state, err := term.MakeRaw(os.Stdin.Fd())
-		if err != nil {
-			log.Fatal(err)
-		}
-		defer term.Restore(os.Stdin.Fd(), state) // nolint: errcheck
-
-		reader, err := input.NewReader(os.Stdin, os.Getenv("TERM"), input.FlagMouseMode)
-		if err != nil {
-			log.Fatal(err)
-		}
-		defer reader.Close()
-
-		readerEvents := make(chan []input.Event, 8)
-		readerErrors := make(chan error, 8)
-		go func() {
-			for {
+		defer close(i.events)
+		defer close(i.done)
+		for {
+			events, err := i.reader.ReadEvents()
+			if err != nil {
+				return
+			}
+			for _, ev := range events {
 				select {
+				case i.events <- ev:
 				case <-ctx.Done():
 					return
-				default:
 				}
-				events, err := reader.ReadEvents()
-				if err != nil {
-					readerErrors <- err
-					return
-				}
-				readerEvents <- events
-			}
-		}()
-
-		for {
-			select {
-			case <-ctx.Done():
-				return
-			case events := <-readerEvents:
-				for _, ev := range events {
-					inputEvents <- ev
-				}
-			case err := <-readerErrors:
-				log.Fatal(err)
 			}
 		}
 	}()
-	return inputEvents
+}
+
+// close cancels any pending read and restores the terminal mode.
+// It is safe to call more than once.
+func (i *inputReader) close() {
+	i.closeOnce.Do(func() {
+		i.reader.Cancel()
+		if i.listening {
+			<-i.done
+		}
+		i.reader.Close()                         // nolint: errcheck
+		term.Restore(os.Stdin.Fd(), i.termState) // nolint: errcheck
+	})
 }

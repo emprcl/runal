@@ -190,65 +190,52 @@ func (c *Canvas) ColorRGB(r, g, b int) string {
 	return fmt.Sprintf("#%02x%02x%02x", r, g, b)
 }
 
+// ColorHSL converts a hue (0-360), saturation (0-100) and lightness (0-100)
+// to its hex representation.
 func (c *Canvas) ColorHSL(h, s, l int) string {
-	hf := float64(clamp(h, 0, 360))
-	sf := float64(clamp(s, 0., 1.)) / 100.
-	lf := float64(clamp(l, 0., 1.)) / 100.
+	hue := float64(clamp(h, 0, 360))
+	sf := float64(clamp(s, 0, 100)) / 100.
+	lf := float64(clamp(l, 0, 100)) / 100.
 
-	C := (1 - math.Abs((2*lf)-1)) * sf
-	X := C * (1 - math.Abs(math.Mod(hf/60, 2)-1))
-	m := lf - (C / 2)
-	var Rnot, Gnot, Bnot float64
-
-	switch {
-	case 0 <= h && h < 60:
-		Rnot, Gnot, Bnot = C, X, 0
-	case 60 <= h && h < 120:
-		Rnot, Gnot, Bnot = X, C, 0
-	case 120 <= h && h < 180:
-		Rnot, Gnot, Bnot = 0, C, X
-	case 180 <= h && h < 240:
-		Rnot, Gnot, Bnot = 0, X, C
-	case 240 <= h && h < 300:
-		Rnot, Gnot, Bnot = X, 0, C
-	case 300 <= h && h < 360:
-		Rnot, Gnot, Bnot = C, 0, X
-	}
-	r := int(math.Round((Rnot + m) * 255))
-	g := int(math.Round((Gnot + m) * 255))
-	b := int(math.Round((Bnot + m) * 255))
-
-	return c.ColorRGB(r, g, b)
+	chroma := (1 - math.Abs((2*lf)-1)) * sf
+	return c.hueToHex(hue, chroma, lf-(chroma/2))
 }
 
+// ColorHSV converts a hue (0-360), saturation (0-100) and value (0-100)
+// to its hex representation.
 func (c *Canvas) ColorHSV(h, s, v int) string {
-	hf := float64(clamp(h, 0, 360))
+	hue := float64(clamp(h, 0, 360))
 	sf := float64(clamp(s, 0, 100)) / 100.
 	vf := float64(clamp(v, 0, 100)) / 100.
 
-	C := vf * sf
-	X := C * (1 - math.Abs(math.Mod(hf/60, 2)-1))
-	m := vf - C
-	var Rnot, Gnot, Bnot float64
-	switch {
-	case 0 <= h && h < 60:
-		Rnot, Gnot, Bnot = C, X, 0
-	case 60 <= h && h < 120:
-		Rnot, Gnot, Bnot = X, C, 0
-	case 120 <= h && h < 180:
-		Rnot, Gnot, Bnot = 0, C, X
-	case 180 <= h && h < 240:
-		Rnot, Gnot, Bnot = 0, X, C
-	case 240 <= h && h < 300:
-		Rnot, Gnot, Bnot = X, 0, C
-	case 300 <= h && h < 360:
-		Rnot, Gnot, Bnot = C, 0, X
-	}
-	r := int(math.Round((Rnot + m) * 255))
-	g := int(math.Round((Gnot + m) * 255))
-	b := int(math.Round((Bnot + m) * 255))
+	chroma := vf * sf
+	return c.hueToHex(hue, chroma, vf-chroma)
+}
 
-	return c.ColorRGB(r, g, b)
+func (c *Canvas) hueToHex(hue, chroma, m float64) string {
+	x := chroma * (1 - math.Abs(math.Mod(hue/60, 2)-1))
+	var rNot, gNot, bNot float64
+
+	switch {
+	case hue < 60:
+		rNot, gNot, bNot = chroma, x, 0
+	case hue < 120:
+		rNot, gNot, bNot = x, chroma, 0
+	case hue < 180:
+		rNot, gNot, bNot = 0, chroma, x
+	case hue < 240:
+		rNot, gNot, bNot = 0, x, chroma
+	case hue < 300:
+		rNot, gNot, bNot = x, 0, chroma
+	default:
+		rNot, gNot, bNot = chroma, 0, x
+	}
+
+	return c.ColorRGB(
+		int(math.Round((rNot+m)*255)),
+		int(math.Round((gNot+m)*255)),
+		int(math.Round((bNot+m)*255)),
+	)
 }
 
 func color(color string) ansi.Color {
@@ -262,19 +249,20 @@ func color(color string) ansi.Color {
 		return ansi.HexColor(c)
 	}
 
-	c, err := strconv.ParseFloat(strings.TrimSpace(color), 64)
+	value, err := strconv.ParseFloat(strings.TrimSpace(color), 64)
 	if err != nil {
 		return ansi.HexColor(color)
 	}
+	index := int(clamp(math.Round(value), 0, 255))
 
 	// ANSI 16 colors
 	// Force hex values to prevent terminal
 	// color overriding.
-	if c >= 0 && c <= 16 {
-		return ansi.HexColor(ansi16hex[int(c)])
+	if index < len(ansi16hex) {
+		return ansi.HexColor(ansi16hex[index])
 	}
 
-	return ansi.IndexedColor(uint8(math.Round(c)))
+	return ansi.IndexedColor(uint8(index))
 }
 
 type Number interface {

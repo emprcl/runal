@@ -21,7 +21,7 @@ func (cll Cell) write(c *Canvas, x, y, _, _ int) {
 
 func (cll Cell) private() cell {
 	return cell{
-		char:       []rune(cll.Char)[0],
+		char:       firstRune(cll.Char, defaultPaddingRune),
 		foreground: color(cll.Foreground),
 		background: color(cll.Background),
 	}
@@ -35,14 +35,21 @@ type cell struct {
 }
 
 func (c cell) public() Cell {
+	char := ""
+	if c.char != 0 {
+		char = string(c.char)
+	}
 	return Cell{
-		Char:       string(c.char),
+		Char:       char,
 		Foreground: colorToString(c.foreground),
 		Background: colorToString(c.background),
 	}
 }
 
 func colorToString(c ansi.Color) string {
+	if c == nil {
+		return ""
+	}
 	r, g, b, _ := c.RGBA()
 	return fmt.Sprintf("#%02x%02x%02x", r>>8, g>>8, b>>8)
 }

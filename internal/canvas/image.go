@@ -7,6 +7,7 @@ import (
 	"image/png"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/charmbracelet/log"
 	"github.com/charmbracelet/x/ansi"
@@ -46,7 +47,9 @@ func (i *imageFile) write(c *Canvas, x, y, w, h int) {
 		m = m.Height(h)
 	}
 	imageBuffer := m.RenderCells(i.file)
-	i.frame = newFrame(w, h)
+	// Size the frame from what was rendered: w and h are only hints, and
+	// are zero when the caller wants the image's natural size.
+	i.frame = newFrame(renderedWidth(imageBuffer), len(imageBuffer))
 	c.toggleFill()
 	for iy := range imageBuffer {
 		for ix := range imageBuffer[iy] {
@@ -63,6 +66,14 @@ func (i *imageFile) write(c *Canvas, x, y, w, h int) {
 		}
 	}
 	c.toggleFill()
+}
+
+func renderedWidth[T any](rows [][]T) int {
+	width := 0
+	for _, row := range rows {
+		width = max(width, len(row))
+	}
+	return width
 }
 
 type imageFrame struct {
@@ -102,14 +113,19 @@ func (c *Canvas) LoadImage(path string) Image {
 		return nil
 	}
 	defer f.Close()
+
 	var img image.Image
-	switch filepath.Ext(path) {
-	case ".jpg":
+	switch ext := strings.ToLower(filepath.Ext(path)); ext {
+	case ".jpg", ".jpeg":
 		img, err = jpeg.Decode(f)
 	case ".png":
 		img, err = png.Decode(f)
 	case ".webp":
 		img, err = webp.Decode(f)
+	default:
+		log.Errorf("can't load image: unsupported format %q", ext)
+		c.DisableRendering()
+		return nil
 	}
 
 	if err != nil {

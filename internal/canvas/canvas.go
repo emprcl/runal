@@ -54,7 +54,8 @@ type Canvas struct {
 
 	debugBuffer []string
 
-	state *state
+	stateStack           []state
+	warnedUnbalancedPush bool
 
 	strokeFg, strokeBg         ansi.Color
 	fillFg, fillBg             ansi.Color
@@ -90,7 +91,12 @@ type Canvas struct {
 	disabled     bool
 }
 
-func newCanvas(width, height int) *Canvas {
+func newCanvas(width, height int) (*Canvas, error) {
+	capture, err := newCapture(width, height)
+	if err != nil {
+		return nil, fmt.Errorf("can't initialize canvas export: %w", err)
+	}
+
 	return &Canvas{
 		Width:           width,
 		Height:          height,
@@ -102,7 +108,7 @@ func newCanvas(width, height int) *Canvas {
 		cellMode:        cellModeDisabled,
 		buffer:          newFrame(width, height),
 		output:          os.Stdout,
-		capture:         newCapture(width, height),
+		capture:         capture,
 		noise:           newNoise(),
 		random:          newRandom(),
 		debugBuffer:     make([]string, 0, maxDebugBufferSize),
@@ -122,11 +128,14 @@ func newCanvas(width, height int) *Canvas {
 		stroke:          true,
 		autoResize:      true,
 		IsLooping:       true,
-	}
+	}, nil
 }
 
 func mockCanvas(width, height int) *Canvas {
-	c := newCanvas(width, height)
+	c, err := newCanvas(width, height)
+	if err != nil {
+		panic(err)
+	}
 	c.output = new(bytes.Buffer)
 	return c
 }
@@ -157,6 +166,10 @@ func (c *Canvas) render() {
 			c.lastStyle = style{}
 		}
 	}
+	// Exports must see only the canvas, not the terminal-cleanup sequences
+	// appended below, which the image converter can't parse.
+	content := output.String()
+
 	// Clear garbage outside the canvas
 	if c.Height < c.termHeight {
 		for range c.termHeight - c.Height - 1 {
@@ -164,11 +177,11 @@ func (c *Canvas) render() {
 		}
 	}
 	if c.save {
-		c.exportCanvasToPNG(output.String())
+		c.exportCanvasToPNG(content)
 		c.save = false
 	}
 	if c.frames != nil {
-		c.recordFrame(output.String())
+		c.recordFrame(content)
 	}
 	c.Framecount++
 	c.reset()
@@ -184,6 +197,11 @@ func (c *Canvas) reset() {
 	c.strokeIndex = 0
 	c.backgroundIndex = 0
 	c.lastStyle = style{}
+	if len(c.stateStack) > 0 && !c.warnedUnbalancedPush {
+		c.warnedUnbalancedPush = true
+		c.Debug(fmt.Sprintf("warning: %d Push() without a matching Pop()", len(c.stateStack)))
+	}
+	c.stateStack = c.stateStack[:0]
 }
 
 func (c *Canvas) resize(width, height int) {

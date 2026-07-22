@@ -2,39 +2,44 @@ package canvas
 
 import (
 	"fmt"
+	"io"
 
 	"github.com/charmbracelet/x/ansi"
 )
 
-func clearScreen() {
-	fmt.Print(ansi.ResetModeAltScreen)
+func exitAltScreen(w io.Writer) {
+	fmt.Fprint(w, ansi.ResetModeAltScreen)
 }
 
-func hideCursor() {
-	fmt.Print(ansi.HideCursor)
+func eraseScreen(w io.Writer) {
+	fmt.Fprint(w, ansi.EraseEntireScreen)
 }
 
-func showCursor() {
-	fmt.Print(ansi.ShowCursor)
+func hideCursor(w io.Writer) {
+	fmt.Fprint(w, ansi.HideCursor)
 }
 
-func resetCursorPosition() {
-	fmt.Print(ansi.CursorHomePosition)
+func showCursor(w io.Writer) {
+	fmt.Fprint(w, ansi.ShowCursor)
 }
 
-func enterAltScreen() {
-	fmt.Print(ansi.SetModeAltScreen)
-	hideCursor()
+func resetCursorPosition(w io.Writer) {
+	fmt.Fprint(w, ansi.CursorHomePosition)
 }
 
-func enableMouse() {
-	fmt.Print(ansi.SetModeMouseAnyEvent)
-	fmt.Print(ansi.SetModeMouseExtSgr)
+func enterAltScreen(w io.Writer) {
+	fmt.Fprint(w, ansi.SetModeAltScreen)
+	hideCursor(w)
 }
 
-func disableMouse() {
-	fmt.Print(ansi.ResetModeMouseAnyEvent)
-	fmt.Print(ansi.ResetModeMouseExtSgr)
+func enableMouse(w io.Writer) {
+	fmt.Fprint(w, ansi.SetModeMouseAnyEvent)
+	fmt.Fprint(w, ansi.SetModeMouseExtSgr)
+}
+
+func disableMouse(w io.Writer) {
+	fmt.Fprint(w, ansi.ResetModeMouseAnyEvent)
+	fmt.Fprint(w, ansi.ResetModeMouseExtSgr)
 }
 
 const clearLineStr = "\r\n\x1b[2K"

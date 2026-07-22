@@ -8,7 +8,7 @@ import (
 // Text renders a string at the given canvas coordinates.
 func (c *Canvas) Text(text string, x, y int) {
 	if !c.cellMode.enabled() {
-		for i, r := range text {
+		for i, r := range []rune(text) {
 			c.char(r, x+i, y)
 		}
 		return
@@ -279,14 +279,14 @@ func (c *Canvas) Circle(xCenter, yCenter, r int) {
 			c.toggleFill()
 		}
 
-		c.char(strIndex(c.strokeText, char), xCenter+x, yCenter+y)
-		c.char(strIndex(c.strokeText, char+1), xCenter-x, yCenter+y)
-		c.char(strIndex(c.strokeText, char+2), xCenter+x, yCenter-y)
-		c.char(strIndex(c.strokeText, char+3), xCenter-x, yCenter-y)
-		c.char(strIndex(c.strokeText, char+4), xCenter+y, yCenter+x)
-		c.char(strIndex(c.strokeText, char+5), xCenter-y, yCenter+x)
-		c.char(strIndex(c.strokeText, char+6), xCenter+y, yCenter-x)
-		c.char(strIndex(c.strokeText, char+7), xCenter-y, yCenter-x)
+		c.char(runeAt(c.strokeRunes, char), xCenter+x, yCenter+y)
+		c.char(runeAt(c.strokeRunes, char+1), xCenter-x, yCenter+y)
+		c.char(runeAt(c.strokeRunes, char+2), xCenter+x, yCenter-y)
+		c.char(runeAt(c.strokeRunes, char+3), xCenter-x, yCenter-y)
+		c.char(runeAt(c.strokeRunes, char+4), xCenter+y, yCenter+x)
+		c.char(runeAt(c.strokeRunes, char+5), xCenter-y, yCenter+x)
+		c.char(runeAt(c.strokeRunes, char+6), xCenter+y, yCenter-x)
+		c.char(runeAt(c.strokeRunes, char+7), xCenter-y, yCenter-x)
 
 		x++
 		if d < 0 {

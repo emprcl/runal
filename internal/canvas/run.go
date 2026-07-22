@@ -2,6 +2,8 @@ package canvas
 
 import (
 	"context"
+	"errors"
+	"fmt"
 	"sync"
 	"time"
 
@@ -11,6 +13,8 @@ import (
 
 const (
 	defaultFPS = 30
+	minFPS     = 1
+	maxFPS     = 240
 )
 
 type callbacks struct {
@@ -54,19 +58,36 @@ func WithOnMouseWheel(onMouseWheel func(c *Canvas, e MouseEvent)) CallbackOption
 }
 
 func Run(ctx context.Context, setup, draw func(c *Canvas), opts ...CallbackOption) {
-	Start(ctx, nil, setup, draw, opts...).Wait()
+	wg, err := Start(ctx, nil, setup, draw, opts...)
+	if err != nil {
+		log.Error(err)
+		return
+	}
+	wg.Wait()
 }
 
-func Start(ctx context.Context, done chan struct{}, setup, draw func(c *Canvas), opts ...CallbackOption) *sync.WaitGroup {
+func Start(ctx context.Context, done chan struct{}, setup, draw func(c *Canvas), opts ...CallbackOption) (*sync.WaitGroup, error) {
 	if setup == nil {
-		log.Fatal("setup method is required")
+		return nil, errors.New("setup method is required")
 	}
 	if draw == nil {
-		log.Fatal("draw method is required")
+		return nil, errors.New("draw method is required")
 	}
+
+	w, h, err := tryTermSize()
+	if err != nil {
+		return nil, fmt.Errorf("can't read terminal size: %w", err)
+	}
+	c, err := newCanvas(w, h)
+	if err != nil {
+		return nil, err
+	}
+	in, err := newInputReader()
+	if err != nil {
+		return nil, fmt.Errorf("can't initialize input: %w", err)
+	}
+
 	ctx, cancel := context.WithCancel(ctx)
-	w, h := termSize()
-	c := newCanvas(w, h)
 	wg := sync.WaitGroup{}
 
 	eventCallbacks := callbacks{}
@@ -78,10 +99,11 @@ func Start(ctx context.Context, done chan struct{}, setup, draw func(c *Canvas),
 
 	exit := func() {
 		ticker.Stop()
-		resetCursorPosition()
-		clearScreen()
-		showCursor()
-		disableMouse()
+		in.close()
+		resetCursorPosition(c.output)
+		exitAltScreen(c.output)
+		showCursor(c.output)
+		disableMouse(c.output)
 	}
 
 	defer func() {
@@ -91,15 +113,15 @@ func Start(ctx context.Context, done chan struct{}, setup, draw func(c *Canvas),
 		}
 	}()
 
-	resize := listenForResize()
-	inputEvents := listenForInputEvents(ctx, &wg)
+	resize := listenForResize(ctx, &wg)
+	in.listen(ctx, &wg)
 
-	enterAltScreen()
-	enableMouse()
+	enterAltScreen(c.output)
+	enableMouse(c.output)
 
 	setup(c)
 	render := func() {
-		resetCursorPosition()
+		resetCursorPosition(c.output)
 		draw(c)
 		c.render()
 	}
@@ -116,12 +138,13 @@ func Start(ctx context.Context, done chan struct{}, setup, draw func(c *Canvas),
 			case <-ctx.Done():
 				return
 			case <-resize:
-				clearScreen()
-				w, h := termSize()
-				c.termWidth = w
-				c.termHeight = h
-				if c.autoResize {
-					c.resize(w, h)
+				eraseScreen(c.output)
+				if w, h, err := tryTermSize(); err == nil {
+					c.termWidth = w
+					c.termHeight = h
+					if c.autoResize {
+						c.resize(w, h)
+					}
 				}
 				render()
 			case event := <-c.bus:
@@ -131,7 +154,7 @@ func Start(ctx context.Context, done chan struct{}, setup, draw func(c *Canvas),
 				case "stop":
 					ticker.Stop()
 				case "start":
-					ticker.Reset(newFramerate(defaultFPS))
+					ticker.Reset(newFramerate(c.fps))
 				case "render":
 					render()
 				case "exit":
@@ -141,7 +164,15 @@ func Start(ctx context.Context, done chan struct{}, setup, draw func(c *Canvas),
 					cancel()
 					return
 				}
-			case event := <-inputEvents:
+			case event, ok := <-in.events:
+				// stdin is gone; shut down the same way ctrl+c does.
+				if !ok {
+					if done != nil {
+						done <- struct{}{}
+					}
+					cancel()
+					return
+				}
 				switch e := event.(type) {
 				case input.MouseMotionEvent:
 					c.setMousePostion(e.X, e.Y)
@@ -201,9 +232,17 @@ func Start(ctx context.Context, done chan struct{}, setup, draw func(c *Canvas),
 		}
 	}()
 
-	return &wg
+	return &wg, nil
+}
+
+// notifyResize signals a pending resize without blocking.
+func notifyResize(resize chan struct{}) {
+	select {
+	case resize <- struct{}{}:
+	default:
+	}
 }
 
 func newFramerate(fps int) time.Duration {
-	return time.Second / time.Duration(fps)
+	return time.Second / time.Duration(clamp(fps, minFPS, maxFPS))
 }

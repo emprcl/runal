@@ -24,7 +24,7 @@ func (c *Canvas) renderDebug() {
 	if len(c.debugBuffer) == 0 {
 		return
 	}
-	resetCursorPosition()
+	resetCursorPosition(c.output)
 	for y, msg := range c.debugBuffer {
 		if y >= c.termHeight-1 {
 			continue
