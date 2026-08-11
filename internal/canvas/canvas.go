@@ -87,6 +87,7 @@ type Canvas struct {
 	isFilling    bool
 	IsLooping    bool
 	save         bool
+	saveText     bool
 	autoResize   bool
 	disabled     bool
 }
@@ -179,6 +180,10 @@ func (c *Canvas) render() {
 	if c.save {
 		c.exportCanvasToPNG(content)
 		c.save = false
+	}
+	if c.saveText {
+		c.exportCanvasToText(content)
+		c.saveText = false
 	}
 	if c.frames != nil {
 		c.recordFrame(content)

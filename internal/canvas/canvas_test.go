@@ -3,6 +3,9 @@ package canvas
 import (
 	"fmt"
 	"math"
+	"os"
+	"path/filepath"
+	"strings"
 	"testing"
 	"time"
 )
@@ -301,5 +304,28 @@ func TestBalancedPushDoesNotWarn(t *testing.T) {
 	}
 	if len(c.debugBuffer) != 0 {
 		t.Errorf("debugBuffer = %v, want empty", c.debugBuffer)
+	}
+}
+
+// The exported text must contain the drawn characters but none of the
+// ANSI color escapes used to render them.
+func TestSaveCanvasToText(t *testing.T) {
+	c := mockCanvas(5, 5)
+	c.Rect(0, 0, 3, 3)
+
+	filename := filepath.Join(t.TempDir(), "out.txt")
+	c.saveText = true
+	c.saveFilename = filename
+	c.render()
+
+	got, err := os.ReadFile(filename)
+	if err != nil {
+		t.Fatalf("can't read exported text file: %v", err)
+	}
+	if strings.Contains(string(got), "\x1b") {
+		t.Errorf("exported text contains an ANSI escape: %q", got)
+	}
+	if !strings.Contains(string(got), c.strokeText) {
+		t.Errorf("exported text = %q, want it to contain the drawn stroke %q", got, c.strokeText)
 	}
 }

@@ -9,8 +9,10 @@ import (
 	"image/png"
 	"math"
 	"os"
+	"strings"
 
 	"github.com/charmbracelet/log"
+	"github.com/charmbracelet/x/ansi"
 
 	ansitoimage "github.com/xaviergodart/go-ansi-to-image"
 )
@@ -18,6 +20,14 @@ import (
 // SaveCanvasToPNG exports the canvas to a png image file.
 func (c *Canvas) SaveCanvasToPNG(filename string) {
 	c.save = true
+	c.saveFilename = filename
+	c.Redraw()
+}
+
+// SaveCanvasToText exports the canvas to a plain text file, dropping
+// all color information.
+func (c *Canvas) SaveCanvasToText(filename string) {
+	c.saveText = true
 	c.saveFilename = filename
 	c.Redraw()
 }
@@ -130,6 +140,14 @@ func (c *Canvas) exportCanvasToPNG(frame string) {
 	}
 	if err := os.WriteFile(c.saveFilename, img, 0o644); err != nil {
 		c.captureFailed(fmt.Errorf("can't create png file: %w", err))
+	}
+}
+
+func (c *Canvas) exportCanvasToText(frame string) {
+	fmt.Fprintln(c.output, "Saving text...")
+	text := strings.ReplaceAll(ansi.Strip(frame), "\r\n", "\n")
+	if err := os.WriteFile(c.saveFilename, []byte(text), 0o644); err != nil {
+		c.captureFailed(fmt.Errorf("can't create text file: %w", err))
 	}
 }
 
